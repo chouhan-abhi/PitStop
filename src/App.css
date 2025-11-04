@@ -1,0 +1,6 @@
+/* src/App.css */
+.app-gradient {
+  background: linear-gradient(to bottom, #000000, #111111, #8b0000);
+  min-height: 100vh;
+  color: white;
+}
