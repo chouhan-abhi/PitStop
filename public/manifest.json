@@ -1,0 +1,82 @@
+{
+  "name": "QuickStop - F1 Event Dashboard",
+  "short_name": "RaceWatch",
+  "description": "A clean and modern dashboard for Formula 1 events, sessions, standings, and driver insights.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0d",
+  "theme_color": "#e10600",
+  "orientation": "portrait-primary",
+  "scope": "/",
+
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+
+  "categories": ["sports", "racing", "analytics"],
+
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Event Dashboard"
+    },
+    {
+      "src": "/screenshots/event-details.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Event Details"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Latest Event",
+      "short_name": "Latest",
+      "description": "Go directly to the latest race weekend",
+      "url": "/",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Driver Standings",
+      "short_name": "Drivers",
+      "description": "View current driver standings",
+      "url": "/standings/drivers",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Team Standings",
+      "short_name": "Teams",
+      "description": "View constructor standings",
+      "url": "/standings/teams",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    }
+  ],
+
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
