@@ -1,5 +1,6 @@
 import React from "react";
-import EventCard from "./Events/EventCard";
+const EventCard = React.lazy(() => import("./Events/EventCard"));
+const SessionDriversGrid = React.lazy(() => import("./Drivers/DriversGrid"));
 
 export const EventDashboard = ({
   eventsLoading,
@@ -32,11 +33,11 @@ export const EventDashboard = ({
 
   /* ======================= MAIN UI ======================== */
   return (
-    <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
+    <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-6">
 
       {/* ---------------------- LATEST EVENT -------------------------- */}
       <div className="lg:col-span-2 flex flex-col">
-        <h2 className="text-xl font-semibold mb-4 text-[var(--text-color)] opacity-90 tracking-tight">
+        <h2 className="text-xl font-semibold mb-1 text-[var(--text-color)] opacity-90 tracking-tight">
           Latest Event
         </h2>
 
@@ -49,11 +50,19 @@ export const EventDashboard = ({
             </p>
           )}
         </div>
+        <div className="mt-4 mb-1">
+          <h2 className="text-lg font-semibold text-[var(--text-color)] opacity-90 tracking-tight">
+            Our Grid
+          </h2>
+        <div className="border border-[var(--border-color)] rounded-2xl p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+          <SessionDriversGrid  meetingKey={latestEvent?.meeting_key} sessionKey={latestEvent?.session_key} />
+        </div>
+        </div>
       </div>
 
       {/* ---------------------- SIDEBAR (OLDER EVENTS) -------------------------- */}
-      <div className="lg:col-span-1 flex flex-col">
-        <h3 className="text-lg font-semibold mb-4 text-[var(--text-color)] opacity-90 tracking-tight">
+      <div className="lg:col-span-1 flex flex-col h-screen">
+        <h3 className="text-lg font-semibold mb-1 text-[var(--text-color)] opacity-90 tracking-tight">
           Older Events
         </h3>
 
@@ -62,6 +71,7 @@ export const EventDashboard = ({
             flex-1 
             rounded-2xl 
             p-4 
+            h-screen
             bg-[var(--card-bg)] 
             shadow-[0_4px_12px_rgba(0,0,0,0.08)] 
             border 
@@ -69,7 +79,6 @@ export const EventDashboard = ({
             overflow-y-auto 
             relative
           "
-          style={{ maxHeight: "calc(100vh - 260px)" }}
         >
           {/* Fade overlay for better UX */}
           <div className="pointer-events-none absolute top-0 left-0 h-6 w-full bg-gradient-to-b from-[var(--card-bg)] to-transparent" />

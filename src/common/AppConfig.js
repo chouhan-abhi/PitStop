@@ -1,7 +1,7 @@
 export const AppConfig = {
   name: "F1 QuickStop",
   description: "A dashboard for F1 sports data",
-  version: "1.0.0",
+  version: "1.0.1",
 };
 
 // Legacy export for backward compatibility - now handled by queryClient.js

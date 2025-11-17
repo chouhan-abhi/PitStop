@@ -22,7 +22,6 @@ import {
   MapPin,
   CalendarDays
 } from "lucide-react";
-
 import {
   getF1Points,
   SESSION_TITLE_MAP

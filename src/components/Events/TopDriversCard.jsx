@@ -1,5 +1,9 @@
 import React, { useMemo } from "react";
-import { getTeamColorWithOpacity, getTeamColorBorder } from "../../common/utils/colors";
+import {
+  getTeamColorWithOpacity,
+  getTeamColorBorder,
+} from "../../common/utils/colors";
+import WinnerDriverCard from "../Common/WinnerDriverCard";
 
 export const TopDriversCard = ({
   driversData,
@@ -7,16 +11,15 @@ export const TopDriversCard = ({
   driversIsError,
   driversError,
 }) => {
-  const top3Drivers = useMemo(() => driversData?.slice(0, 3) || [], [driversData]);
+  const top3 = useMemo(() => driversData?.slice(0, 3) || [], [driversData]);
 
-  /* ------------------------- SHIMMER SKELETON ------------------------- */
+  /* ---------------------- SHIMMER ---------------------- */
   const ShimmerRow = () => (
-    <div className="flex items-center gap-3 p-3 w-96">
-      <div className="w-10 h-10 rounded-full bg-[var(--skeleton-color)]"></div>
-
+    <div className="flex items-center gap-3 p-3">
+      <div className="w-12 h-12 rounded-full bg-[var(--skeleton-color)]"></div>
       <div className="flex flex-col gap-2">
-        <div className="h-3 w-28 rounded bg-[var(--skeleton-color)]"></div>
-        <div className="h-3 w-20 rounded bg-[var(--skeleton-color)]"></div>
+        <div className="h-3 w-32 bg-[var(--skeleton-color)] rounded"></div>
+        <div className="h-3 w-20 bg-[var(--skeleton-color)] rounded"></div>
       </div>
     </div>
   );
@@ -24,79 +27,78 @@ export const TopDriversCard = ({
   if (driversLoading) {
     return (
       <div className="p-4 rounded-xl bg-[var(--panel-color)] border border-[var(--border-color)] animate-pulse">
-        <div className="h-5 w-40 rounded bg-[var(--skeleton-color)] mb-4"></div>
-
-        <div className="space-y-3">
-          <ShimmerRow />
-          <ShimmerRow />
-          <ShimmerRow />
-        </div>
+        <ShimmerRow />
+        <ShimmerRow />
+        <ShimmerRow />
       </div>
     );
   }
 
-  /* ------------------------------ ERROR ------------------------------ */
   if (driversIsError) {
     return (
-      <div className="p-4 rounded-xl bg-[var(--panel-color)] border border-[var(--border-color)]">
-        <p className="text-red-400">{driversError?.message || "Failed to load drivers"}</p>
-      </div>
+      <p className="text-red-400">
+        {driversError?.message || "Failed to load driver data"}
+      </p>
     );
   }
 
-  /* ------------------------------ MAIN ------------------------------ */
+  if (!top3.length) {
+    return <p className="opacity-60">No podium results available.</p>;
+  }
+
+  const winner = top3[0];
+  const runnerUps = top3.slice(1);
+
   return (
-    <div className="bg-[var(--card-bg)]">
-      <h3 className="text-base font-semibold mb-3 text-[var(--text-color)] opacity-90 tracking-tight">
+    <div className="bg-[var(--card-bg)] text-[var(--text-color)]">
+      <h3 className="text-lg font-semibold mb-4 tracking-tight">
         Podium Finishers
       </h3>
 
-      {top3Drivers.length > 0 ? (
-        <div className="space-y-3">
-          {top3Drivers.map((driver) => {
-            const borderColor = getTeamColorBorder(driver.team_colour);
-            const bg = getTeamColorWithOpacity(driver.team_colour, "10");
+      <div className="flex flex-col sm:flex-row gap-6">
+        <WinnerDriverCard driver={winner} />
 
-            return (
+        <div className="flex flex-col gap-4 sm:w-1/3">
+          {runnerUps.map((d, idx) => (
+            <div
+              key={d.driver_number}
+              className="
+                flex items-center gap-4 p-4 rounded-sm
+                bg-[var(--panel-color)]
+                hover:shadow-md transition-all
+              "
+              style={{
+                borderLeft: `4px solid ${getTeamColorBorder(d.team_colour)}`,
+              }}
+            >
               <div
-                key={driver.driver_number}
-                className="
-                  flex items-center w-72 gap-3 p-3
-                  transition-colors duration-150
-                  hover:bg-[var(--hover-bg)]
-                "
+                className="w-18 h-18 rounded-full flex items-center justify-center shadow-inner"
                 style={{
-                  borderLeft: `4px solid ${borderColor}`,
-                  backgroundColor: bg,
+                  background: d.team_colour
+                    ? `conic-gradient(#${d.team_colour} 0%, #${d.team_colour}80 40%, transparent 40%)`
+                    : "conic-gradient(var(--primary-color) 0%, transparent 40%)",
                 }}
               >
-                {/* Driver Photo */}
-                {driver.headshot_url && (
-                  <img
-                    src={driver.headshot_url}
-                    alt={driver.full_name}
-                    className="w-10 h-10 rounded-full object-cover border border-[var(--border-color)]"
-                  />
-                )}
-
-                {/* Info */}
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium text-[var(--text-color)]">
-                    {driver.position ? `${driver.position}. ` : ""}
-                    {driver.broadcast_name}
-                  </p>
-
-                  <p className="text-xs text-[var(--text-color)] opacity-60">
-                    {driver.team_name}
-                  </p>
-                </div>
+                <img
+                  src={d.headshot_url}
+                  alt={d.full_name}
+                  className="w-16 h-16 rounded-full object-cover shadow-lg"
+                />
               </div>
-            );
-          })}
+
+              <div className="flex flex-col">
+                <span className="text-lg font-semibold tracking-tight">
+                  {idx === 0 ? "🥈" : "🥉"} {d.broadcast_name}
+                </span>
+                <span className="text-sm opacity-70">{d.team_name}</span>
+                <span className="text-xs opacity-60 mt-1">
+                  Driver No: <b>{d.driver_number}</b>
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
-      ) : (
-        <p className="text-[var(--text-color)] opacity-60">No top drivers found.</p>
-      )}
+      </div>
     </div>
   );
 };

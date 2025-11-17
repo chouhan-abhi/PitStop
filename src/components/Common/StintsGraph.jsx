@@ -30,9 +30,9 @@ const StintsGraph = ({ stintsByDriver = {}, allDrivers = [], totalLaps = 71 }) =
   }, [stintsByDriver, allDrivers]);
 
   return (
-    <div className="space-y-4 w-full p-2 border border-(--border-color) ">
+    <div className="space-y-4 w-full p-2 border border-(--border-color) rounded-md">
       {sortedDrivers.map(({ driverNumber, driver, stints }) => (
-        <div key={driverNumber} className="flex items-center pb-1 gap-4 w-full">
+        <div key={driverNumber} className="flex items-center pb-1 w-full">
           <div className="flex items-center min-w-[120px]">
             {driver?.headshot_url && (
               <img

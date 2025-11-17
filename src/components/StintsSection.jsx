@@ -1,7 +1,7 @@
 // src/components/StintsSection.jsx
 import React from "react";
-import StintsGraph from "./StintsGraph";
 import ShimmerLoader from "./ShimmerLoader";
+const StintsGraph = React.lazy(() => import("./Common/StintsGraph"));
 
 const StintsSection = ({ stintsData, stintsByDriver, allDriversRaw, stintsLoading }) => {
   return (

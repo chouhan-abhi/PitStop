@@ -1,6 +1,6 @@
 {
   "name": "QuickStop - F1 Event Dashboard",
-  "short_name": "RaceWatch",
+  "short_name": "QuickStop F1",
   "description": "A clean and modern dashboard for Formula 1 events, sessions, standings, and driver insights.",
   "start_url": "/",
   "display": "standalone",

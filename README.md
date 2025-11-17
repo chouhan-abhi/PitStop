@@ -1,86 +1,60 @@
-# 🏎️ [F1 PitStop](https://f1-pitstop.surge.sh/) — Real-Time Formula 1 Analytics Dashboard
+# 🏎️ F1 QuickStop — Formula 1 Analytics Dashboard
+🔗 **Live:** https://quickstop.surge.sh
 
-**F1 PitStop** is a high-performance, data-driven dashboard that brings **Formula 1 telemetry, race control, and driver insights** together into a single modern web experience.  
-Built for speed, precision, and clarity — inspired by the spirit of the paddock.
+**F1 QuickStop** is a high-performance realtime dashboard that brings **Formula 1 telemetry, race analytics, driver insights, and session monitoring** onto a sleek, data-rich interface inspired by real F1 pitwall systems.
 
 ---
 
 ## 🚀 Features
 
 ### 🎯 Driver Analytics
-- Detailed **Driver Profile** view showing real-time and historical data  
-- **Lap performance**, **tyre stints**, and **pit stop summaries**
-- **Telemetry overview** for speed, throttle, and gear traces
-- **Position trend graph** showing driver’s evolution throughout the race
-- **Race control messages** — structured communication from FIA to driver
-- Dynamic **team color theming** across all UI components
+- Full **Driver Profile** with historical + real-time stats  
+- **Lap times**, **sector analysis**, **tyre stints**, **pit stop timeline**  
+- **Speed / throttle / gear telemetry snapshot**  
+- **Position trend chart** to visualize race evolution  
+- **Race control messages** (FIA → Driver)  
+- Dynamic **team-color-themed UI** components  
 
-### 🧠 Smart Data Layer
-- Modular hooks built with **React Query (`@tanstack/react-query`)**
-- Intelligent caching, refetch control, and fallback handling
-- API integration with [`api.openf1.org`](https://api.openf1.org) for live race data
-
-### 💎 UI & Design
-- Built with **React + TailwindCSS**
-- Professional, **minimalist racing-inspired design**
-- Responsive and adaptive — optimized for desktop and mobile
-- **Team-color border cues** and subtle animations
-- **Rajdhani** font for a sleek motorsport feel
-
-### 🧩 Architecture
-- Fully modularized components (`DriverHeader`, `DriverTelemetryOverview`, etc.)
-- Separation of logic via hooks (`useDriverLaps`, `useDriverStints`, `useDriverExtras`, …)
-- Scalable layout grid supporting expansion (e.g., future comparison mode)
+### ➕ Newly Added
+- **Premium Driver Cards**  
+  - Circular headshot with **conic team accent ring**  
+  - Detailed right-side info panel  
+  - Smooth responsive layout  
+- **Winner Card Layout**  
+  - Big hero-style card for P1  
+  - P2 & P3 runner-ups beside it  
+  - Auto-stacks on mobile  
+- **Grid Enhancements**  
+  - Full-width cards on mobile  
+  - Deduped + sorted by driver number  
+  - Fixed-height scrollable cards for small screens  
 
 ---
 
-## 🛠️ Tech Stack
-
-| Layer | Technologies |
-|-------|---------------|
-| **Frontend** | React 18, Vite/Bun |
-| **Styling** | TailwindCSS, Lucide Icons |
-| **Data Fetching** | @tanstack/react-query |
-| **API** | [OpenF1 API](https://api.openf1.org) |
-| **Routing** | React Router |
-| **Build Tool** | [Bun](https://bun.sh) |
+## 🎨 UI & Experience
+- **React + TailwindCSS**  
+- **Rajdhani font** for motorsport UI  
+- Glass panels, shadows, team-color accents  
+- **Light / Dark / System theme support**  
+- Fully responsive across all breakpoints  
 
 ---
 
-## 📦 Installation
+## 🧠 Smart Data Layer
+- Powered by **React Query (@tanstack/react-query)**  
+- Intelligent caching + retry logic  
+- Modular hook-based architecture  
+- Integrated with **OpenF1 API**
 
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/<your-username>/f1-pitstop.git
-cd f1-pitstop
+---
 
-2️⃣ Install dependencies
-
-We recommend using Bun for ultra-fast installation:
-
-bun install
-
-If you prefer npm or pnpm:
-
-npm install
-# or
-pnpm install
-
-3️⃣ Start development server
-
-bun dev
-
-Your app will run at 👉 http://localhost:5173
-🔧 Environment Setup
-
-No API keys required — all data is publicly accessible from OpenF1.
-If needed, you can set a fallback API URL via an .env file:
-
-VITE_API_BASE=https://api.openf1.org/v1
-
-🧱 Project Structure
-
+## 🧩 Architecture
+```
 src/
+├── common/
+│   └── utils/
+│       ├── colors.js
+│       └── formatters.js
 ├── helperComponents/
 │   ├── AppLoader.jsx
 │   ├── AppError.jsx
@@ -88,32 +62,54 @@ src/
 ├── views/
 │   ├── driver/
 │   │   ├── components/
-│   │   │   ├── DriverHeader.jsx
-│   │   │   ├── DriverInfoCard.jsx
-│   │   │   ├── DriverTelemetryOverview.jsx
-│   │   │   ├── DriverPositionTrend.jsx
-│   │   │   ├── DriverPitStopSummary.jsx
-│   │   │   ├── DriverRaceControl.jsx
-│   │   │   └── DriverTyreStints.jsx
 │   │   ├── hooks/
-│   │   │   ├── useDriverLaps.js
-│   │   │   ├── useDriverStints.js
-│   │   │   ├── useDriverExtras.js
-│   │   │   └── useDrivers.js
 │   │   └── DriverProfile.jsx
-│   └── ...
+│   └── session/
+│       ├── SessionDriversGrid.jsx
+│       └── TopDriversCard.jsx
 ├── PageSwitcher.jsx
 ├── App.jsx
 └── main.jsx
+```
 
-🧠 Future Roadmap
+---
 
-Driver Comparison Mode (side-by-side analysis)
+## 🛠️ Tech Stack
 
-Session replay & lap overlay graphs
+| Layer | Technologies |
+|-------|--------------|
+| Frontend | React 18, Vite / Bun |
+| Styling | TailwindCSS, Lucide Icons |
+| Data Layer | @tanstack/react-query |
+| API | OpenF1 |
+| Routing | React Router |
+| Build | Bun |
 
-Race prediction insights using ML models
+---
 
-Persistent data caching for offline mode
+## 📦 Installation
 
-Export charts & reports (PDF/CSV)
+### 1️⃣ Clone the Repo
+```bash
+git clone https://github.com/<your-username>/f1-pitstop.git
+cd f1-pitstop
+```
+
+### 2️⃣ Install Dependencies
+Using Bun:
+```bash
+bun install
+```
+Or npm/pnpm:
+```bash
+npm install
+# or
+pnpm install
+```
+
+### 3️⃣ Start Dev Server
+```bash
+bun dev
+```
+
+Runs on → **http://localhost:5173**
