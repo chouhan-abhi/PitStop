@@ -75,7 +75,7 @@ export const TopDriversCard = ({
                 className="w-18 h-18 rounded-full flex items-center justify-center shadow-inner"
                 style={{
                   background: d.team_colour
-                    ? `conic-gradient(#${d.team_colour} 0%, #${d.team_colour}80 40%, transparent 40%)`
+                    ? `conic-gradient(#${d.team_colour} 0%, #${d.team_colour}20 100%, transparent 40%)`
                     : "conic-gradient(var(--primary-color) 0%, transparent 40%)",
                 }}
               >

@@ -17,13 +17,14 @@ import {
 } from "chart.js";
 import { useLatestSessionDrivers } from "../Drivers/useLatestSessionDrivers";
 import { ArrowLeft } from "lucide-react";
+import { getTeamColorBorder } from "../../common/utils/colors";
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
 const API_BASE = "https://api.openf1.org/v1";
 
-// deterministic HSL color per driver number
-const colorForDriver = (num) => `hsl(${(num * 57) % 360} 68% 50%)`;
+// fallback color if team color not available
+const fallbackColorForDriver = (num) => `hsl(${(num * 57) % 360} 68% 50%)`;
 
 // fixed container sizes to avoid "growing" charts
 const SECTOR_GRAPH_HEIGHT = 160;
@@ -87,6 +88,21 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
     return map;
   }, [latestDrivers]);
 
+  // ----- map driver number -> team color and team name -----
+  const driversTeamMap = useMemo(() => {
+    const map = {};
+    if (Array.isArray(latestDrivers)) {
+      latestDrivers.forEach((d) => {
+        const num = Number(d.driver_number);
+        map[num] = {
+          teamColor: d.team_colour ? getTeamColorBorder(d.team_colour) : null,
+          teamName: d.team_name || null,
+        };
+      });
+    }
+    return map;
+  }, [latestDrivers]);
+
   // ----- group laps by driver number -----
   const lapsByDriver = useMemo(() => {
     const map = {};
@@ -111,12 +127,12 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
     return Array.from(set).sort((a, b) => a - b);
   }, [lapsData]);
 
-  // ----- ensure first 5 drivers preselected (once driversMap loaded) -----
+  // ----- ensure first 2 drivers preselected (once driversMap loaded) -----
   useEffect(() => {
     const keys = Object.keys(driversMap);
     if (keys.length && selectedDrivers.length === 0) {
-      const firstFive = keys.slice(0, 5).map((s) => Number(s));
-      setSelectedDrivers(firstFive);
+      const firstTwo = keys.slice(0, 2).map((s) => Number(s));
+      setSelectedDrivers(firstTwo);
     }
     // intentionally only respond to driversMap changes
   }, [driversMap]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -133,10 +149,10 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
     setSelectedDrivers((prev) => (prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num]));
   }, []);
 
-  // clear all resets to first 5
+  // clear all resets to first 2
   const clearAll = useCallback(() => {
-    const firstFive = Object.keys(driversMap).slice(0, 5).map((s) => Number(s));
-    setSelectedDrivers(firstFive);
+    const firstTwo = Object.keys(driversMap).slice(0, 2).map((s) => Number(s));
+    setSelectedDrivers(firstTwo);
   }, [driversMap]);
 
   // compute fastest lap per driver
@@ -225,10 +241,27 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
       return count ? +(sum / count).toFixed(3) : null;
     });
 
+    // Group drivers by team to detect same team
+    const teamGroups = {};
+    selectedDrivers.forEach((num) => {
+      const teamName = driversTeamMap[num]?.teamName;
+      if (teamName) {
+        if (!teamGroups[teamName]) teamGroups[teamName] = [];
+        teamGroups[teamName].push(num);
+      }
+    });
+
     // per-driver lines
     for (const num of selectedDrivers) {
       const rows = lapsByDriver[num] || [];
-      const color = colorForDriver(Number(num));
+      const teamInfo = driversTeamMap[num];
+      const color = teamInfo?.teamColor || fallbackColorForDriver(Number(num));
+      
+      // Check if this driver is part of a team with multiple selected drivers
+      const teamName = teamInfo?.teamName;
+      const sameTeamCount = teamName && teamGroups[teamName] ? teamGroups[teamName].length : 0;
+      const isSameTeam = sameTeamCount > 1;
+
       const data = lapLabels.map((lap) => {
         const rec = rows.find((r) => Number(r.lap_number) === lap);
         const val =
@@ -249,6 +282,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
         label: driversMap[num] || `#${num}`,
         data,
         borderColor: color,
+        borderDash: isSameTeam ? [5, 5] : [],
         tension: 0.2,
         pointRadius,
         pointBackgroundColor: pointBg,
@@ -266,14 +300,32 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
     });
 
     return { labels: lapLabels, datasets };
-  }, [selectedDrivers, lapsByDriver, lapLabels, fastestSectorByDriver, driversMap]);
+  }, [selectedDrivers, lapsByDriver, lapLabels, fastestSectorByDriver, driversMap, driversTeamMap]);
 
   // pace graph (lap_duration) with fastest-lap markers
   const paceGraphData = useMemo(() => {
     if (!selectedDrivers.length) return { labels: lapLabels, datasets: [] };
+    
+    // Group drivers by team to detect same team
+    const teamGroups = {};
+    selectedDrivers.forEach((num) => {
+      const teamName = driversTeamMap[num]?.teamName;
+      if (teamName) {
+        if (!teamGroups[teamName]) teamGroups[teamName] = [];
+        teamGroups[teamName].push(num);
+      }
+    });
+
     const datasets = selectedDrivers.map((num) => {
       const rows = lapsByDriver[num] || [];
-      const color = colorForDriver(Number(num));
+      const teamInfo = driversTeamMap[num];
+      const color = teamInfo?.teamColor || fallbackColorForDriver(Number(num));
+      
+      // Check if this driver is part of a team with multiple selected drivers
+      const teamName = teamInfo?.teamName;
+      const sameTeamCount = teamName && teamGroups[teamName] ? teamGroups[teamName].length : 0;
+      const isSameTeam = sameTeamCount > 1;
+
       const data = lapLabels.map((lap) => {
         const rec = rows.find((r) => Number(r.lap_number) === lap);
         return rec ? parseN(rec.lap_duration) : null;
@@ -286,13 +338,14 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
         label: driversMap[num] || `#${num}`,
         data,
         borderColor: color,
+        borderDash: isSameTeam ? [5, 5] : [],
         tension: 0.25,
         pointRadius,
         pointBackgroundColor: pointBg,
       };
     });
     return { labels: lapLabels, datasets };
-  }, [selectedDrivers, lapsByDriver, lapLabels, fastestLapByDriver, driversMap]);
+  }, [selectedDrivers, lapsByDriver, lapLabels, fastestLapByDriver, driversMap, driversTeamMap]);
 
   // delta graph (A - B) when exactly 2 drivers selected
   const deltaGraphData = useMemo(() => {
@@ -372,22 +425,163 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
       </div>
 
       {/* small per-driver stats (avg / best sectors) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <div 
+        className="grid gap-3 mb-4"
+        style={{
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        }}
+      >
         {selectedDrivers.map((num) => {
           const s = perDriverSectorStats[num] || {};
+          const teamInfo = driversTeamMap[num];
+          const teamColor = teamInfo?.teamColor || fallbackColorForDriver(Number(num));
+          
+          // Calculate total lap time from sectors
+          const totalTime = s.avgS1 && s.avgS2 && s.avgS3 
+            ? s.avgS1 + s.avgS2 + s.avgS3 
+            : s.fastestLap?.duration || null;
+          
+          // Calculate percentages for each sector
+          const s1Percent = totalTime && s.avgS1 ? (s.avgS1 / totalTime) * 100 : 0;
+          const s2Percent = totalTime && s.avgS2 ? (s.avgS2 / totalTime) * 100 : 0;
+          const s3Percent = totalTime && s.avgS3 ? (s.avgS3 / totalTime) * 100 : 0;
+          
+          // Format time to minutes:seconds.milliseconds
+          const formatTime = (seconds) => {
+            if (!seconds) return "-";
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            const wholeSecs = Math.floor(secs);
+            const milliseconds = Math.floor((secs - wholeSecs) * 1000);
+            
+            if (mins > 0) {
+              return `${mins}:${wholeSecs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+            } else {
+              return `${wholeSecs}.${milliseconds.toString().padStart(3, '0')}`;
+            }
+          };
+          
+          // Sector colors (using team color with distinct variations)
+          const getSectorColor = (sectorNum) => {
+            if (!teamInfo?.teamColor) {
+              // Fallback colors for sectors
+              const fallbackColors = {
+                1: '#3b82f6', // Blue for S1
+                2: '#10b981', // Green for S2
+                3: '#f59e0b', // Orange for S3
+              };
+              return fallbackColors[sectorNum] || fallbackColorForDriver(Number(num));
+            }
+            
+            // Use team color with different opacity/brightness for each sector
+            const baseColor = teamColor.replace('#', '');
+            const r = parseInt(baseColor.substring(0, 2), 16);
+            const g = parseInt(baseColor.substring(2, 4), 16);
+            const b = parseInt(baseColor.substring(4, 6), 16);
+            
+            // Brightness factors: S1 brightest, S2 medium, S3 darkest
+            const brightnessFactors = { 1: 1.0, 2: 0.85, 3: 0.7 };
+            const factor = brightnessFactors[sectorNum];
+            
+            const newR = Math.min(255, Math.max(0, Math.floor(r * factor)));
+            const newG = Math.min(255, Math.max(0, Math.floor(g * factor)));
+            const newB = Math.min(255, Math.max(0, Math.floor(b * factor)));
+            
+            return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+          };
+          
+          const s1Color = getSectorColor(1);
+          const s2Color = getSectorColor(2);
+          const s3Color = getSectorColor(3);
+
           return (
             <div key={num} className="p-3 rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] text-sm">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <div className="font-semibold">{driversMap[num] || `#${num}`}</div>
                 <div className="text-xs opacity-70">({num})</div>
               </div>
-              <div className="text-xs opacity-80">Avg S1: {s.avgS1 ?? "-"}</div>
-              <div className="text-xs opacity-80">Avg S2: {s.avgS2 ?? "-"}</div>
-              <div className="text-xs opacity-80">Avg S3: {s.avgS3 ?? "-"}</div>
-              <div className="text-xs opacity-70 mt-2">Best S1: {s.lowestS1 ?? "-"}</div>
-              <div className="text-xs opacity-70">Best S2: {s.lowestS2 ?? "-"}</div>
-              <div className="text-xs opacity-70">Best S3: {s.lowestS3 ?? "-"}</div>
-              <div className="text-xs opacity-70 mt-2">Fastest lap: {s.fastestLap ? `L${s.fastestLap.lap_number} (${s.fastestLap.duration}s)` : "-"}</div>
+              
+              {/* Graphical Sector Representation */}
+              {totalTime && s.avgS1 && s.avgS2 && s.avgS3 ? (
+                <div className="mb-3">
+                  <div className="relative h-12 rounded-md overflow-hidden border border-[var(--border-color)] flex">
+                    {/* Sector 1 */}
+                    {s1Percent > 0 && (
+                      <div
+                        className="flex items-center justify-center text-[9px] font-semibold text-white relative overflow-hidden"
+                        style={{
+                          width: `${s1Percent}%`,
+                          backgroundColor: s1Color,
+                          minWidth: s1Percent > 5 ? 'auto' : '0',
+                        }}
+                        title={`S1: ${s.avgS1.toFixed(3)}s`}
+                      >
+                        {s1Percent > 8 && (
+                          <span className="px-1 truncate">S1: {s.avgS1.toFixed(3)}</span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Sector 2 */}
+                    {s2Percent > 0 && (
+                      <div
+                        className="flex items-center justify-center text-[9px] font-semibold text-white relative overflow-hidden border-l border-white/20"
+                        style={{
+                          width: `${s2Percent}%`,
+                          backgroundColor: s2Color,
+                          minWidth: s2Percent > 5 ? 'auto' : '0',
+                        }}
+                        title={`S2: ${s.avgS2.toFixed(3)}s`}
+                      >
+                        {s2Percent > 8 && (
+                          <span className="px-1 truncate">S2: {s.avgS2.toFixed(3)}</span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Sector 3 */}
+                    {s3Percent > 0 && (
+                      <div
+                        className="flex items-center justify-center text-[9px] font-semibold text-white relative overflow-hidden border-l border-white/20"
+                        style={{
+                          width: `${s3Percent}%`,
+                          backgroundColor: s3Color,
+                          minWidth: s3Percent > 5 ? 'auto' : '0',
+                        }}
+                        title={`S3: ${s.avgS3.toFixed(3)}s`}
+                      >
+                        {s3Percent > 8 && (
+                          <span className="px-1 truncate">S3: {s.avgS3.toFixed(3)}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Total Time Display */}
+                  <div className="text-center mt-2">
+                    <div className="text-xs font-semibold opacity-90">
+                      Avg Total: {formatTime(totalTime)}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-3 text-xs opacity-60 text-center py-4">
+                  No sector data available
+                </div>
+              )}
+              
+              {/* Best Sectors */}
+              <div className="space-y-1 mt-3 pt-3 border-t border-[var(--border-color)]">
+                <div className="text-xs opacity-70">Best Sectors:</div>
+                <div className="text-xs opacity-80">S1: {s.lowestS1 ? `${s.lowestS1.toFixed(3)}s` : "-"}</div>
+                <div className="text-xs opacity-80">S2: {s.lowestS2 ? `${s.lowestS2.toFixed(3)}s` : "-"}</div>
+                <div className="text-xs opacity-80">S3: {s.lowestS3 ? `${s.lowestS3.toFixed(3)}s` : "-"}</div>
+                {s.fastestLap && (
+                  <div className="text-xs opacity-70 mt-2 text-(--primary-color) font-bold">
+                    Fastest: Lap no. {s.fastestLap.lap_number} : {formatTime(s.fastestLap.duration)}
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}

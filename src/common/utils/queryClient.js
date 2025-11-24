@@ -44,7 +44,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 60 * 24, // 24 hours
-      gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days (formerly cacheTime)
+      gcTime: 1000 * 60 * 60 * 24, // 1 day (formerly cacheTime)
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
@@ -59,7 +59,7 @@ try {
   persistQueryClient({
     queryClient,
     persister,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
   });
 } catch (error) {
   console.warn('Failed to persist query client:', error);

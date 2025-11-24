@@ -22,6 +22,7 @@ import {
   MapPin,
   CalendarDays
 } from "lucide-react";
+import CircuitSVG from './Common/CircuitSVG';
 import {
   getF1Points,
   SESSION_TITLE_MAP
@@ -226,8 +227,8 @@ export const EventDetails = () => {
 
 
       {/* HEADER */}
-      <div className="flex items-start justify-between w-full">
-        <div>
+      <div className="flex flex-col md:flex-row items-start justify-between w-full gap-6 mb-6">
+        <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3"
             style={{ color: "var(--primary-color)" }}>
             {currentEvent.meeting_name}
@@ -248,13 +249,27 @@ export const EventDetails = () => {
             </p>
           </div>
         </div>
+        
+        {/* Circuit SVG */}
+        {currentEvent && (
+          <div className="flex-shrink-0 flex justify-center md:justify-end">
+            <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--panel-color)', opacity: 0.7 }}>
+              <CircuitSVG 
+                circuitName={currentEvent.circuit_short_name}
+                location={currentEvent.location}
+                size={120}
+                className="transition-opacity hover:opacity-100"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
 
       {/* SESSIONS AREA */}
-      <h2 className="text-lg font-semibold mt-8 mb-4"
+      <h2 className="text-lg font-semibold mt-8 mb-4 border-b border-[var(--border-color)] pb-2"
         style={{ color: 'var(--text-color)', opacity: 0.8 }}>
-        Sessions
+        Sessions Analysis
       </h2>
 
       {/* NO SESSIONS */}
@@ -275,16 +290,25 @@ export const EventDetails = () => {
 
               {/* TABLE: POSITIONS */}
               <div>
-                <h3 className="text-base font-semibold mb-3"
-                  style={{ color: 'var(--text-color)', opacity: 0.8 }}>
-                  {getSessionTitle(0, sortedSessions.length)}
-                  {' - '}
-                  {sortedSessions[0].session_name}
-                </h3>
+                <div className="relative mb-0">
+                  <h3 
+                    className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
+                    style={{
+                      backgroundColor: 'var(--card-bg)',
+                      borderColor: 'var(--border-color)',
+                      marginBottom: '-1px',
+                    }}
+                  >
+                    {getSessionTitle(0, sortedSessions.length)}
+                    {' - '}
+                    {sortedSessions[0].session_name}
+                  </h3>
+                </div>
 
-                <div className="overflow-x-auto">
-                  <table className="min-w-full rounded-md"
-                    style={{ border: `1px solid var(--border-color)` }}>
+                <div className="overflow-x-auto rounded-md rounded-tl-none"
+                  style={{ border: '1px solid var(--border-color)' }}>
+                  <table className="min-w-full border-t"
+                    style={{ borderTop: '1px solid var(--border-color)' }}>
                     <thead>
                       <tr>
                         <th className="py-2 px-4 text-left text-sm font-semibold"
@@ -399,11 +423,9 @@ export const EventDetails = () => {
 
               {/* STINTS GRAPH */}
               <div>
-                <h3 className="text-base font-semibold mb-3"
-                  style={{ color: 'var(--text-color)', opacity: 0.8 }}>
-                  Stints
-                </h3>
 
+                <div className="rounded-md rounded-tl-none"
+                  style={{ borderTop: 'none', backgroundColor: 'var(--card-bg)' }}>
                 {stintsLoading ? (
                   <p className="text-sm"
                     style={{ color: 'var(--text-color)', opacity: 0.6 }}>
@@ -423,6 +445,7 @@ export const EventDetails = () => {
                     </p>
                   )
                 )}
+                </div>
               </div>
             </div>
           )}

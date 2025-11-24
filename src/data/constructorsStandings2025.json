@@ -1,0 +1,76 @@
+{
+  "season": "2025",
+  "standings": [
+    {
+      "rank": 1,
+      "constructor": "McLaren",
+      "points": 756,
+      "wins": 14,
+      "podiums": 31
+    },
+    {
+      "rank": 2,
+      "constructor": "Mercedes",
+      "points": 431,
+      "wins": 2,
+      "podiums": 12
+    },
+    {
+      "rank": 3,
+      "constructor": "Red Bull",
+      "points": 391,
+      "wins": 6,
+      "podiums": 13
+    },
+    {
+      "rank": 4,
+      "constructor": "Ferrari",
+      "points": 378,
+      "wins": 0,
+      "podiums": 7
+    },
+    {
+      "rank": 5,
+      "constructor": "Williams",
+      "points": 121,
+      "wins": 0,
+      "podiums": 1
+    },
+    {
+      "rank": 6,
+      "constructor": "RB",
+      "points": 90,
+      "wins": 0,
+      "podiums": 1
+    },
+    {
+      "rank": 7,
+      "constructor": "Haas",
+      "points": 73,
+      "wins": 0,
+      "podiums": 0
+    },
+    {
+      "rank": 8,
+      "constructor": "Aston Martin",
+      "points": 72,
+      "wins": 0,
+      "podiums": 0
+    },
+    {
+      "rank": 9,
+      "constructor": "Kick Sauber",
+      "points": 68,
+      "wins": 0,
+      "podiums": 1
+    },
+    {
+      "rank": 10,
+      "constructor": "Alpine",
+      "points": 22,
+      "wins": 0,
+      "podiums": 0
+    }
+  ]
+}
+

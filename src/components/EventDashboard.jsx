@@ -1,6 +1,7 @@
-import React from "react";
+import React, { Suspense } from "react";
 const EventCard = React.lazy(() => import("./Events/EventCard"));
 const SessionDriversGrid = React.lazy(() => import("./Drivers/DriversGrid"));
+const StandingsGrid = React.lazy(() => import("./Standings/StandingsGrid"));
 
 export const EventDashboard = ({
   eventsLoading,
@@ -37,11 +38,20 @@ export const EventDashboard = ({
 
       {/* ---------------------- LATEST EVENT -------------------------- */}
       <div className="lg:col-span-2 flex flex-col">
-        <h2 className="text-xl font-semibold mb-1 text-[var(--text-color)] opacity-90 tracking-tight">
-          Latest Event
-        </h2>
+        <div className="relative">
+          <h2 
+            className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--border-color)',
+              marginBottom: '-1px',
+            }}
+          >
+            Latest Event
+          </h2>
+        </div>
 
-        <div className="rounded-2xl p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
+        <div className="rounded-2xl rounded-tl-none p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
           {latestEvent ? (
             <EventCard event={latestEvent} isLatest={true} />
           ) : (
@@ -50,11 +60,46 @@ export const EventDashboard = ({
             </p>
           )}
         </div>
+
+        {/* ---------------------- STANDINGS GRID -------------------------- */}
+        <div className="mt-6">
+          <div className="relative">
+            <h2 
+              className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                borderColor: 'var(--border-color)',
+                marginBottom: '-1px',
+              }}
+            >
+              2025 Standings
+            </h2>
+          </div>
+          <div className="rounded-2xl rounded-tl-none p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
+            <Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <p className="text-[var(--text-color)] opacity-60">Loading standings...</p>
+              </div>
+            }>
+              <StandingsGrid />
+            </Suspense>
+          </div>
+        </div>
+
         <div className="mt-4 mb-1">
-          <h2 className="text-lg font-semibold text-[var(--text-color)] opacity-90 tracking-tight">
-            Our Grid
-          </h2>
-        <div className="border border-[var(--border-color)] rounded-2xl p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+          <div className="relative">
+            <h2 
+              className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                borderColor: 'var(--border-color)',
+                marginBottom: '-1px',
+              }}
+            >
+              Our Grid
+            </h2>
+          </div>
+        <div className="border border-[var(--border-color)] rounded-2xl rounded-tl-none p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
           <SessionDriversGrid  meetingKey={latestEvent?.meeting_key} sessionKey={latestEvent?.session_key} />
         </div>
         </div>
@@ -62,14 +107,24 @@ export const EventDashboard = ({
 
       {/* ---------------------- SIDEBAR (OLDER EVENTS) -------------------------- */}
       <div className="lg:col-span-1 flex flex-col h-screen">
-        <h3 className="text-lg font-semibold mb-1 text-[var(--text-color)] opacity-90 tracking-tight">
-          Older Events
-        </h3>
+        <div className="relative">
+          <h3 
+            className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              borderColor: 'var(--border-color)',
+              marginBottom: '-1px',
+            }}
+          >
+            Older Events
+          </h3>
+        </div>
 
         <div
           className="
             flex-1 
             rounded-2xl 
+            rounded-tl-none
             p-4 
             h-screen
             bg-[var(--card-bg)] 

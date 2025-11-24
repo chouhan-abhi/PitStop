@@ -24,8 +24,8 @@ function WinnerDriverCard({ driver }) {
         className="w-32 h-32 rounded-full flex items-center justify-center shadow-inner"
         style={{
           background: driver.team_colour
-            ? `conic-gradient(#${driver.team_colour} 0%, #${driver.team_colour}80 40%, transparent 40%)`
-            : "conic-gradient(var(--primary-color) 0%, transparent 40%)",
+            ? `conic-gradient(#${driver.team_colour} 0%, #${driver.team_colour}20 100%, transparent 40%)`
+            : "conic-gradient(var(--primary-color) 0%, transparent 60%)",
         }}
       >
         <img

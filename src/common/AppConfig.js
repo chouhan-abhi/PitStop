@@ -7,7 +7,7 @@ export const AppConfig = {
 // Legacy export for backward compatibility - now handled by queryClient.js
 export const APP_CACHE_CONFIG = {
   staleTime: 1000 * 60 * 60 * 24, // 24 hours
-  gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+  gcTime: 1000 * 60 * 60 * 24, // 1 day
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   refetchOnReconnect: false,

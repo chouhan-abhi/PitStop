@@ -39,7 +39,7 @@ function SessionDriversGrid({ meetingKey, sessionKey }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6 p-2
+    <div className="grid grid-cols-1 sm:grid-cols-3 2xl:grid-cols-4 gap-6 p-2
 
     /* Small devices: fix height & allow scrolling */
     max-h-[70vh] overflow-y-auto
@@ -75,7 +75,7 @@ function SessionDriversGrid({ meetingKey, sessionKey }) {
             className="w-28 h-28 rounded-full flex items-center justify-center shadow-inner"
             style={{
               background: d.team_colour
-                ? `conic-gradient(#${d.team_colour} 0%, #${d.team_colour}80 40%, transparent 40%)`
+                ? `conic-gradient(#${d.team_colour} 0%, #${d.team_colour}20 100%, transparent 40%)`
                 : "conic-gradient(var(--primary-color) 0%, transparent 40%)",
             }}
           >
