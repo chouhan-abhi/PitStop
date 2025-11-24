@@ -4,7 +4,7 @@
 
 **PitStop** is a high-performance real-time dashboard that brings **Formula 1 telemetry, race analytics, driver insights, and session monitoring** onto a sleek, data-rich interface inspired by real F1 pitwall systems.
 
-![Dashboard Screenshot](./public/screenshots/Quickstop_f1_screenshot.png)
+![Dashboard Screenshot](https://raw.githubusercontent.com/chouhan-abhi/PitStop/refs/heads/main/public/ScreenShots/Quickstop_f1_screenshot.png)
 *Main dashboard showing latest events and standings*
 
 ---
@@ -12,19 +12,19 @@
 ## 📸 Screenshots
 
 ### Dashboard Overview
-![Dashboard Overview](./public/screenshots/Quickstop_f1_screenshot.png)
+![Dashboard Overview](https://raw.githubusercontent.com/chouhan-abhi/PitStop/refs/heads/main/public/ScreenShots/Quickstop_f1_screenshot4.png)
 *Comprehensive view of events, standings, and session data*
 
 ### Driver Standings & Analytics
-![Driver Standings](./public/screenshots/Quickstop_f1_screenshot2.png)
+![Driver Standings](https://raw.githubusercontent.com/chouhan-abhi/PitStop/refs/heads/main/public/ScreenShots/Quickstop_f1_screenshot3.png)
 *Interactive driver standings with expandable table view and pace analytics*
 
 ### Session Analytics & Stints
-![Session Analytics](./public/screenshots/Quickstop_f1_screenshot3.png)
+![Session Analytics](https://raw.githubusercontent.com/chouhan-abhi/PitStop/refs/heads/main/public/ScreenShots/Quickstop_f1_screenshot2.png)
 *Detailed pace analysis with sector breakdowns, lap comparisons, and tyre stint visualization*
 
 ### Event Details & Results
-![Event Details](./public/screenshots/Quickstop_f1_screenshot4.png)
+![Event Details](https://raw.githubusercontent.com/chouhan-abhi/PitStop/refs/heads/main/public/ScreenShots/Quickstop_f1_screenshot.png)
 *Complete event breakdown with session results, driver positions, and detailed statistics*
 
 ---
