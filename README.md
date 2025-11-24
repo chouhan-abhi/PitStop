@@ -3,10 +3,6 @@
 🔗 **Live:** https://quickstop.surge.sh
 
 **PitStop** is a high-performance real-time dashboard that brings **Formula 1 telemetry, race analytics, driver insights, and session monitoring** onto a sleek, data-rich interface inspired by real F1 pitwall systems.
-
-![Dashboard Screenshot](https://raw.githubusercontent.com/chouhan-abhi/PitStop/refs/heads/main/public/ScreenShots/Quickstop_f1_screenshot.png)
-*Main dashboard showing latest events and standings*
-
 ---
 
 ## 📸 Screenshots
