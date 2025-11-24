@@ -213,12 +213,12 @@ export const EventDetails = () => {
 
   return (
 
-    <div className="p-6 px-8 w-full" style={{ color: "var(--text-color)" }}>
+    <div className="p-2 sm:p-4 lg:p-6 px-2 sm:px-4 lg:px-8 w-full" style={{ color: "var(--text-color)" }}>
 
       {/* BACK BUTTON */}
       <button
         onClick={() => navigate("/")}
-        className="mb-6 flex items-center gap-2 text-sm font-medium hover:opacity-70"
+        className="mb-3 sm:mb-4 lg:mb-6 flex items-center gap-2 text-sm font-medium hover:opacity-70"
         style={{ color: "var(--primary-color)" }}
       >
         <ArrowLeft size={16} />
@@ -227,7 +227,7 @@ export const EventDetails = () => {
 
 
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row items-start justify-between w-full gap-6 mb-6">
+      <div className="flex flex-col md:flex-row items-start justify-between w-full gap-3 sm:gap-4 lg:gap-6 mb-3 sm:mb-4 lg:mb-6">
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3"
             style={{ color: "var(--primary-color)" }}>
@@ -267,7 +267,7 @@ export const EventDetails = () => {
 
 
       {/* SESSIONS AREA */}
-      <h2 className="text-lg font-semibold mt-8 mb-4 border-b border-[var(--border-color)] pb-2"
+      <h2 className="text-lg font-semibold mt-4 sm:mt-6 lg:mt-8 mb-2 sm:mb-3 lg:mb-4 border-b border-[var(--border-color)] pb-2"
         style={{ color: 'var(--text-color)', opacity: 0.8 }}>
         Sessions Analysis
       </h2>
@@ -282,11 +282,11 @@ export const EventDetails = () => {
 
       {/* MAIN CONTENT */}
       {sortedSessions.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-3 lg:space-y-4">
 
           {/* LATEST SESSION (FULL WIDTH) */}
           {sortedSessions[0] && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
 
               {/* TABLE: POSITIONS */}
               <div>

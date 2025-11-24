@@ -23,12 +23,12 @@ const StandingsGrid = () => {
   };
 
   return (
-    <div className="w-full mb-6">
-      {/* Tab Selector */}
-      <div className="flex mb-4 border border-(--border-color) w-fit rounded-full">
-        <button
-          onClick={() => setActiveTab('drivers')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+      <div className="w-full mb-3 sm:mb-4 lg:mb-6">
+        {/* Tab Selector */}
+        <div className="flex mb-2 sm:mb-3 lg:mb-4 border border-(--border-color) w-fit rounded-full">
+          <button
+            onClick={() => setActiveTab('drivers')}
+            className={`px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm ${
             activeTab === 'drivers'
               ? 'opacity-100'
               : ''
@@ -40,9 +40,9 @@ const StandingsGrid = () => {
         >
           Drivers
         </button>
-        <button
-          onClick={() => setActiveTab('constructors')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+          <button
+            onClick={() => setActiveTab('constructors')}
+            className={`px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm ${
             activeTab === 'constructors'
               ? 'opacity-100'
               : ''
@@ -75,19 +75,19 @@ const StandingsGrid = () => {
                   }}
                 >
                   <th
-                    className="py-2 px-4 text-left text-sm font-semibold"
+                    className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 text-left text-xs sm:text-sm font-semibold"
                     style={{ color: 'var(--text-color)' }}
                   >
                     Rank
                   </th>
                   <th
-                    className="py-2 px-4 text-left text-sm font-semibold"
+                    className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 text-left text-xs sm:text-sm font-semibold"
                     style={{ color: 'var(--text-color)' }}
                   >
                     Driver
                   </th>
                   <th
-                    className="py-2 px-4 text-left text-sm font-semibold"
+                    className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 text-left text-xs sm:text-sm font-semibold"
                     style={{ color: 'var(--text-color)' }}
                   >
                     Constructor
@@ -123,12 +123,12 @@ const StandingsGrid = () => {
                     }}
                   >
                     <td
-                      className="py-2 px-4 font-semibold"
+                      className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 font-semibold text-xs sm:text-sm"
                       style={{ color: 'var(--text-color)' }}
                     >
                       {driver.rank}
                     </td>
-                    <td className="py-2 px-4">
+                    <td className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4">
                       <div className="flex flex-col">
                         <span
                           className="font-semibold"
@@ -175,7 +175,7 @@ const StandingsGrid = () => {
           </div>
           {driversData.length > 5 && (
             <div
-              className="px-4 py-2 text-center"
+              className="px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 text-center"
               style={{
                 backgroundColor: 'var(--header-bg)',
               }}
@@ -221,13 +221,13 @@ const StandingsGrid = () => {
                   }}
                 >
                   <th
-                    className="py-2 px-4 text-left text-sm font-semibold"
+                    className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 text-left text-xs sm:text-sm font-semibold"
                     style={{ color: 'var(--text-color)' }}
                   >
                     Rank
                   </th>
                   <th
-                    className="py-2 px-4 text-left text-sm font-semibold"
+                    className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 text-left text-xs sm:text-sm font-semibold"
                     style={{ color: 'var(--text-color)' }}
                   >
                     Constructor
@@ -263,13 +263,13 @@ const StandingsGrid = () => {
                     }}
                   >
                     <td
-                      className="py-2 px-4 font-semibold"
+                      className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 font-semibold text-xs sm:text-sm"
                       style={{ color: 'var(--text-color)' }}
                     >
                       {constructor.rank}
                     </td>
                     <td
-                      className="py-2 px-4 font-semibold"
+                      className="py-1 sm:py-1.5 lg:py-2 px-2 sm:px-3 lg:px-4 font-semibold text-xs sm:text-sm"
                       style={{ color: 'var(--text-color)' }}
                     >
                       {constructor.constructor}

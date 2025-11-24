@@ -399,7 +399,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
   return (
     <div className="w-full">
       {/* top bar: open drawer button + layout toggle */}
-      <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 mb-2 sm:mb-3 lg:mb-4">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDrawerOpen(true)}
@@ -426,9 +426,9 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
 
       {/* small per-driver stats (avg / best sectors) */}
       <div 
-        className="grid gap-3 mb-4"
+        className="grid gap-2 sm:gap-3 mb-2 sm:mb-3 lg:mb-4"
         style={{
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
         }}
       >
         {selectedDrivers.map((num) => {
@@ -495,7 +495,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
           const s3Color = getSectorColor(3);
 
           return (
-            <div key={num} className="p-3 rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] text-sm">
+            <div key={num} className="p-2 sm:p-3 rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] text-sm">
               <div className="flex items-center justify-between mb-3">
                 <div className="font-semibold">{driversMap[num] || `#${num}`}</div>
                 <div className="text-xs opacity-70">({num})</div>
@@ -588,13 +588,13 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
       </div>
 
       {/* charts */}
-      <div className={expandedLayout ? "flex flex-col gap-4" : "grid grid-cols-1 lg:grid-cols-2 gap-4"}>
+      <div className={expandedLayout ? "flex flex-col gap-2 sm:gap-3 lg:gap-4" : "grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3 lg:gap-4"}>
         {/* Sector charts stacked (S1,S2,S3) */}
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-3 lg:space-y-4">
           {[1, 2, 3].map((s) => {
             const data = buildSectorData(s);
             return (
-              <section key={s} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-3">
+              <section key={s} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-2 sm:p-3">
                 <div className="flex items-center justify-between mb-2">
                   <h5 className="text-sm font-semibold">Sector {s} — time (s)</h5>
                   <div className="text-xs opacity-60">Average (dashed)</div>
@@ -623,7 +623,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
         </div>
 
         {/* Pace + Delta */}
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-3 lg:space-y-4">
           <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-3">
             <div className="flex items-center justify-between mb-2">
               <h5 className="text-sm font-semibold">Overall Lap Pace</h5>

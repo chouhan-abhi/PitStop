@@ -34,7 +34,7 @@ export const EventDashboard = ({
 
   /* ======================= MAIN UI ======================== */
   return (
-    <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-6">
+    <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-4 lg:p-6">
 
       {/* ---------------------- LATEST EVENT -------------------------- */}
       <div className="lg:col-span-2 flex flex-col">
@@ -51,7 +51,7 @@ export const EventDashboard = ({
           </h2>
         </div>
 
-        <div className="rounded-2xl rounded-tl-none p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
+        <div className="rounded-2xl rounded-tl-none p-2 sm:p-3 lg:p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
           {latestEvent ? (
             <EventCard event={latestEvent} isLatest={true} />
           ) : (
@@ -62,7 +62,7 @@ export const EventDashboard = ({
         </div>
 
         {/* ---------------------- STANDINGS GRID -------------------------- */}
-        <div className="mt-6">
+        <div className="mt-3 sm:mt-4 lg:mt-6">
           <div className="relative">
             <h2 
               className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
@@ -75,7 +75,7 @@ export const EventDashboard = ({
               2025 Standings
             </h2>
           </div>
-          <div className="rounded-2xl rounded-tl-none p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
+          <div className="rounded-2xl rounded-tl-none p-2 sm:p-3 lg:p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
             <Suspense fallback={
               <div className="flex items-center justify-center p-8">
                 <p className="text-[var(--text-color)] opacity-60">Loading standings...</p>
@@ -86,7 +86,7 @@ export const EventDashboard = ({
           </div>
         </div>
 
-        <div className="mt-4 mb-1">
+        <div className="mt-2 sm:mt-3 lg:mt-4 mb-1">
           <div className="relative">
             <h2 
               className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
@@ -121,11 +121,11 @@ export const EventDashboard = ({
         </div>
 
         <div
-          className="
+            className="
             flex-1 
             rounded-2xl 
             rounded-tl-none
-            p-4 
+            p-2 sm:p-3 lg:p-4 
             h-screen
             bg-[var(--card-bg)] 
             shadow-[0_4px_12px_rgba(0,0,0,0.08)] 
@@ -140,12 +140,12 @@ export const EventDashboard = ({
           <div className="pointer-events-none absolute bottom-0 left-0 h-6 w-full bg-gradient-to-t from-[var(--card-bg)] to-transparent" />
 
           {olderEvents && olderEvents.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 pb-6">
+            <div className="grid grid-cols-1 gap-2 sm:gap-3 lg:gap-4 pb-3 sm:pb-4 lg:pb-6">
               {olderEvents.map((event) => (
                 <div
                   key={event.meeting_key}
                   className="
-                    p-2 rounded-xl
+                    p-1 sm:p-2 rounded-xl
                     transition-all 
                     duration-200 
                     hover:scale-[1.015]

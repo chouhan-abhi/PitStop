@@ -2,7 +2,7 @@ function WinnerDriverCard({ driver }) {
   return (
     <div
       className="
-      relative flex items-center gap-6 p-6 rounded-2xl
+      relative flex items-center gap-2 sm:gap-4 lg:gap-6 p-2 sm:p-4 lg:p-6 rounded-2xl
     bg-[var(--panel-color)]
     boder border-[var(--border-color)]
     shadow-lg hover:shadow-xl transition-all
@@ -21,7 +21,7 @@ function WinnerDriverCard({ driver }) {
 
       {/* Headshot Circle */}
       <div
-        className="w-32 h-32 rounded-full flex items-center justify-center shadow-inner"
+        className="w-16 h-16 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0"
         style={{
           background: driver.team_colour
             ? `conic-gradient(#${driver.team_colour} 0%, #${driver.team_colour}20 100%, transparent 40%)`
@@ -31,7 +31,10 @@ function WinnerDriverCard({ driver }) {
         <img
           src={driver.headshot_url}
           alt={driver.full_name}
-          className="w-28 h-28 rounded-full object-cover shadow-lg"
+          className="w-full h-full rounded-full object-cover object-center"
+          style={{
+            aspectRatio: '1 / 1',
+          }}
         />
       </div>
 
@@ -51,12 +54,12 @@ function WinnerDriverCard({ driver }) {
         </span>
 
         {/* Full Name */}
-        <span className="text-3xl font-extrabold leading-tight">
+        <span className="text-lg sm:text-2xl lg:text-3xl font-extrabold leading-tight">
           {driver.full_name}
         </span>
 
         {/* Broadcast Name */}
-        <span className="text-base opacity-70 -mt-1">
+        <span className="text-sm sm:text-base opacity-70 -mt-1">
           {driver.broadcast_name}
         </span>
 
