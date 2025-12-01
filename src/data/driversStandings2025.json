@@ -10,25 +10,12 @@
         "nationality": "United Kingdom"
       },
       "constructor": "McLaren",
-      "points": 390,
+      "points": 408,
       "wins": 7,
       "podiums": 17
     },
     {
       "rank": 2,
-      "driver": {
-        "firstName": "Oscar",
-        "lastName": "Piastri",
-        "abbreviation": "O. Piastri",
-        "nationality": "Australia"
-      },
-      "constructor": "McLaren",
-      "points": 366,
-      "wins": 7,
-      "podiums": 14
-    },
-    {
-      "rank": 3,
       "driver": {
         "firstName": "Max",
         "lastName": "Verstappen",
@@ -36,9 +23,22 @@
         "nationality": "Netherlands"
       },
       "constructor": "Red Bull",
-      "points": 366,
-      "wins": 6,
-      "podiums": 13
+      "points": 396,
+      "wins": 7,
+      "podiums": 14
+    },
+    {
+      "rank": 3,
+      "driver": {
+        "firstName": "Oscar",
+        "lastName": "Piastri",
+        "abbreviation": "O. Piastri",
+        "nationality": "Australia"
+      },
+      "constructor": "McLaren",
+      "points": 392,
+      "wins": 7,
+      "podiums": 15
     },
     {
       "rank": 4,
@@ -49,7 +49,7 @@
         "nationality": "United Kingdom"
       },
       "constructor": "Mercedes",
-      "points": 294,
+      "points": 309,
       "wins": 2,
       "podiums": 9
     },
@@ -62,7 +62,7 @@
         "nationality": "Monaco"
       },
       "constructor": "Ferrari",
-      "points": 226,
+      "points": 230,
       "wins": 0,
       "podiums": 7
     },
@@ -88,7 +88,7 @@
         "nationality": "Italy"
       },
       "constructor": "Mercedes",
-      "points": 137,
+      "points": 150,
       "wins": 0,
       "podiums": 3
     },
@@ -108,6 +108,19 @@
     {
       "rank": 9,
       "driver": {
+        "firstName": "Carlos",
+        "lastName": "Sainz Jr.",
+        "abbreviation": "C. Sainz Jr.",
+        "nationality": "Spain"
+      },
+      "constructor": "Williams",
+      "points": 64,
+      "wins": 0,
+      "podiums": 2
+    },
+    {
+      "rank": 10,
+      "driver": {
         "firstName": "Isack",
         "lastName": "Hadjar",
         "abbreviation": "I. Hadjar",
@@ -119,7 +132,7 @@
       "podiums": 1
     },
     {
-      "rank": 10,
+      "rank": 11,
       "driver": {
         "firstName": "Nico",
         "lastName": "Hülkenberg",
@@ -128,19 +141,6 @@
       },
       "constructor": "Kick Sauber",
       "points": 49,
-      "wins": 0,
-      "podiums": 1
-    },
-    {
-      "rank": 11,
-      "driver": {
-        "firstName": "Carlos",
-        "lastName": "Sainz Jr.",
-        "abbreviation": "C. Sainz Jr.",
-        "nationality": "Spain"
-      },
-      "constructor": "Williams",
-      "points": 48,
       "wins": 0,
       "podiums": 1
     },
@@ -166,7 +166,7 @@
         "nationality": "Spain"
       },
       "constructor": "Aston Martin",
-      "points": 40,
+      "points": 42,
       "wins": 0,
       "podiums": 0
     },
@@ -186,12 +186,12 @@
     {
       "rank": 15,
       "driver": {
-        "firstName": "Esteban",
-        "lastName": "Ocon",
-        "abbreviation": "E. Ocon",
-        "nationality": "France"
+        "firstName": "Lance",
+        "lastName": "Stroll",
+        "abbreviation": "L. Stroll",
+        "nationality": "Canada"
       },
-      "constructor": "Haas",
+      "constructor": "Aston Martin",
       "points": 32,
       "wins": 0,
       "podiums": 0
@@ -199,12 +199,12 @@
     {
       "rank": 16,
       "driver": {
-        "firstName": "Lance",
-        "lastName": "Stroll",
-        "abbreviation": "L. Stroll",
-        "nationality": "Canada"
+        "firstName": "Esteban",
+        "lastName": "Ocon",
+        "abbreviation": "E. Ocon",
+        "nationality": "France"
       },
-      "constructor": "Aston Martin",
+      "constructor": "Haas",
       "points": 32,
       "wins": 0,
       "podiums": 0
@@ -218,7 +218,7 @@
         "nationality": "Japan"
       },
       "constructor": "Red Bull",
-      "points": 28,
+      "points": 32,
       "wins": 0,
       "podiums": 0
     },
@@ -276,6 +276,5 @@
     }
   ]
 }
-
 
 
