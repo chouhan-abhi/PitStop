@@ -4,63 +4,63 @@
     {
       "rank": 1,
       "constructor": "McLaren",
-      "points": 756,
+      "points": 833,
       "wins": 14,
-      "podiums": 31
+      "podiums": 33
     },
     {
       "rank": 2,
       "constructor": "Mercedes",
-      "points": 431,
+      "points": 469,
       "wins": 2,
-      "podiums": 12
+      "podiums": 13
     },
     {
       "rank": 3,
       "constructor": "Red Bull",
-      "points": 391,
+      "points": 451,
       "wins": 6,
-      "podiums": 13
+      "podiums": 14
     },
     {
       "rank": 4,
       "constructor": "Ferrari",
-      "points": 378,
+      "points": 398,
       "wins": 0,
       "podiums": 7
     },
     {
       "rank": 5,
       "constructor": "Williams",
-      "points": 121,
+      "points": 137,
       "wins": 0,
       "podiums": 1
     },
     {
       "rank": 6,
-      "constructor": "RB",
-      "points": 90,
+      "constructor": "Racing Bulls",
+      "points": 92,
       "wins": 0,
       "podiums": 1
     },
     {
       "rank": 7,
-      "constructor": "Haas",
-      "points": 73,
+      "constructor": "Aston Martin",
+      "points": 89,
       "wins": 0,
       "podiums": 0
     },
     {
       "rank": 8,
-      "constructor": "Aston Martin",
-      "points": 72,
+      "constructor": "Haas",
+      "points": 79,
       "wins": 0,
       "podiums": 0
     },
     {
       "rank": 9,
       "constructor": "Kick Sauber",
-      "points": 68,
+      "points": 70,
       "wins": 0,
       "podiums": 1
     },
@@ -73,3 +73,7 @@
     }
   ]
 }
+
+
+
+

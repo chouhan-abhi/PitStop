@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 const EventCard = React.lazy(() => import("./Events/EventCard"));
 const SessionDriversGrid = React.lazy(() => import("./Drivers/DriversGrid"));
 const StandingsGrid = React.lazy(() => import("./Standings/StandingsGrid"));
+const News = React.lazy(() => import("./News/News"));
 
 export const EventDashboard = ({
   eventsLoading,
@@ -59,6 +60,31 @@ export const EventDashboard = ({
               No latest event available.
             </p>
           )}
+        </div>
+
+        {/* ---------------------- F1 NEWS -------------------------- */}
+        <div className="mt-3 sm:mt-4 lg:mt-6">
+          <div className="relative">
+            <h2 
+              className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                borderColor: 'var(--border-color)',
+                marginBottom: '-1px',
+              }}
+            >
+              Top Stories
+            </h2>
+          </div>
+          <div className="rounded-2xl rounded-tl-none p-2 sm:p-3 lg:p-4 bg-[var(--card-bg)] shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-[var(--border-color)] transition-all">
+            <Suspense fallback={
+              <div className="flex items-center justify-center p-8">
+                <p className="text-[var(--text-color)] opacity-60">Loading news...</p>
+              </div>
+            }>
+              <News />
+            </Suspense>
+          </div>
         </div>
 
         {/* ---------------------- STANDINGS GRID -------------------------- */}

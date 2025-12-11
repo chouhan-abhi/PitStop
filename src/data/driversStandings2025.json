@@ -51,7 +51,7 @@
       "constructor": "Mercedes",
       "points": 309,
       "wins": 2,
-      "podiums": 9
+      "podiums": 10
     },
     {
       "rank": 5,
@@ -84,7 +84,7 @@
       "driver": {
         "firstName": "Andrea Kimi",
         "lastName": "Antonelli",
-        "abbreviation": "A.K. Antonelli",
+        "abbreviation": "K. Antonelli",
         "nationality": "Italy"
       },
       "constructor": "Mercedes",
@@ -103,7 +103,7 @@
       "constructor": "Williams",
       "points": 73,
       "wins": 0,
-      "podiums": 0
+      "podiums": 1
     },
     {
       "rank": 9,
@@ -126,7 +126,7 @@
         "abbreviation": "I. Hadjar",
         "nationality": "France"
       },
-      "constructor": "RB",
+      "constructor": "Racing Bulls",
       "points": 51,
       "wins": 0,
       "podiums": 1
@@ -147,19 +147,6 @@
     {
       "rank": 12,
       "driver": {
-        "firstName": "Ollie",
-        "lastName": "Bearman",
-        "abbreviation": "O. Bearman",
-        "nationality": "United Kingdom"
-      },
-      "constructor": "Haas",
-      "points": 41,
-      "wins": 0,
-      "podiums": 0
-    },
-    {
-      "rank": 13,
-      "driver": {
         "firstName": "Fernando",
         "lastName": "Alonso",
         "abbreviation": "F. Alonso",
@@ -178,8 +165,8 @@
         "abbreviation": "L. Lawson",
         "nationality": "New Zealand"
       },
-      "constructor": "RB",
-      "points": 36,
+      "constructor": "Racing Bulls",
+      "points": 38,
       "wins": 0,
       "podiums": 0
     },
@@ -197,7 +184,7 @@
       "podiums": 0
     },
     {
-      "rank": 16,
+      "rank": 17,
       "driver": {
         "firstName": "Esteban",
         "lastName": "Ocon",
