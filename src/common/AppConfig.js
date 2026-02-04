@@ -1,5 +1,5 @@
 export const AppConfig = {
-  name: "F1 QuickStop",
+  name: "F1 PitStop",
   description: "A dashboard for F1 sports data",
   version: "1.0.1",
 };

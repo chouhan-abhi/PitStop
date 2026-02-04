@@ -28,24 +28,22 @@
 ## 🚀 Features
 
 ### 📊 Dashboard & Navigation
-- **Latest Event Card** - Quick access to the most recent race weekend
-- **Older Events Sidebar** - Scrollable list of past events
+- **Countdown Hero** - Live countdown to the next session (from `calendar.ics`)
+- **Latest Event Card** - Quick access to the most recent race weekend (hidden if season hasn’t started)
+- **Archives Page** - Latest + older events in a dedicated archive view
+- **Drivers Page** - Dedicated driver grid view
+- **Score Card Page** - Standings + progression charts with tabbed Drivers/Constructors
+- **Season Selector** - Top-level year selection synced across pages
 - **Grid Background** - Subtle dotted grid pattern for visual depth
 - **File Tab Headings** - Modern tab-style section headers throughout
 - **Theme Support** - Light, Dark, and System theme modes with smooth transitions
 
 ### 🏁 Standings & Championships
-- **Driver Standings Grid**
-  - Top 5 drivers displayed by default
-  - Expandable to show all 21 drivers
-  - Tab-based interface (Drivers/Constructors)
-  - Complete stats: Rank, Points, Wins, Podiums
-  - Driver nationality and team information
-  
-- **Constructor Standings**
-  - Team championship table
-  - Points, wins, and podiums tracking
-  - Quick toggle between drivers and constructors
+- **Score Card Standings**
+  - Driver standings from Ergast/Jolpica API
+  - Constructor standings from Ergast/Jolpica API
+  - Side-by-side tables with progression charts
+  - Year selector to swap seasons instantly
 
 ### 📈 Session Analytics
 - **Pace Analysis**
@@ -84,10 +82,10 @@
   - Starting positions and final results
   - Points allocation for race sessions
 
-- **Circuit Information**
-  - Circuit SVG visualization
-  - Location and country details
-  - Event date and timing
+### 🧭 Circuit Models
+- **3D Circuit Models**
+  - STL-based circuit rendering in Event Cards and Event Details
+  - Auto-mapped to circuit names/locations
 
 ### 🎨 UI Components
 - **Premium Driver Cards**
@@ -183,15 +181,21 @@ src/
 │   │   ├── SessionPaceAnalytics.jsx    # Pace analysis with charts
 │   │   ├── StintsGraph.jsx              # Tyre stint visualization
 │   │   ├── WinnerDriverCard.jsx        # Premium driver cards
-│   │   └── CircuitSVG.jsx               # Circuit illustrations
+│   │   ├── CircuitModel.jsx            # 3D circuit STL renderer
+│   │   └── useLaps.js                   # Laps data hook
 │   ├── Drivers/
 │   │   ├── DriversGrid.jsx              # Driver grid layout
 │   │   └── useLatestSessionDrivers.js   # Driver data hook
 │   ├── Events/
 │   │   ├── EventCard.jsx                # Event card component
 │   │   └── TopDriversCard.jsx           # Top drivers display
-│   ├── Standings/
-│   │   └── StandingsGrid.jsx            # Standings tables
+│   ├── ScoreCard/
+│   │   ├── ProgressionChart.jsx         # Standings progression chart
+│   │   ├── StandingsTable.jsx           # Standings table
+│   │   ├── ScoreCardPage.jsx            # Score Card page
+│   │   ├── useDriverStandings.js        # Driver standings hook
+│   │   ├── useConstructorStandings.js   # Constructor standings hook
+│   │   └── useRaceResults.js            # Race results hook
 │   ├── Dashboard.jsx                    # Main dashboard
 │   ├── EventDashboard.jsx               # Event overview
 │   └── EventDetails.jsx                 # Detailed event view
@@ -202,8 +206,11 @@ src/
 │   │   └── LocalStorageManager.js      # Storage management
 │   └── AppConfig.js                     # App configuration
 ├── data/
-│   ├── driversStandings2025.json        # Driver standings data
-│   └── constructorsStandings2025.json  # Constructor standings data
+│   ├── driversStandings2025.json        # Legacy driver standings data
+│   └── constructorsStandings2025.json  # Legacy constructor standings data
+├── assets/
+│   ├── calendar.ics                     # Season calendar for countdown hero
+│   └── circuits/                        # STL circuit models
 ├── App.jsx                              # Root component
 └── main.jsx                             # Entry point
 ```
@@ -214,13 +221,14 @@ src/
 
 | Layer | Technologies |
 |-------|--------------|
-| **Frontend** | React 18, Vite |
+| **Frontend** | React 19, Vite |
 | **Styling** | TailwindCSS, CSS Variables |
 | **Charts** | Chart.js, react-chartjs-2 |
+| **3D** | Three.js (STL rendering) |
 | **Icons** | Lucide React |
 | **Data Layer** | @tanstack/react-query |
-| **API** | OpenF1 API |
-| **Routing** | React Router v6 |
+| **API** | OpenF1 API, Ergast/Jolpica API |
+| **Routing** | React Router v7 |
 | **State** | React Hooks (useState, useMemo, useCallback) |
 | **Build Tool** | Vite |
 
@@ -304,6 +312,11 @@ Edit `src/index.css` to customize theme colors and CSS variables.
   - Lap times and sectors
   - Positions and standings
   - Tyre stints
+- **Ergast/Jolpica API** - Standings and results
+  - Driver standings
+  - Constructor standings
+  - Race results (progression graphs)
+- **RacingNews365 Calendar** - Session schedule (`calendar.ics`)
 
 ---
 
