@@ -1,4 +1,5 @@
 // src/components/Common/CircuitSVG.jsx
+
 import React from 'react';
 
 // Circuit SVG paths - simplified but recognizable layouts based on actual F1 circuits
@@ -14,7 +15,7 @@ const CIRCUIT_PATHS = {
       strokeLinejoin="round"
     />
   ),
-  
+
   'São Paulo': (
     <path
       d="M 50 10 L 80 10 Q 90 10 90 20 L 90 40 Q 90 50 80 50 L 70 50 Q 60 50 60 60 L 60 80 Q 60 90 50 90 L 30 90 Q 20 90 20 80 L 20 60 Q 20 50 30 50 L 40 50 Q 50 50 50 40 L 50 20 Q 50 10 40 10 L 30 10 Q 20 10 20 20"
@@ -285,10 +286,10 @@ const getCircuitPath = (circuitName, location) => {
 
   // Try partial matches
   const allKeys = Object.keys(CIRCUIT_PATHS);
-  
+
   // Check if any key is contained in the circuit name
   for (const key of allKeys) {
-    if (normalizedName.toLowerCase().includes(key.toLowerCase()) || 
+    if (normalizedName.toLowerCase().includes(key.toLowerCase()) ||
         normalizedLocation.toLowerCase().includes(key.toLowerCase())) {
       return CIRCUIT_PATHS[key];
     }
@@ -296,7 +297,7 @@ const getCircuitPath = (circuitName, location) => {
 
   // Check reverse - if circuit name is contained in any key
   for (const key of allKeys) {
-    if (key.toLowerCase().includes(normalizedName.toLowerCase()) || 
+    if (key.toLowerCase().includes(normalizedName.toLowerCase()) ||
         key.toLowerCase().includes(normalizedLocation.toLowerCase())) {
       return CIRCUIT_PATHS[key];
     }
@@ -361,7 +362,7 @@ const CircuitSVG = ({ circuitName, location, className = '', size = 100 }) => {
       height={size}
       viewBox="0 0 100 100"
       className={className}
-      style={{ 
+      style={{
         color: 'var(--primary-color)',
         opacity: 0.8,
       }}

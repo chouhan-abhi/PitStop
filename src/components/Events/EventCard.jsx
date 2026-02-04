@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { TopDriversCard } from './TopDriversCard';
 import { useLatestSessionDrivers } from '../Drivers/useLatestSessionDrivers';
 import { usePositions } from '../Drivers/usePositions';
-import CircuitSVG from '../Common/CircuitSVG';
-import { 
-  getLatestSessionFromPositions, 
-  getLatestPositionsForDrivers, 
+import CircuitModel from '../Common/CircuitModel';
+import {
+  getLatestSessionFromPositions,
+  getLatestPositionsForDrivers,
   mergeDriversWithPositions,
-  formatDate 
+  formatDate
 } from '../../common/utils/dataProcessing';
 
 const EventCard = ({ event, isLatest = false }) => {
@@ -20,10 +21,22 @@ const EventCard = ({ event, isLatest = false }) => {
     return null;
   }
 
+  const eventYear = event?.date_start
+    ? new Date(event.date_start).getFullYear()
+    : null;
+
+  const eventMeta = {
+    title: event.meeting_name || "Grand Prix",
+    circuit: event.circuit_short_name || event.circuit_name || "Circuit",
+    location: event.location || event.country_name || "Location",
+    country: event.country_name || "",
+    date: formatDate(event.date_start),
+  };
+
   const { data: positionsData, isLoading: positionsLoading, isError: positionsIsError, error: positionsError } = usePositions(
-    isLatest ? event.meeting_key : null, 
-    null, 
-    null, 
+    isLatest ? event.meeting_key : null,
+    null,
+    null,
     { enabled: isLatest && Boolean(event.meeting_key) }
   );
 
@@ -43,9 +56,12 @@ const EventCard = ({ event, isLatest = false }) => {
   }, [isLatest, event, positionsData]);
 
   const { data: latestSessionDriversRaw, isLoading: latestSessionDriversLoading, isError: latestSessionDriversIsError, error: latestSessionDriversError } = useLatestSessionDrivers(
-    isLatest ? event.meeting_key : null, 
-    latestSessionKeyForDrivers, 
-    { enabled: isLatest && Boolean(event.meeting_key && latestSessionKeyForDrivers) }
+    isLatest ? event.meeting_key : null,
+    latestSessionKeyForDrivers,
+    {
+      enabled: isLatest && Boolean(event.meeting_key && latestSessionKeyForDrivers),
+      year: eventYear,
+    }
   );
 
   const mergedDriversData = useMemo(() => {
@@ -61,54 +77,68 @@ const EventCard = ({ event, isLatest = false }) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div
+      className={`relative overflow-hidden rounded-2xl ${
+        isLatest ? "" : "border border-[var(--border-color)]  bg-[var(--panel-color)]/70"
+      } p-3 sm:p-4`}
+    >
+      { isLatest ? null : <div className="absolute -right-6 -top-10 text-[120px] sm:text-[160px] font-black tracking-tight text-white/5 select-none">
+        {event.country_name?.slice(0, 2) || "GP"}
+      </div>}
       <div className="flex-1">
-        {/* Circuit SVG and Event Info - Side by Side */}
-        <div className={`flex ${isLatest ? 'flex-row gap-2 sm:gap-3 lg:gap-4' : 'flex-row gap-2 sm:gap-3'} items-start mb-2 sm:mb-3`}>
-          {/* Circuit SVG */}
+        <div
+          className={`flex ${
+            isLatest ? "flex-row gap-3 sm:gap-4 lg:gap-5" : "flex-row gap-2 sm:gap-3"
+          } items-start mb-2 sm:mb-3`}
+        >
           <div className="flex-shrink-0">
-            <div className="p-1 sm:p-2 rounded-lg" style={{ backgroundColor: 'var(--panel-color)', opacity: 0.6 }}>
-              <CircuitSVG 
-                circuitName={event.circuit_short_name}
-                location={event.location}
-                size={isLatest ? 100 : 70}
-                className="transition-opacity hover:opacity-100"
+            <div className="p-2 rounded-xl bg-black/10">
+              <CircuitModel
+                circuitName={eventMeta.circuit}
+                location={eventMeta.location}
+                size={isLatest ? 150 : 120}
               />
             </div>
           </div>
-          
-          {/* Event Details */}
+
           <div className="flex-1 min-w-0">
-            <p 
-              className={`font-semibold mb-1 ${isLatest ? 'text-xl' : 'text-base'}`}
-              style={{ color: 'var(--primary-color)' }}
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-red-300/80">
+                {isLatest ? "Latest" : "Event"}
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+            </div>
+            <p
+              className={`font-semibold mb-1 ${isLatest ? "text-xl" : "text-base"}`}
+              style={{ color: "var(--primary-color)" }}
             >
-              {event.meeting_name}
+              {eventMeta.title}
             </p>
-            <p 
-              className={`mb-0.5 ${isLatest ? 'text-sm' : 'text-xs'}`}
-              style={{ color: 'var(--text-color)', opacity: 0.7 }}
+            <p
+              className={`mb-0.5 ${isLatest ? "text-sm" : "text-xs"}`}
+              style={{ color: "var(--text-color)", opacity: 0.7 }}
             >
-              {event.circuit_short_name}
+              {eventMeta.circuit}
             </p>
-            <p 
-              className={`mb-0.5 ${isLatest ? 'text-sm' : 'text-xs'}`}
-              style={{ color: 'var(--text-color)', opacity: 0.7 }}
+            <p
+              className={`mb-0.5 ${isLatest ? "text-sm" : "text-xs"}`}
+              style={{ color: "var(--text-color)", opacity: 0.7 }}
             >
-              {event.location}, {event.country_name}
+              {eventMeta.location}
+              {eventMeta.country ? `, ${eventMeta.country}` : ""}
             </p>
-            <p 
-              className={isLatest ? 'text-xs' : 'text-xs'}
-              style={{ color: 'var(--text-color)', opacity: 0.5 }}
+            <p
+              className="text-xs"
+              style={{ color: "var(--text-color)", opacity: 0.5 }}
             >
-              {formatDate(event.date_start)}
+              {eventMeta.date}
             </p>
           </div>
         </div>
       </div>
       {isLatest && (
         <div className="mt-2 sm:mt-3 lg:mt-4">
-          <TopDriversCard 
+          <TopDriversCard
             driversData={mergedDriversData}
             sessionInfo={latestSessionInfoForDrivers}
             driversLoading={latestSessionDriversLoading || positionsLoading}
@@ -117,7 +147,7 @@ const EventCard = ({ event, isLatest = false }) => {
           />
         </div>
       )}
-      <button 
+      <button
         onClick={handleViewDetailsClick}
         className="mt-2 sm:mt-3 text-sm self-start transition-opacity duration-200 hover:opacity-70"
         style={{ color: 'var(--primary-color)' }}

@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
-import { useLatestSessionDrivers } from "./useLatestSessionDrivers";
 import { Loader2 } from "lucide-react";
 
-function SessionDriversGrid({ meetingKey, sessionKey }) {
+import { useLatestSessionDrivers } from "./useLatestSessionDrivers";
+
+function SessionDriversGrid({ meetingKey, sessionKey, year }) {
   const { data: drivers, isLoading, isError } =
-    useLatestSessionDrivers(meetingKey, sessionKey);
+    useLatestSessionDrivers(meetingKey, sessionKey, { year });
 
   // 🧹 Deduplicate by driver_number & sort
   const filteredDrivers = useMemo(() => {
@@ -140,6 +141,18 @@ function SessionDriversGrid({ meetingKey, sessionKey }) {
               )}
               <span className="text-sm">{d.team_name ?? "Unknown Team"}</span>
             </div>
+
+            {d.ergast?.url && (
+              <a
+                href={d.ergast.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs mt-1 inline-flex items-center gap-1 opacity-70 hover:opacity-100"
+                style={{ color: "var(--primary-color)" }}
+              >
+                Driver details →
+              </a>
+            )}
           </div>
         </div>
       ))}

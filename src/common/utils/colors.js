@@ -35,15 +35,15 @@ export const colorClasses = {
   bgPrimary: 'bg-[var(--primary-color)]',
   textPrimary: 'text-[var(--primary-color)]',
   borderPrimary: 'border-[var(--primary-color)]',
-  
+
   bgPanel: 'bg-[var(--panel-color)]',
   bgHeader: 'bg-[var(--header-bg)]',
   bgSidebar: 'bg-[var(--sidebar-bg)]',
-  
+
   textMain: 'text-[var(--text-color)]',
   textHeader: 'text-[var(--header-text)]',
   textSidebar: 'text-[var(--sidebar-text)]',
-  
+
   borderMain: 'border-[var(--border-color)]',
 };
 

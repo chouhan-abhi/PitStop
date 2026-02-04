@@ -1,0 +1,28 @@
+{
+  "season": "2025",
+  "rounds": [
+    { "round": 1, "label": "BHR" },
+    { "round": 2, "label": "SAU" },
+    { "round": 3, "label": "AUS" },
+    { "round": 4, "label": "JPN" },
+    { "round": 5, "label": "CHN" },
+    { "round": 6, "label": "MIA" },
+    { "round": 7, "label": "ESP" },
+    { "round": 8, "label": "CAN" },
+    { "round": 9, "label": "AUT" },
+    { "round": 10, "label": "GBR" }
+  ],
+  "drivers": [
+    { "id": "ver", "name": "Max Verstappen", "team": "Red Bull", "points": [25, 43, 61, 79, 94, 112, 130, 147, 165, 182] },
+    { "id": "nor", "name": "Lando Norris", "team": "McLaren", "points": [18, 36, 56, 74, 88, 101, 116, 134, 152, 168] },
+    { "id": "lec", "name": "Charles Leclerc", "team": "Ferrari", "points": [15, 33, 52, 66, 79, 96, 111, 126, 139, 151] },
+    { "id": "ham", "name": "Lewis Hamilton", "team": "Mercedes", "points": [12, 24, 39, 55, 66, 79, 92, 106, 118, 131] },
+    { "id": "sai", "name": "Carlos Sainz", "team": "Ferrari", "points": [10, 22, 35, 48, 61, 71, 83, 94, 106, 117] }
+  ],
+  "teams": [
+    { "id": "redbull", "name": "Red Bull", "points": [35, 63, 90, 118, 141, 169, 198, 226, 254, 282] },
+    { "id": "mclaren", "name": "McLaren", "points": [28, 52, 78, 104, 126, 150, 176, 202, 226, 248] },
+    { "id": "ferrari", "name": "Ferrari", "points": [25, 49, 74, 97, 118, 144, 169, 193, 215, 237] },
+    { "id": "mercedes", "name": "Mercedes", "points": [18, 36, 58, 82, 102, 124, 146, 169, 189, 209] }
+  ]
+}

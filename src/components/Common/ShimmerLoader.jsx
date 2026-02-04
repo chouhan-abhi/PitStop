@@ -1,4 +1,5 @@
 // src/components/ShimmerLoader.jsx
+
 import React from "react";
 
 /**

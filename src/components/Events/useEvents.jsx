@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { APP_CACHE_CONFIG } from '../../common/AppConfig';
 
 const fetchEvents = async ({ queryKey }) => {

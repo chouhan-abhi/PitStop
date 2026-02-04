@@ -30,7 +30,10 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--bg-color);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255, 0, 0, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 15%, rgba(255, 0, 0, 0.08), transparent 40%),
+    var(--bg-color);
   opacity: 0.85;
   pointer-events: none;
   z-index: 1;

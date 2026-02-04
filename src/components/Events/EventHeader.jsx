@@ -1,4 +1,5 @@
 // src/components/EventHeader.jsx
+
 import React from "react";
 
 const EventHeader = ({ event, formatDate }) => {

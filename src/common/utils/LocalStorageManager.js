@@ -1,4 +1,5 @@
 // src/common/utils/LocalStorageManager.js
+
 import LZString from "lz-string";
 
 export default class LocalStorageManager {
@@ -24,7 +25,7 @@ export default class LocalStorageManager {
       // Check if cache has expired (only if timestamp exists)
       const timestampKey = this._timestampKey(key);
       const timestamp = localStorage.getItem(timestampKey);
-      
+
       if (timestamp && timestamp !== "never") {
         const age = Date.now() - Number.parseInt(timestamp, 10);
         if (age > this.defaultTTL) {
@@ -46,7 +47,7 @@ export default class LocalStorageManager {
     try {
       const compressed = LZString.compress(JSON.stringify(value));
       localStorage.setItem(this._key(key), compressed);
-      
+
       // Store timestamp with TTL
       // If ttl is Infinity, mark as "never" expire (for user preferences)
       // If ttl is null, use default TTL (1 day for cache data)
@@ -104,7 +105,7 @@ export default class LocalStorageManager {
     try {
       const keys = Object.keys(localStorage)
         .filter((k) => k.startsWith(`${this.ns}:`) && k.endsWith(':timestamp'));
-      
+
       for (const timestampKey of keys) {
         const timestamp = localStorage.getItem(timestampKey);
         if (timestamp && timestamp !== "never") {

@@ -33,9 +33,9 @@ export const getLatestSessionFromPositions = (positionsData, meetingKey) => {
   if (!positionsData || !meetingKey) return null;
 
   const allSessionsInMeeting = positionsData.filter(pos => pos.meeting_key === meetingKey);
-  
+
   const sessionsChronologically = Array.from(new Set(allSessionsInMeeting.map(pos => pos.session_key)))
-    .map(sessionKey => { 
+    .map(sessionKey => {
       const sessionPositions = allSessionsInMeeting.filter(pos => pos.session_key === sessionKey);
       return sessionPositions.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     })
@@ -55,7 +55,7 @@ export const getLatestPositionsForDrivers = (positionsData, sessionKey) => {
   const filteredPositions = {};
 
   sessionPositions.forEach(pos => {
-    if (!filteredPositions[pos.driver_number] || 
+    if (!filteredPositions[pos.driver_number] ||
         new Date(pos.date) > new Date(filteredPositions[pos.driver_number].date)) {
       filteredPositions[pos.driver_number] = pos;
     }
@@ -87,22 +87,22 @@ export const processSessionsData = (positionsData) => {
   if (!positionsData || !Array.isArray(positionsData)) return {};
 
   const sessionsData = {};
-  
+
   positionsData.forEach(pos => {
     if (!sessionsData[pos.session_key]) {
-      sessionsData[pos.session_key] = { 
+      sessionsData[pos.session_key] = {
         session_key: pos.session_key,
-        session_name: pos.session_name, 
+        session_name: pos.session_name,
         circuit_short_name: pos.circuit_short_name,
         date: pos.date,
         drivers: {}
       };
     }
-    
+
     const driverKey = pos.driver_number;
     const currentDriver = sessionsData[pos.session_key].drivers[driverKey];
     const posDate = new Date(pos.date);
-    
+
     if (!currentDriver) {
       // First position entry for this driver in this session
       sessionsData[pos.session_key].drivers[driverKey] = {
@@ -115,7 +115,7 @@ export const processSessionsData = (positionsData) => {
     } else {
       const currentFinalDate = new Date(currentDriver.finalDate || currentDriver.date);
       const currentStartingDate = new Date(currentDriver.startingDate || currentDriver.date);
-      
+
       // Update final position if this is a newer date
       if (posDate > currentFinalDate) {
         sessionsData[pos.session_key].drivers[driverKey] = {
@@ -125,7 +125,7 @@ export const processSessionsData = (positionsData) => {
           finalDate: pos.date
         };
       }
-      
+
       // Update starting position if this is an older date
       if (posDate < currentStartingDate) {
         sessionsData[pos.session_key].drivers[driverKey] = {
@@ -145,13 +145,13 @@ export const processSessionsData = (positionsData) => {
  */
 export const formatDate = (dateString, options = {}) => {
   if (!dateString) return '';
-  
-  const defaultOptions = { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
+
+  const defaultOptions = {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
   };
-  
+
   return new Date(dateString).toLocaleDateString('en-US', { ...defaultOptions, ...options });
 };
 

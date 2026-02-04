@@ -15,13 +15,13 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { useLatestSessionDrivers } from "../Drivers/useLatestSessionDrivers";
 import { ArrowLeft } from "lucide-react";
+
+import { useLatestSessionDrivers } from "../Drivers/useLatestSessionDrivers";
+import { useLaps } from "./useLaps";
 import { getTeamColorBorder } from "../../common/utils/colors";
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
-
-const API_BASE = "https://api.openf1.org/v1";
 
 // fallback color if team color not available
 const fallbackColorForDriver = (num) => `hsl(${(num * 57) % 360} 68% 50%)`;
@@ -31,10 +31,8 @@ const SECTOR_GRAPH_HEIGHT = 160;
 const PACE_GRAPH_HEIGHT = 320;
 const DELTA_GRAPH_HEIGHT = 180;
 
-export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
+export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
   // ----- local state -----
-  const [lapsData, setLapsData] = useState([]);
-  const [loadingLaps, setLoadingLaps] = useState(false);
   const [selectedDrivers, setSelectedDrivers] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [expandedLayout, setExpandedLayout] = useState(false);
@@ -45,36 +43,12 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
   const { data: latestDrivers = [], isLoading: driversLoading } = useLatestSessionDrivers(
     meetingKey,
     sessionKey,
-    { enabled: Boolean(meetingKey || sessionKey) }
+    { enabled: Boolean(meetingKey || sessionKey), year }
   );
 
-  // ----- fetch laps for sessionKey with AbortController -----
-  useEffect(() => {
-    if (!sessionKey) {
-      setLapsData([]);
-      setLoadingLaps(false);
-      return;
-    }
-    setLoadingLaps(true);
-    const controller = new AbortController();
-    const url = `${API_BASE}/laps?session_key=${sessionKey}`;
-
-    fetch(url, { signal: controller.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response not ok");
-        return res.json();
-      })
-      .then((payload) => {
-        setLapsData(Array.isArray(payload) ? payload : []);
-      })
-      .catch((err) => {
-        if (err.name !== "AbortError") console.error("laps fetch error", err);
-        setLapsData([]);
-      })
-      .finally(() => setLoadingLaps(false));
-
-    return () => controller.abort();
-  }, [sessionKey]);
+  const { data: lapsData = [], isLoading: loadingLaps } = useLaps(sessionKey, {
+    enabled: Boolean(sessionKey),
+  });
 
   // ----- map driver number -> display name (prefer broadcast_name) -----
   const driversMap = useMemo(() => {
@@ -256,7 +230,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
       const rows = lapsByDriver[num] || [];
       const teamInfo = driversTeamMap[num];
       const color = teamInfo?.teamColor || fallbackColorForDriver(Number(num));
-      
+
       // Check if this driver is part of a team with multiple selected drivers
       const teamName = teamInfo?.teamName;
       const sameTeamCount = teamName && teamGroups[teamName] ? teamGroups[teamName].length : 0;
@@ -305,7 +279,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
   // pace graph (lap_duration) with fastest-lap markers
   const paceGraphData = useMemo(() => {
     if (!selectedDrivers.length) return { labels: lapLabels, datasets: [] };
-    
+
     // Group drivers by team to detect same team
     const teamGroups = {};
     selectedDrivers.forEach((num) => {
@@ -320,7 +294,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
       const rows = lapsByDriver[num] || [];
       const teamInfo = driversTeamMap[num];
       const color = teamInfo?.teamColor || fallbackColorForDriver(Number(num));
-      
+
       // Check if this driver is part of a team with multiple selected drivers
       const teamName = teamInfo?.teamName;
       const sameTeamCount = teamName && teamGroups[teamName] ? teamGroups[teamName].length : 0;
@@ -425,7 +399,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
       </div>
 
       {/* small per-driver stats (avg / best sectors) */}
-      <div 
+      <div
         className="grid gap-2 sm:gap-3 mb-2 sm:mb-3 lg:mb-4"
         style={{
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
@@ -435,17 +409,17 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
           const s = perDriverSectorStats[num] || {};
           const teamInfo = driversTeamMap[num];
           const teamColor = teamInfo?.teamColor || fallbackColorForDriver(Number(num));
-          
+
           // Calculate total lap time from sectors
-          const totalTime = s.avgS1 && s.avgS2 && s.avgS3 
-            ? s.avgS1 + s.avgS2 + s.avgS3 
+          const totalTime = s.avgS1 && s.avgS2 && s.avgS3
+            ? s.avgS1 + s.avgS2 + s.avgS3
             : s.fastestLap?.duration || null;
-          
+
           // Calculate percentages for each sector
           const s1Percent = totalTime && s.avgS1 ? (s.avgS1 / totalTime) * 100 : 0;
           const s2Percent = totalTime && s.avgS2 ? (s.avgS2 / totalTime) * 100 : 0;
           const s3Percent = totalTime && s.avgS3 ? (s.avgS3 / totalTime) * 100 : 0;
-          
+
           // Format time to minutes:seconds.milliseconds
           const formatTime = (seconds) => {
             if (!seconds) return "-";
@@ -453,14 +427,14 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
             const secs = seconds % 60;
             const wholeSecs = Math.floor(secs);
             const milliseconds = Math.floor((secs - wholeSecs) * 1000);
-            
+
             if (mins > 0) {
               return `${mins}:${wholeSecs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
             } else {
               return `${wholeSecs}.${milliseconds.toString().padStart(3, '0')}`;
             }
           };
-          
+
           // Sector colors (using team color with distinct variations)
           const getSectorColor = (sectorNum) => {
             if (!teamInfo?.teamColor) {
@@ -472,24 +446,24 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
               };
               return fallbackColors[sectorNum] || fallbackColorForDriver(Number(num));
             }
-            
+
             // Use team color with different opacity/brightness for each sector
             const baseColor = teamColor.replace('#', '');
             const r = parseInt(baseColor.substring(0, 2), 16);
             const g = parseInt(baseColor.substring(2, 4), 16);
             const b = parseInt(baseColor.substring(4, 6), 16);
-            
+
             // Brightness factors: S1 brightest, S2 medium, S3 darkest
             const brightnessFactors = { 1: 1.0, 2: 0.85, 3: 0.7 };
             const factor = brightnessFactors[sectorNum];
-            
+
             const newR = Math.min(255, Math.max(0, Math.floor(r * factor)));
             const newG = Math.min(255, Math.max(0, Math.floor(g * factor)));
             const newB = Math.min(255, Math.max(0, Math.floor(b * factor)));
-            
+
             return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
           };
-          
+
           const s1Color = getSectorColor(1);
           const s2Color = getSectorColor(2);
           const s3Color = getSectorColor(3);
@@ -500,7 +474,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
                 <div className="font-semibold">{driversMap[num] || `#${num}`}</div>
                 <div className="text-xs opacity-70">({num})</div>
               </div>
-              
+
               {/* Graphical Sector Representation */}
               {totalTime && s.avgS1 && s.avgS2 && s.avgS3 ? (
                 <div className="mb-3">
@@ -521,7 +495,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
                         )}
                       </div>
                     )}
-                    
+
                     {/* Sector 2 */}
                     {s2Percent > 0 && (
                       <div
@@ -538,7 +512,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
                         )}
                       </div>
                     )}
-                    
+
                     {/* Sector 3 */}
                     {s3Percent > 0 && (
                       <div
@@ -556,7 +530,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Total Time Display */}
                   <div className="text-center mt-2">
                     <div className="text-xs font-semibold opacity-90">
@@ -569,7 +543,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey }) {
                   No sector data available
                 </div>
               )}
-              
+
               {/* Best Sectors */}
               <div className="space-y-1 mt-3 pt-3 border-t border-[var(--border-color)]">
                 <div className="text-xs opacity-70">Best Sectors:</div>

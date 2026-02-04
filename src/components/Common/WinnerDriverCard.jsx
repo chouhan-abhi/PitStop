@@ -13,6 +13,12 @@ function WinnerDriverCard({ driver }) {
     "
     >
       <div
+        className="absolute -right-2 -top-6 text-[110px] sm:text-[140px] lg:text-[180px] font-black tracking-tight text-white/10 select-none"
+        aria-hidden="true"
+      >
+        {driver.driver_number}
+      </div>
+      <div
             className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl"
             style={{
               backgroundColor: driver.team_colour ? `#${driver.team_colour}` : "var(--primary-color)",

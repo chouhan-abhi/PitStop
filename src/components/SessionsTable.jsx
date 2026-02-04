@@ -1,4 +1,5 @@
 // src/components/SessionsTable.jsx
+
 import React, { useMemo } from "react";
 
 /**

@@ -1,7 +1,9 @@
 import React, { useMemo, lazy, Suspense } from "react";
+
 import { useEvents } from "./Events/useEvents";
-import { getLatestEvent, getOlderEvents } from "../common/utils/dataProcessing";
+import { getLatestEvent } from "../common/utils/dataProcessing";
 import ShimmerLoader from './Common/ShimmerLoader';
+
 // Lazy-load the EventDashboard
 const EventDashboard = lazy(() =>
   import("./EventDashboard").then((module) => ({
@@ -9,16 +11,15 @@ const EventDashboard = lazy(() =>
   }))
 );
 
-export const Dashboard = () => {
+export const Dashboard = ({ year }) => {
   const {
     data: eventsData,
     isLoading: eventsLoading,
     isError: eventsIsError,
     error: eventsError,
-  } = useEvents("2025", null);
+  } = useEvents(year, null);
 
   const latestEvent = useMemo(() => getLatestEvent(eventsData), [eventsData]);
-  const olderEvents = useMemo(() => getOlderEvents(eventsData), [eventsData]);
 
   return (
     <Suspense fallback={<ShimmerLoader />}>
@@ -28,7 +29,6 @@ export const Dashboard = () => {
         eventsIsError={eventsIsError}
         eventsError={eventsError}
         latestEvent={latestEvent}
-        olderEvents={olderEvents}
       />
     </Suspense>
   );

@@ -1,5 +1,7 @@
 // src/components/StintsGraph.jsx
+
 import React, { useMemo, useState } from "react";
+
 import { getTeamColorWithOpacity, getTeamColorBorder } from "../../common/utils/colors";
 
 const compoundColors = {
@@ -21,7 +23,7 @@ const formatDriverShort = (fullName) => {
 
 const DriverAvatar = ({ driver, driverNumber }) => {
   const [imageError, setImageError] = useState(false);
-  const driverInitials = driver?.full_name 
+  const driverInitials = driver?.full_name
     ? formatDriverShort(driver.full_name).replace(/\./g, '').substring(0, 2).toUpperCase()
     : '?';
   const showImage = driver?.headshot_url && !imageError;
@@ -34,10 +36,10 @@ const DriverAvatar = ({ driver, driverNumber }) => {
         loading="lazy"
         decoding="async"
         className="w-7 h-7 rounded-full mr-2 border"
-        style={{ 
-          borderColor: driver?.team_colour 
-            ? getTeamColorBorder(driver.team_colour) 
-            : "transparent" 
+        style={{
+          borderColor: driver?.team_colour
+            ? getTeamColorBorder(driver.team_colour)
+            : "transparent"
         }}
         onError={() => setImageError(true)}
       />
@@ -48,11 +50,11 @@ const DriverAvatar = ({ driver, driverNumber }) => {
     <div
       className="w-7 h-7 rounded-full mr-2 border flex items-center justify-center text-[10px] font-semibold"
       style={{
-        borderColor: driver?.team_colour 
-          ? getTeamColorBorder(driver.team_colour) 
+        borderColor: driver?.team_colour
+          ? getTeamColorBorder(driver.team_colour)
           : "var(--border-color)",
-        backgroundColor: driver?.team_colour 
-          ? getTeamColorWithOpacity(driver.team_colour, '20') 
+        backgroundColor: driver?.team_colour
+          ? getTeamColorWithOpacity(driver.team_colour, '20')
           : "var(--panel-color)",
         color: "var(--text-color)",
       }}
@@ -76,7 +78,7 @@ const StintsGraph = ({ stintsByDriver = {}, allDrivers = [], totalLaps = 71 }) =
   return (
     <div>
       <div className="relative mb-0">
-        <h3 
+        <h3
           className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
           style={{
             backgroundColor: 'var(--card-bg)',
@@ -101,16 +103,16 @@ const StintsGraph = ({ stintsByDriver = {}, allDrivers = [], totalLaps = 71 }) =
           <div className="flex-1 h-7 rounded-md flex overflow-hidden border border-[var(--border-color)]" style={{ width: '100%' }}>
             {(() => {
               // Calculate all stint laps first
-              const stintLapsArray = stints.map(stint => 
+              const stintLapsArray = stints.map(stint =>
                 Math.max(0, (stint.lap_end - stint.lap_start + 1) || 0)
               );
-              
+
               // Calculate total covered laps
               const totalCoveredLaps = stintLapsArray.reduce((sum, laps) => sum + laps, 0);
-              
+
               // Use the larger of totalCoveredLaps or totalLaps to ensure full width
               const effectiveTotalLaps = Math.max(totalCoveredLaps, totalLaps, 1);
-              
+
               // Calculate flex-basis values based on laps
               const totalLapsValue = stintLapsArray.reduce((sum, laps) => sum + laps, 0) || effectiveTotalLaps;
 

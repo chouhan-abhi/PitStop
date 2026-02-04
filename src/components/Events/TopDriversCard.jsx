@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+
 import {
   getTeamColorWithOpacity,
   getTeamColorBorder,
@@ -63,7 +64,7 @@ export const TopDriversCard = ({
             <div
               key={d.driver_number}
               className="
-                flex items-center gap-4 p-4 rounded-sm
+                relative overflow-hidden flex items-center gap-4 p-4 rounded-sm
                 bg-[var(--panel-color)]
                 hover:shadow-md transition-all
               "
@@ -71,6 +72,12 @@ export const TopDriversCard = ({
                 borderLeft: `4px solid ${getTeamColorBorder(d.team_colour)}`,
               }}
             >
+              <div
+                className="absolute -right-2 -top-6 text-[90px] font-black tracking-tight text-white/10 select-none"
+                aria-hidden="true"
+              >
+                {d.driver_number}
+              </div>
               <div
                 className="w-18 h-18 rounded-full flex items-center justify-center shadow-inner"
                 style={{

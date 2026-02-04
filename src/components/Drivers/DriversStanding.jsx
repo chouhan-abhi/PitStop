@@ -36,9 +36,9 @@ export const DriversStanding = ({ driversData, driversLoading, driversIsError, d
                 <td className="py-2 px-4 border-b border-gray-600">{driver.position}</td>
                 <td className="py-2 px-4 border-b border-gray-600 flex items-center">
                   {driver.headshot_url && (
-                    <img 
-                      src={driver.headshot_url} 
-                      alt={driver.full_name} 
+                    <img
+                      src={driver.headshot_url}
+                      alt={driver.full_name}
                       className="w-8 h-8 rounded-full mr-3 border-2 group-hover:border-red-500 transition-colors duration-200"
                       style={{borderColor: `#${driver.team_colour}`}}
                     />

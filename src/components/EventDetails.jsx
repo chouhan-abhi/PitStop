@@ -22,7 +22,7 @@ import {
   MapPin,
   CalendarDays
 } from "lucide-react";
-import CircuitSVG from './Common/CircuitSVG';
+import CircuitModel from './Common/CircuitModel';
 import {
   getF1Points,
   SESSION_TITLE_MAP
@@ -30,19 +30,12 @@ import {
 const StintsGraph = lazy(() => import('./Common/StintsGraph'));
 const SessionPaceAnalytics = lazy(() => import('./Common/SessionPaceAnalytics'));
 
-export const EventDetails = () => {
+export const EventDetails = ({ year }) => {
 
   const { meetingKey } = useParams();
   const navigate = useNavigate();
 
   // --- FETCH QUERIES ---------------------------------------------------------
-
-  const {
-    data: allDriversRaw,
-    isLoading: driversLoading,
-    isError: driversError,
-    error: driversErrObj
-  } = useLatestSessionDrivers(meetingKey, null);
 
   const {
     data: allPositionsRaw,
@@ -56,16 +49,7 @@ export const EventDetails = () => {
     isLoading: eventsLoading,
     isError: eventsError,
     error: eventsErrObj
-  } = useEvents("2025", null);
-
-
-  // --- COMBINED LOADING / ERROR ---------------------------------------------
-
-  const isLoading = driversLoading || positionsLoading || eventsLoading;
-
-  const isError = driversError || positionsError || eventsError;
-  const errorObj =
-    driversErrObj || positionsErrObj || eventsErrObj;
+  } = useEvents(year, null);
 
 
   // --- SAFETY GUARDS ---------------------------------------------------------
@@ -86,6 +70,27 @@ export const EventDetails = () => {
     const id = Number(meetingKey);
     return eventList.find(ev => ev.meeting_key === id) || null;
   }, [eventList, meetingKey]);
+
+  const currentEventYear = currentEvent?.date_start
+    ? new Date(currentEvent.date_start).getFullYear()
+    : null;
+
+  const {
+    data: allDriversRaw,
+    isLoading: driversLoading,
+    isError: driversError,
+    error: driversErrObj
+  } = useLatestSessionDrivers(meetingKey, null, {
+    year: currentEventYear,
+  });
+
+  // --- COMBINED LOADING / ERROR ---------------------------------------------
+
+  const isLoading = driversLoading || positionsLoading || eventsLoading;
+
+  const isError = driversError || positionsError || eventsError;
+  const errorObj =
+    driversErrObj || positionsErrObj || eventsErrObj;
 
 
   // --- SESSION DATA PROCESSING ----------------------------------------------
@@ -213,64 +218,76 @@ export const EventDetails = () => {
 
   return (
 
-    <div className="p-2 sm:p-4 lg:p-6 px-2 sm:px-4 lg:px-8 w-full" style={{ color: "var(--text-color)" }}>
+    <div className="p-3 sm:p-5 lg:p-8 w-full space-y-4 sm:space-y-5 lg:space-y-6" style={{ color: "var(--text-color)" }}>
 
       {/* BACK BUTTON */}
       <button
         onClick={() => navigate("/")}
-        className="mb-3 sm:mb-4 lg:mb-6 flex items-center gap-2 text-sm font-medium hover:opacity-70"
+        className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full border border-[var(--border-color)] bg-[var(--panel-color)]/70 hover:opacity-80 transition-opacity"
         style={{ color: "var(--primary-color)" }}
       >
         <ArrowLeft size={16} />
-        Back
+        Back to Dashboard
       </button>
 
 
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row items-start justify-between w-full gap-3 sm:gap-4 lg:gap-6 mb-3 sm:mb-4 lg:mb-6">
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3"
-            style={{ color: "var(--primary-color)" }}>
-            {currentEvent.meeting_name}
-            <Flag size={24} className="opacity-80" />
-          </h1>
-
-          <div className="space-y-1">
-            <p className="text-base flex items-center gap-2"
-              style={{ color: "var(--text-color)", opacity: 0.7 }}>
-              <MapPin size={16} />
-              {currentEvent.location}, {currentEvent.country_name}
-            </p>
-
-            <p className="text-sm flex items-center gap-2"
-              style={{ color: "var(--text-color)", opacity: 0.5 }}>
-              <CalendarDays size={16} />
-              {formatDate(currentEvent.date_start)}
-            </p>
-          </div>
+      <div className="relative overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--panel-color)]/70 p-4 sm:p-6 lg:p-8 shadow-[0_16px_40px_rgba(0,0,0,0.2)]">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute -right-6 -top-10 text-[120px] sm:text-[180px] font-black tracking-tight text-white/5 select-none">
+          {currentEvent.country_name?.slice(0, 2) || "GP"}
         </div>
-        
-        {/* Circuit SVG */}
-        {currentEvent && (
-          <div className="flex-shrink-0 flex justify-center md:justify-end">
-            <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--panel-color)', opacity: 0.7 }}>
-              <CircuitSVG 
-                circuitName={currentEvent.circuit_short_name}
-                location={currentEvent.location}
-                size={120}
-                className="transition-opacity hover:opacity-100"
-              />
+        <div className="relative flex flex-col md:flex-row items-start justify-between w-full gap-4 sm:gap-5 lg:gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.35em] text-red-300/80 mb-2">
+              Event Details
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 flex items-center gap-3"
+              style={{ color: "var(--primary-color)" }}>
+              {currentEvent.meeting_name}
+              <Flag size={24} className="opacity-80" />
+            </h1>
+
+            <div className="space-y-1">
+              <p className="text-base flex items-center gap-2"
+                style={{ color: "var(--text-color)", opacity: 0.7 }}>
+                <MapPin size={16} />
+                {currentEvent.location}, {currentEvent.country_name}
+              </p>
+
+              <p className="text-sm flex items-center gap-2"
+                style={{ color: "var(--text-color)", opacity: 0.5 }}>
+                <CalendarDays size={16} />
+                {formatDate(currentEvent.date_start)}
+              </p>
             </div>
           </div>
-        )}
+
+          {currentEvent && (
+            <div className="flex-shrink-0 flex justify-center md:justify-end">
+                <CircuitModel
+                  circuitName={currentEvent.circuit_short_name}
+                  location={currentEvent.location}
+                  width={480}
+                  height={240}
+                />
+            </div>
+          )}
+        </div>
       </div>
 
 
       {/* SESSIONS AREA */}
-      <h2 className="text-lg font-semibold mt-4 sm:mt-6 lg:mt-8 mb-2 sm:mb-3 lg:mb-4 border-b border-[var(--border-color)] pb-2"
-        style={{ color: 'var(--text-color)', opacity: 0.8 }}>
-        Sessions Analysis
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold tracking-wide"
+          style={{ color: 'var(--text-color)', opacity: 0.85 }}>
+          Sessions Analysis
+        </h2>
+        <span className="text-[10px] uppercase tracking-[0.3em] text-red-300/80">
+          Live Insights
+        </span>
+      </div>
 
       {/* NO SESSIONS */}
       {!sortedSessions.length && (
@@ -291,7 +308,7 @@ export const EventDetails = () => {
               {/* TABLE: POSITIONS */}
               <div>
                 <div className="relative mb-0">
-                  <h3 
+                  <h3
                     className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
                     style={{
                       backgroundColor: 'var(--card-bg)',
@@ -305,8 +322,7 @@ export const EventDetails = () => {
                   </h3>
                 </div>
 
-                <div className="overflow-x-auto rounded-md rounded-tl-none"
-                  style={{ border: '1px solid var(--border-color)' }}>
+                <div className="overflow-x-auto rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/80">
                   <table className="min-w-full border-t"
                     style={{ borderTop: '1px solid var(--border-color)' }}>
                     <thead>
@@ -422,10 +438,9 @@ export const EventDetails = () => {
 
 
               {/* STINTS GRAPH */}
-              <div>
+              <div className="rounded-2xl">
 
-                <div className="rounded-md rounded-tl-none"
-                  style={{ borderTop: 'none', backgroundColor: 'var(--card-bg)' }}>
+                <div className="rounded-xl bg-[var(--card-bg)]/70">
                 {stintsLoading ? (
                   <p className="text-sm"
                     style={{ color: 'var(--text-color)', opacity: 0.6 }}>
@@ -449,9 +464,13 @@ export const EventDetails = () => {
               </div>
             </div>
           )}
-          
-          <div className='w-full'>
-            <SessionPaceAnalytics sessionKey={sortedSessions[0].session_key} meetingKey={meetingKey} />
+
+          <div className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/70 p-2 sm:p-3">
+            <SessionPaceAnalytics
+              sessionKey={sortedSessions[0].session_key}
+              meetingKey={meetingKey}
+              year={year}
+            />
           </div>
 
 
@@ -466,7 +485,7 @@ export const EventDetails = () => {
                 return (
                   <div
                     key={session.session_key}
-                    className="rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)]"
+                    className="rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/70"
                   >
 
                     {/* HEADER */}

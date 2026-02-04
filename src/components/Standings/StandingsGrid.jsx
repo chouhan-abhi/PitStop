@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+
 import driversStandingsData from '../../data/driversStandings2025.json';
 import constructorsStandingsData from '../../data/constructorsStandings2025.json';
 

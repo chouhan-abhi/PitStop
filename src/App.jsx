@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  NavLink,
 } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -13,6 +14,9 @@ import LocalStorageManager from "./common/utils/LocalStorageManager";
 
 import { Dashboard } from "./components/Dashboard";
 import { EventDetails } from "./components/EventDetails";
+import ArchivesPage from "./components/ArchivesPage";
+import DriversPage from "./components/Drivers/DriversPage";
+import ScoreCardPage from "./components/ScoreCard/ScoreCardPage";
 
 import { Loader2, Sun, Moon, Sparkles, Laptop, RefreshCw } from "lucide-react";
 
@@ -37,6 +41,8 @@ const PageFallback = () => (
 
 // Theme order including system mode
 const THEME_ORDER = ["system", "dark", "light", "saint"];
+const CURRENT_YEAR = String(new Date().getFullYear());
+const YEAR_OPTIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020"];
 
 // Detect OS theme
 const getSystemTheme = () =>
@@ -49,6 +55,10 @@ export default function App() {
   // Load theme from storage
   const [themeMode, setThemeMode] = useState(() => {
     return storage.get("theme") || "system";
+  });
+
+  const [seasonYear, setSeasonYear] = useState(() => {
+    return storage.get("seasonYear") || CURRENT_YEAR;
   });
 
   // Active theme (actual applied theme)
@@ -71,6 +81,10 @@ export default function App() {
     // Theme is a user preference, not cache data, so it should never expire
     storage.set("theme", themeMode, Number.POSITIVE_INFINITY);
   }, [themeMode]);
+
+  useEffect(() => {
+    storage.set("seasonYear", seasonYear, Number.POSITIVE_INFINITY);
+  }, [seasonYear]);
 
   // Auto-update when OS theme changes
   useEffect(() => {
@@ -129,15 +143,60 @@ export default function App() {
             backgroundColor: "var(--header-bg)",
           }}
         >
-          <div className="mx-auto px-6 py-4 flex items-center justify-between">
-            <h1
-              className="text-2xl font-bold tracking-tight"
-              style={{ color: "var(--primary-color)" }}
-            >
-              {AppConfig.name}
-            </h1>
+          <div className="mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <h1
+                className="text-2xl font-bold tracking-tight"
+                style={{ color: "var(--primary-color)" }}
+              >
+                {AppConfig.name}
+              </h1>
+
+              <nav className="hidden md:flex items-center gap-4 text-sm font-semibold">
+                {[
+                  { to: "/", label: "Home" },
+                  { to: "/archives", label: "Archives" },
+                  { to: "/drivers", label: "Drivers" },
+                  { to: "/score-card", label: "Score Card" },
+                ].map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) =>
+                      `transition-colors ${
+                        isActive
+                          ? "text-red-400"
+                          : "text-[var(--text-color)] opacity-70 hover:opacity-100"
+                      }`
+                    }
+                  >
+                    {item.label}
+                  </NavLink>
+                ))}
+              </nav>
+            </div>
 
             <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--text-color)] opacity-70">
+                <span className="hidden sm:inline">Season</span>
+                <div className="relative">
+                  <select
+                    value={seasonYear}
+                    onChange={(e) => setSeasonYear(e.target.value)}
+                    className="appearance-none rounded-full border border-[var(--border-color)] bg-[var(--panel-color)] px-3 py-1 pr-7 text-xs font-semibold tracking-wide text-[var(--text-color)]"
+                  >
+                    {YEAR_OPTIONS.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] opacity-60">
+                    ▼
+                  </span>
+                </div>
+              </div>
+
               {/* Refresh Button */}
               <button
                 onClick={handleRefresh}
@@ -165,6 +224,29 @@ export default function App() {
                 )}
               </button>
             </div>
+
+            <nav className="flex md:hidden items-center gap-4 text-xs font-semibold w-full overflow-x-auto py-1">
+              {[
+                { to: "/", label: "Home" },
+                { to: "/archives", label: "Archives" },
+                { to: "/drivers", label: "Drivers" },
+                { to: "/score-card", label: "Score Card" },
+              ].map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `whitespace-nowrap transition-colors ${
+                      isActive
+                        ? "text-red-400"
+                        : "text-[var(--text-color)] opacity-70 hover:opacity-100"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
           </div>
         </header>
 
@@ -172,8 +254,11 @@ export default function App() {
         <main className="flex-1 w-full relative z-10">
           <Suspense fallback={<PageFallback />}>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/event/:meetingKey" element={<EventDetails />} />
+              <Route path="/" element={<Dashboard year={seasonYear} />} />
+              <Route path="/archives" element={<ArchivesPage year={seasonYear} />} />
+              <Route path="/drivers" element={<DriversPage year={seasonYear} />} />
+              <Route path="/score-card" element={<ScoreCardPage year={seasonYear} />} />
+              <Route path="/event/:meetingKey" element={<EventDetails year={seasonYear} />} />
             </Routes>
           </Suspense>
         </main>

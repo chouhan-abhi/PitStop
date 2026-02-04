@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { MessageSquare, ArrowUp, ExternalLink, Clock, RefreshCw, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+
 import { useNews } from './useNews';
 
-const DEFAULT_VISIBLE_COUNT = 3;
+const DEFAULT_VISIBLE_COUNT = 6;
 
 // Format large numbers (e.g., 38044 -> 38K)
 const formatNumber = (num) => {
@@ -18,7 +19,7 @@ const formatNumber = (num) => {
 // Format relative time
 const formatTimeAgo = (timestamp) => {
   const seconds = Math.floor(Date.now() / 1000 - timestamp);
-  
+
   if (seconds < 60) return 'just now';
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -76,7 +77,7 @@ const NewsCard = ({ post }) => {
       href={`https://www.reddit.com${permalink}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="block rounded-lg border overflow-hidden transition-all duration-200 hover:shadow-lg hover:scale-[1.01]"
+      className="group block rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-lg hover:scale-[1.01] hover:ring-1 hover:ring-red-500/40"
       style={{
         borderColor: 'var(--border-color)',
         backgroundColor: 'var(--panel-color)',
@@ -116,8 +117,8 @@ const NewsCard = ({ post }) => {
           )}
 
           {/* Title */}
-          <h3 
-            className="text-sm sm:text-base font-medium leading-snug line-clamp-2 mb-2"
+          <h3
+            className="text-sm sm:text-base font-semibold leading-snug line-clamp-2 mb-2"
             style={{ color: 'var(--text-color)' }}
           >
             {title}
@@ -162,17 +163,126 @@ const NewsCard = ({ post }) => {
   );
 };
 
-const News = () => {
+const FeaturedCard = ({ post }) => {
+  const {
+    title,
+    permalink,
+    preview,
+    thumbnail,
+    thumbnail_height,
+    link_flair_text,
+  } = post.data;
+
+  const imageUrl =
+    preview?.images?.[0]?.source?.url?.replace(/&amp;/g, "&") ||
+    (thumbnail && thumbnail !== "self" && thumbnail !== "default" && thumbnail !== "nsfw"
+      ? thumbnail
+      : null);
+
+  const flairColor = getFlairColor(link_flair_text);
+  const cleanFlairText = link_flair_text?.replace(/:[a-z0-9-]+:/gi, "").trim();
+
+  return (
+    <a
+      href={`https://www.reddit.com${permalink}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="relative overflow-hidden rounded-2xl border border-red-500/30 bg-black/40 h-[320px] sm:h-[280px] flex items-end group"
+    >
+      {imageUrl && (
+        <div
+          className="absolute inset-0 bg-center bg-cover"
+          style={{ backgroundImage: `url(${imageUrl})` }}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+
+      <div className="relative z-10 p-4 sm:p-5">
+        {cleanFlairText && (
+          <span
+            className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full"
+            style={{
+              backgroundColor: flairColor ? `${flairColor}30` : "rgba(255,255,255,0.1)",
+              color: flairColor || "#fff",
+            }}
+          >
+            {cleanFlairText}
+          </span>
+        )}
+        <div className="mt-2 text-[10px] uppercase tracking-[0.3em] text-red-300/80">
+          Top Story
+        </div>
+        <h3 className="mt-2 text-lg sm:text-xl font-extrabold leading-tight text-white line-clamp-2">
+          {title}
+        </h3>
+        <span className="mt-2 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-red-300">
+          Read Story →
+        </span>
+      </div>
+    </a>
+  );
+};
+
+const NewsCarousel = ({ posts }) => {
+  const [index, setIndex] = useState(0);
+  const featured = posts.slice(0, 5);
+
+  if (!featured.length) {
+    return (
+      <div className="rounded-2xl border border-[var(--border-color)] p-6 text-sm opacity-60">
+        No top stories available.
+      </div>
+    );
+  }
+
+  const next = () => setIndex((prev) => (prev + 1) % featured.length);
+  const prev = () => setIndex((prev) => (prev - 1 + featured.length) % featured.length);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-[var(--text-color)]">
+            Top Stories
+          </h3>
+          <p className="text-[11px] opacity-60">Weekly highlights from the grid</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={prev}
+            className="h-8 w-8 rounded-full border border-[var(--border-color)] text-xs opacity-70 hover:opacity-100"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            className="h-8 w-8 rounded-full border border-[var(--border-color)] text-xs opacity-70 hover:opacity-100"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-2xl p-1">
+        <FeaturedCard post={featured[index]} />
+      </div>
+    </div>
+  );
+};
+
+const News = ({ showHeader = true, layout = "standard" }) => {
   const [expanded, setExpanded] = useState(false);
-  
-  const { 
-    data, 
-    isLoading, 
-    isError, 
-    error, 
-    refetch, 
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
     isFetching,
-    dataUpdatedAt 
+    dataUpdatedAt
   } = useNews('week', 15);
 
   const posts = data?.posts || [];
@@ -250,55 +360,70 @@ const News = () => {
   }
 
   return (
-    <div className="w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2 sm:mb-3">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-color)' }}>
-            Top Stories This Week
-          </h3>
-          <span className="text-[10px] px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: 'var(--primary-color)' }}>
-            r/formula1
+    <div className="w-full space-y-4">
+      {layout === "carousel" && <NewsCarousel posts={posts} />}
+
+      {layout === "carousel" && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-color)]">
+              My Feed
+            </h4>
+            <p className="text-[11px] opacity-60">More from the paddock</p>
+          </div>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-red-400">
+            Latest
           </span>
         </div>
+      )}
 
-        <div className="flex items-center gap-2">
-          {dataUpdatedAt && (
-            <span className="text-[10px] opacity-50 hidden sm:inline">
-              Updated {getLastUpdated()}
+      {showHeader && layout === "standard" && (
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--text-color)' }}>
+              Top Stories This Week
+            </h3>
+            <span className="text-[10px] px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: 'var(--primary-color)' }}>
+              r/formula1
             </span>
-          )}
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50"
-            title="Refresh news"
-          >
-            <RefreshCw 
-              className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} 
-              style={{ color: 'var(--text-color)', opacity: 0.6 }} 
-            />
-          </button>
-        </div>
-      </div>
+          </div>
 
-      {/* Posts grid */}
-      <div className="grid grid-cols-1 gap-2 sm:gap-3">
+          <div className="flex items-center gap-2">
+            {dataUpdatedAt && (
+              <span className="text-[10px] opacity-50 hidden sm:inline">
+                Updated {getLastUpdated()}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50"
+              title="Refresh news"
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
+                style={{ color: 'var(--text-color)', opacity: 0.6 }}
+              />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${layout === "carousel" ? "lg:grid-cols-3" : ""} gap-2 sm:gap-3`}>
         {displayedPosts.map((post) => (
           <NewsCard key={post.data.id} post={post} />
         ))}
       </div>
 
-      {/* Show More / Show Less button */}
       {hasMorePosts && (
         <div className="mt-3 text-center">
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors hover:bg-white/5"
-            style={{ 
-              color: 'var(--text-color)', 
+            style={{
+              color: 'var(--text-color)',
               borderColor: 'var(--border-color)',
             }}
           >
@@ -317,7 +442,6 @@ const News = () => {
         </div>
       )}
 
-      {/* View more on Reddit link */}
       <div className="mt-2 text-center">
         <a
           href="https://www.reddit.com/r/formula1/top/?t=week"
@@ -335,4 +459,3 @@ const News = () => {
 };
 
 export default News;
-
