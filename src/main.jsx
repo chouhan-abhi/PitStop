@@ -5,6 +5,7 @@ import ReactDOM from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import App from "./App";
+import { runStorageMigration } from "./common/storage";
 import { queryClient } from "./common/utils/queryClient";
 
 import "./index.css";
@@ -15,6 +16,7 @@ const Root = () => {
     if (!document.documentElement.getAttribute('data-theme')) {
       document.documentElement.setAttribute('data-theme', 'dark');
     }
+    runStorageMigration();
   }, []);
 
   return (

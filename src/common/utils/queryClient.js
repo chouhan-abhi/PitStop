@@ -2,15 +2,14 @@ import { QueryClient } from '@tanstack/react-query';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 
-import LocalStorageManager from './LocalStorageManager';
-
-const localStorageManager = new LocalStorageManager('f1pitstop-query');
+import { getActiveSubApp, getBucket } from '../storage';
 
 // Create a custom storage adapter for React Query
 const queryStorage = {
   getItem: (key) => {
     try {
-      const value = localStorageManager.get(key);
+      const bucket = getBucket(getActiveSubApp(), 'react-query', 'api');
+      const value = bucket.getRecord(key);
       return value ? JSON.stringify(value) : null;
     } catch (error) {
       console.warn('Failed to get item from query storage:', error);
@@ -19,14 +18,16 @@ const queryStorage = {
   },
   setItem: (key, value) => {
     try {
-      localStorageManager.set(key, JSON.parse(value));
+      const bucket = getBucket(getActiveSubApp(), 'react-query', 'api');
+      bucket.setRecord(key, JSON.parse(value));
     } catch (error) {
       console.warn('Failed to set item in query storage:', error);
     }
   },
   removeItem: (key) => {
     try {
-      localStorageManager.remove(key);
+      const bucket = getBucket(getActiveSubApp(), 'react-query', 'api');
+      bucket.removeRecord(key);
     } catch (error) {
       console.warn('Failed to remove item from query storage:', error);
     }
@@ -67,4 +68,3 @@ try {
 }
 
 export default queryClient;
-

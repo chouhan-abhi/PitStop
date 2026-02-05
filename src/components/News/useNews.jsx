@@ -7,7 +7,11 @@ const fetchNews = async ({ queryKey }) => {
 
   const url = `${REDDIT_API_URL}`;
 
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'pitstop-bot/1.0'
+    }
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch news');
   }

@@ -10,7 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import "./App.css";
 import { AppConfig } from "./common/AppConfig";
-import LocalStorageManager from "./common/utils/LocalStorageManager";
+import { getBucket, setActiveSubApp } from "./common/storage";
 
 import { Dashboard } from "./components/Dashboard";
 import { EventDetails } from "./components/EventDetails";
@@ -20,9 +20,7 @@ import ScoreCardPage from "./components/ScoreCard/ScoreCardPage";
 
 import { Loader2, Sun, Moon, Sparkles, Laptop, RefreshCw } from "lucide-react";
 
-// Create storage instance
-const storage = new LocalStorageManager("f1pitstop");
-const queryStorage = new LocalStorageManager("f1pitstop-query");
+const prefsBucket = getBucket("app", "prefs", "prefs");
 
 /* Scroll to top on route change */
 const ScrollToTop = () => {
@@ -30,6 +28,26 @@ const ScrollToTop = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pathname]);
+  return null;
+};
+
+const RouteStorageSync = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (pathname.startsWith("/drivers")) {
+      setActiveSubApp("drivers");
+    } else if (pathname.startsWith("/archives")) {
+      setActiveSubApp("archives");
+    } else if (pathname.startsWith("/score-card")) {
+      setActiveSubApp("score-card");
+    } else if (pathname.startsWith("/event")) {
+      setActiveSubApp("event-details");
+    } else if (pathname.startsWith("/")) {
+      setActiveSubApp("dashboard");
+    }
+  }, [pathname]);
+
   return null;
 };
 
@@ -54,11 +72,11 @@ export default function App() {
 
   // Load theme from storage
   const [themeMode, setThemeMode] = useState(() => {
-    return storage.get("theme") || "system";
+    return prefsBucket.getRecord("theme") || "system";
   });
 
   const [seasonYear, setSeasonYear] = useState(() => {
-    return storage.get("seasonYear") || CURRENT_YEAR;
+    return prefsBucket.getRecord("seasonYear") || CURRENT_YEAR;
   });
 
   // Active theme (actual applied theme)
@@ -79,11 +97,11 @@ export default function App() {
 
     document.documentElement.setAttribute("data-theme", themeToApply);
     // Theme is a user preference, not cache data, so it should never expire
-    storage.set("theme", themeMode, Number.POSITIVE_INFINITY);
+    prefsBucket.setRecord("theme", themeMode);
   }, [themeMode]);
 
   useEffect(() => {
-    storage.set("seasonYear", seasonYear, Number.POSITIVE_INFINITY);
+    prefsBucket.setRecord("seasonYear", seasonYear);
   }, [seasonYear]);
 
   // Auto-update when OS theme changes
@@ -112,8 +130,6 @@ export default function App() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      // Clear expired cache entries
-      queryStorage.clearExpired();
       // Invalidate all queries to force refetch
       await queryClient.invalidateQueries();
       // Refetch all active queries
@@ -128,6 +144,7 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
+      <RouteStorageSync />
 
       <div
         className="min-h-screen flex flex-col transition-colors duration-300 relative z-10 grid-background"
