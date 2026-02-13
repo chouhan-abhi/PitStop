@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,17 +7,6 @@ import {
   NavLink,
 } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-
-import "./App.css";
-import { AppConfig } from "./common/AppConfig";
-import { getBucket, setActiveSubApp } from "./common/storage";
-
-import { Dashboard } from "./components/Dashboard";
-import { EventDetails } from "./components/EventDetails";
-import ArchivesPage from "./components/ArchivesPage";
-import DriversPage from "./components/Drivers/DriversPage";
-import ScoreCardPage from "./components/ScoreCard/ScoreCardPage";
-
 import {
   Loader2,
   Sun,
@@ -29,14 +18,42 @@ import {
   X,
 } from "lucide-react";
 
-const prefsBucket = getBucket("app", "prefs", "prefs");
+import "./App.css";
+import { AppConfig } from "./common/AppConfig";
+import { getBucket, setActiveSubApp } from "./common/storage";
 
-/* Scroll to top on route change */
+const Dashboard = lazy(() =>
+  import("./components/Dashboard").then((module) => ({ default: module.Dashboard }))
+);
+const EventDetails = lazy(() =>
+  import("./components/EventDetails").then((module) => ({ default: module.EventDetails }))
+);
+const ArchivesPage = lazy(() => import("./components/ArchivesPage"));
+const DriversPage = lazy(() => import("./components/Drivers/DriversPage"));
+const ScoreCardPage = lazy(() => import("./components/ScoreCard/ScoreCardPage"));
+
+const prefsBucket = getBucket("app", "prefs", "prefs");
+const THEME_ORDER = ["system", "dark", "light", "saint"];
+const CURRENT_YEAR = String(new Date().getFullYear());
+const YEAR_OPTIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020"];
+
+const getSystemTheme = () =>
+  window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+const APP_ROUTES = [
+  { to: "/", label: "Home" },
+  { to: "/archives", label: "Archives" },
+  { to: "/drivers", label: "Drivers" },
+  { to: "/score-card", label: "Score Card" },
+];
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pathname]);
+
   return null;
 };
 
@@ -61,52 +78,37 @@ const RouteStorageSync = () => {
 };
 
 const PageFallback = () => (
-  <div className="flex items-center justify-center h-[60vh]">
-    <Loader2 className="animate-spin w-8 h-8 opacity-60" />
+  <div className="app-shell py-10">
+    <div className="panel h-[52vh] flex items-center justify-center">
+      <Loader2 className="animate-spin w-8 h-8 opacity-60" />
+    </div>
   </div>
 );
 
-// Theme order including system mode
-const THEME_ORDER = ["system", "dark", "light", "saint"];
-const CURRENT_YEAR = String(new Date().getFullYear());
-const YEAR_OPTIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020"];
-
-// Detect OS theme
-const getSystemTheme = () =>
-  window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+const ThemeButton = ({ themeMode, cycleTheme }) => (
+  <button
+    type="button"
+    onClick={cycleTheme}
+    className="btn btn-ghost !px-2"
+    aria-label="Switch Theme"
+  >
+    {themeMode === "system" && <Laptop className="w-4 h-4" />}
+    {themeMode === "dark" && <Moon className="w-4 h-4" />}
+    {themeMode === "light" && <Sun className="w-4 h-4" />}
+    {themeMode === "saint" && <Sparkles className="w-4 h-4" />}
+  </button>
+);
 
 export default function App() {
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [themeMode, setThemeMode] = useState(() => prefsBucket.getRecord("theme") || "system");
+  const [seasonYear, setSeasonYear] = useState(() => prefsBucket.getRecord("seasonYear") || CURRENT_YEAR);
 
-  // Load theme from storage
-  const [themeMode, setThemeMode] = useState(() => {
-    return prefsBucket.getRecord("theme") || "system";
-  });
-
-  const [seasonYear, setSeasonYear] = useState(() => {
-    return prefsBucket.getRecord("seasonYear") || CURRENT_YEAR;
-  });
-
-  // Active theme (actual applied theme)
-  const [activeTheme, setActiveTheme] = useState(
-    themeMode === "system" ? getSystemTheme() : themeMode
-  );
-
-  // Apply themeMode changes
   useEffect(() => {
-    let themeToApply = themeMode;
-
-    if (themeMode === "system") {
-      themeToApply = getSystemTheme();
-      setActiveTheme(themeToApply);
-    } else {
-      setActiveTheme(themeMode);
-    }
-
+    const themeToApply = themeMode === "system" ? getSystemTheme() : themeMode;
     document.documentElement.setAttribute("data-theme", themeToApply);
-    // Theme is a user preference, not cache data, so it should never expire
     prefsBucket.setRecord("theme", themeMode);
   }, [themeMode]);
 
@@ -114,35 +116,28 @@ export default function App() {
     prefsBucket.setRecord("seasonYear", seasonYear);
   }, [seasonYear]);
 
-  // Auto-update when OS theme changes
   useEffect(() => {
-    if (themeMode !== "system") return;
+    if (themeMode !== "system") return undefined;
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (e) => {
-      const newTheme = e.matches ? "dark" : "light";
-      setActiveTheme(newTheme);
-      document.documentElement.setAttribute("data-theme", newTheme);
+    const handleChange = (event) => {
+      document.documentElement.setAttribute("data-theme", event.matches ? "dark" : "light");
     };
 
     media.addEventListener("change", handleChange);
     return () => media.removeEventListener("change", handleChange);
   }, [themeMode]);
 
-  // Cycle theme
   const cycleTheme = () => {
     const currentIndex = THEME_ORDER.indexOf(themeMode);
-    const next = (currentIndex + 1) % THEME_ORDER.length;
-    setThemeMode(THEME_ORDER[next]);
+    setThemeMode(THEME_ORDER[(currentIndex + 1) % THEME_ORDER.length]);
   };
 
-  // Manual refresh handler
   const handleRefresh = async () => {
     setIsRefreshing(true);
+
     try {
-      // Invalidate all queries to force refetch
       await queryClient.invalidateQueries();
-      // Refetch all active queries
       await queryClient.refetchQueries();
     } catch (error) {
       console.error("Failed to refresh data:", error);
@@ -158,71 +153,104 @@ export default function App() {
       <ScrollToTop />
       <RouteStorageSync />
 
-      <div
-        className="min-h-screen flex flex-col transition-colors duration-300 relative z-10 grid-background"
-        style={{
-          backgroundColor: "var(--bg-color)",
-          color: "var(--text-color)",
-        }}
-      >
-        {/* Header */}
-        <header
-          className="sticky top-0 z-50 backdrop-blur-md shadow-md relative"
-          style={{
-            backgroundColor: "var(--header-bg)",
-          }}
-        >
-          <div className="mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="w-full grid grid-cols-[1fr_auto_1fr] items-center sm:w-auto sm:flex sm:items-center sm:gap-4">
+      <div className="angular-ui app-chrome grid-background flex flex-col relative z-10">
+        <header className="race-header sticky top-0 z-50 relative">
+          <div className="app-shell py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="w-full grid grid-cols-[1fr_auto_1fr] items-center sm:w-auto sm:flex sm:items-center sm:gap-5">
               <div className="sm:hidden" />
-              <h1
-                className="text-2xl font-bold tracking-tight text-center sm:mx-0 sm:text-left"
-                style={{ color: "var(--primary-color)" }}
-              >
-                {AppConfig.name}
-              </h1>
+
+              <div className="text-center sm:text-left">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                  Race Control
+                </p>
+                <h1 className="display-title text-xl sm:text-2xl font-bold tracking-wider text-[var(--text-primary)]">
+                  {AppConfig.name}
+                </h1>
+              </div>
+
               <div className="flex justify-end sm:hidden">
                 <button
+                  type="button"
                   onClick={() => setIsMobileControlsOpen(true)}
-                  className="p-2 rounded-full border border-[var(--border-color)] bg-[var(--panel-color)]"
+                  className="btn btn-ghost !px-2"
                   aria-label="Open controls"
                 >
-                  <SlidersHorizontal className="w-5 h-5" />
+                  <SlidersHorizontal className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <nav className="hidden md:flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em]">
+              {APP_ROUTES.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `race-tab ${isActive ? "race-tab-active" : ""}`
+                  }
+                  end={item.to === "/"}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+
+            <div className="hidden sm:flex items-center gap-2">
+              <label className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
+                Season
+              </label>
+              <select
+                value={seasonYear}
+                onChange={(event) => setSeasonYear(event.target.value)}
+                className="btn btn-ghost !text-[11px] !tracking-[0.1em] !normal-case"
+                aria-label="Select season year"
+              >
+                {YEAR_OPTIONS.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="btn btn-ghost !px-2"
+                aria-label="Refresh Data"
+                title="Refresh data cache"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              </button>
+
+              <ThemeButton themeMode={themeMode} cycleTheme={cycleTheme} />
+            </div>
+          </div>
+        </header>
+
+        {isMobileControlsOpen && (
+          <div className="fixed inset-0 z-[60] flex items-end sm:hidden">
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/70"
+              onClick={closeMobileControls}
+              aria-label="Close controls"
+            />
+            <div className="relative w-full rounded-t-2xl p-4 border-t border-[var(--border-color)] bg-[var(--panel-color)]">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="display-title text-sm tracking-[0.2em] uppercase">Quick Controls</h2>
+                <button type="button" onClick={closeMobileControls} className="btn btn-ghost !px-2" aria-label="Close">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <nav className="hidden md:flex items-center gap-4 text-sm font-semibold">
-                {[
-                  { to: "/", label: "Home" },
-                  { to: "/archives", label: "Archives" },
-                  { to: "/drivers", label: "Drivers" },
-                  { to: "/score-card", label: "Score Card" },
-                ].map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    className={({ isActive }) =>
-                      `transition-colors ${
-                        isActive
-                          ? "text-red-400"
-                          : "text-[var(--text-color)] opacity-70 hover:opacity-100"
-                      }`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                ))}
-              </nav>
-            </div>
-
-            <div className="hidden sm:flex items-center gap-3">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--text-color)] opacity-70">
-                <span className="hidden sm:inline">Season</span>
-                <div className="relative">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Season</span>
                   <select
                     value={seasonYear}
-                    onChange={(e) => setSeasonYear(e.target.value)}
-                    className="appearance-none rounded-full border border-[var(--border-color)] bg-[var(--panel-color)] px-3 py-1 pr-7 text-xs font-semibold tracking-wide text-[var(--text-color)]"
+                    onChange={(event) => setSeasonYear(event.target.value)}
+                    className="btn btn-ghost !text-[11px] !normal-case"
                   >
                     {YEAR_OPTIONS.map((year) => (
                       <option key={year} value={year}>
@@ -230,135 +258,30 @@ export default function App() {
                       </option>
                     ))}
                   </select>
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] opacity-60">
-                    ▼
-                  </span>
-                </div>
-              </div>
-
-              {/* Refresh Button */}
-              <button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="p-1 rounded-full hover:scale-110 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Refresh Data"
-                title="Refresh data cache"
-              >
-                <RefreshCw
-                  className={`w-6 h-6 ${isRefreshing ? "animate-spin" : ""}`}
-                />
-              </button>
-
-              {/* Theme Mode Button */}
-              <button
-                onClick={cycleTheme}
-                className="p-1 rounded-full hover:scale-110 transition-transform"
-                aria-label="Switch Theme"
-              >
-                {themeMode === "system" && <Laptop className="w-6 h-6" />}
-                {themeMode === "dark" && <Moon className="w-6 h-6 text-slate-300" />}
-                {themeMode === "light" && <Sun className="w-6 h-6 text-yellow-500" />}
-                {themeMode === "saint" && (
-                  <Sparkles className="w-6 h-6 text-purple-300" />
-                )}
-              </button>
-            </div>
-
-          </div>
-        </header>
-
-        {/* Mobile Controls Modal */}
-        {isMobileControlsOpen && (
-          <div className="fixed inset-0 z-[60] flex items-end sm:hidden">
-            <button
-              className="absolute inset-0 bg-black/60"
-              onClick={closeMobileControls}
-              aria-label="Close controls"
-            />
-            <div
-              className="relative w-full rounded-t-2xl p-4 border-t"
-              style={{
-                backgroundColor: "var(--panel-color)",
-                borderColor: "var(--border-color)",
-              }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold">Quick Controls</h2>
-                <button
-                  onClick={closeMobileControls}
-                  className="p-1 rounded-full"
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-widest opacity-70">
-                    Season
-                  </span>
-                  <div className="relative">
-                    <select
-                      value={seasonYear}
-                      onChange={(e) => setSeasonYear(e.target.value)}
-                      className="appearance-none rounded-full border border-[var(--border-color)] bg-[var(--panel-color)] px-3 py-1 pr-7 text-xs font-semibold tracking-wide text-[var(--text-color)]"
-                    >
-                      {YEAR_OPTIONS.map((year) => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] opacity-60">
-                      ▼
-                    </span>
-                  </div>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-widest opacity-70">
-                    Refresh
-                  </span>
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Refresh</span>
                   <button
+                    type="button"
                     onClick={handleRefresh}
                     disabled={isRefreshing}
-                    className="p-2 rounded-full border border-[var(--border-color)] bg-[var(--panel-color)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn btn-ghost !px-2"
                     aria-label="Refresh Data"
                   >
-                    <RefreshCw
-                      className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`}
-                    />
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
                   </button>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-widest opacity-70">
-                    Theme
-                  </span>
-                  <button
-                    onClick={cycleTheme}
-                    className="p-2 rounded-full border border-[var(--border-color)] bg-[var(--panel-color)]"
-                    aria-label="Switch Theme"
-                  >
-                    {themeMode === "system" && <Laptop className="w-5 h-5" />}
-                    {themeMode === "dark" && (
-                      <Moon className="w-5 h-5 text-slate-300" />
-                    )}
-                    {themeMode === "light" && (
-                      <Sun className="w-5 h-5 text-yellow-500" />
-                    )}
-                    {themeMode === "saint" && (
-                      <Sparkles className="w-5 h-5 text-purple-300" />
-                    )}
-                  </button>
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Theme</span>
+                  <ThemeButton themeMode={themeMode} cycleTheme={cycleTheme} />
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Main content */}
         <main className="flex-1 w-full relative z-10 pb-16 md:pb-0">
           <Suspense fallback={<PageFallback />}>
             <Routes>
@@ -371,31 +294,23 @@ export default function App() {
           </Suspense>
         </main>
 
-        {/* Mobile Bottom Nav */}
         <nav
-          className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t backdrop-blur-md"
-          style={{
-            backgroundColor: "var(--header-bg)",
-            borderColor: "var(--border-color)",
-          }}
+          className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t backdrop-blur-md bg-[var(--header-bg)] border-[var(--border-color)]"
+          aria-label="Mobile navigation"
         >
-          <div className="mx-auto px-4 py-2 flex items-center justify-around text-xs font-semibold">
-            {[
-              { to: "/", label: "Home" },
-              { to: "/archives", label: "Archives" },
-              { to: "/drivers", label: "Drivers" },
-              { to: "/score-card", label: "Score Card" },
-            ].map((item) => (
+          <div className="app-shell py-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.14em]">
+            {APP_ROUTES.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `px-2 py-1 transition-colors ${
+                  `px-2 py-1 rounded-md transition-colors ${
                     isActive
-                      ? "text-red-400"
-                      : "text-[var(--text-color)] opacity-70 hover:opacity-100"
+                      ? "text-[var(--text-primary)] bg-red-500/20"
+                      : "text-[var(--text-secondary)]"
                   }`
                 }
+                end={item.to === "/"}
               >
                 {item.label}
               </NavLink>
@@ -403,16 +318,10 @@ export default function App() {
           </div>
         </nav>
 
-        {/* Footer */}
-        <footer
-          className="py-4 text-center text-sm relative z-10 hidden md:block"
-          style={{
-            backgroundColor: "var(--header-bg)",
-            color: "var(--text-color)",
-            opacity: 0.75,
-          }}
-        >
-          © 2025 {AppConfig.name} — All data © Formula 1
+        <footer className="relative z-10 hidden md:block border-t border-[var(--border-color)]">
+          <div className="app-shell py-4 text-xs text-[var(--text-muted)]">
+            © 2026 {AppConfig.name} | data partner Jolpica (Ergast mirror)
+          </div>
         </footer>
       </div>
     </Router>

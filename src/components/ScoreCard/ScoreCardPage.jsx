@@ -6,6 +6,9 @@ import StandingsTable from "./StandingsTable";
 import { useDriverStandings } from "./useDriverStandings";
 import { useConstructorStandings } from "./useConstructorStandings";
 import { useRaceResults } from "./useRaceResults";
+import PageShell from "../ui/PageShell";
+import Panel from "../ui/Panel";
+import StatusPill from "../ui/StatusPill";
 
 const YEAR_OPTIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020"];
 
@@ -138,7 +141,7 @@ const ScoreCardPage = ({ year }) => {
         id: row.id,
         name: row.driver,
         points,
-        color: idx === 0 ? "#ff4d4d" : `rgba(255,255,255,${0.6 - idx * 0.08})`,
+        color: idx === 0 ? "#ff2d2d" : `rgba(255,255,255,${0.68 - idx * 0.08})`,
       };
     });
   }, [driverRows, progression.driverMap]);
@@ -154,7 +157,7 @@ const ScoreCardPage = ({ year }) => {
         id: row.id,
         name: row.constructor,
         points,
-        color: idx === 0 ? "#ff4d4d" : `rgba(255,255,255,${0.6 - idx * 0.08})`,
+        color: idx === 0 ? "#ff2d2d" : `rgba(255,255,255,${0.68 - idx * 0.08})`,
       };
     });
   }, [constructorRows, progression.constructorMap]);
@@ -168,43 +171,28 @@ const ScoreCardPage = ({ year }) => {
     "Unable to load score card data";
 
   return (
-    <div className="flex-1 px-3 sm:px-5 lg:px-8 py-4 lg:py-8 space-y-5 lg:space-y-7">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--text-color)]">
-            Score Card
-          </h2>
-          <p className="text-sm opacity-60">
-            Standings and progression for {scoreYear}
-          </p>
-          <p className="text-[11px] opacity-50">
-            Events loaded: {raceMeta.raceCount} · Max round: {raceMeta.maxRound} · Results: {raceMeta.totalResults}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-xs uppercase tracking-[0.25em] text-red-300">
-            Season Pulse
-          </div>
-          <div className="relative">
-            <select
-              value={scoreYear}
-              onChange={(event) => setScoreYear(event.target.value)}
-              className="appearance-none rounded-full border border-[var(--border-color)] bg-[var(--panel-color)] px-3 py-1 pr-7 text-xs font-semibold tracking-wide text-[var(--text-color)]"
-            >
-              {YEAR_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] opacity-60">
-              ▼
-            </span>
-          </div>
-        </div>
-      </header>
-
-      <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/80 p-1">
+    <PageShell
+      title="Score Card"
+      subtitle={`Standings and progression for ${scoreYear}`}
+      meta={`Events loaded: ${raceMeta.raceCount} · Max round: ${raceMeta.maxRound} · Results: ${raceMeta.totalResults}`}
+      actions={(
+        <>
+          <StatusPill tone="live">Season Pulse</StatusPill>
+          <select
+            value={scoreYear}
+            onChange={(event) => setScoreYear(event.target.value)}
+            className="btn btn-ghost !text-[11px] !tracking-[0.1em] !normal-case"
+          >
+            {YEAR_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+    >
+      <Panel className="p-1">
         <div className="flex gap-2 p-1">
           {[
             { key: "drivers", label: "Drivers" },
@@ -214,40 +202,34 @@ const ScoreCardPage = ({ year }) => {
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+              className={`flex-1 px-4 py-2 text-xs font-semibold rounded-xl transition-all uppercase tracking-[0.12em] ${
                 activeTab === tab.key
                   ? "bg-red-600/30 text-red-100"
-                  : "text-[var(--text-color)] opacity-70 hover:opacity-100"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
-      </div>
+      </Panel>
 
       {isLoading && (
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-8 flex items-center justify-center">
+        <Panel className="p-8 flex items-center justify-center">
           <Loader2 className="w-6 h-6 animate-spin opacity-60" />
           <span className="ml-2 text-sm opacity-60">Loading data…</span>
-        </div>
+        </Panel>
       )}
 
       {isError && (
-        <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-6 text-sm text-red-400">
-          {errorMessage}
-        </div>
+        <Panel className="p-6 text-sm text-red-400">{errorMessage}</Panel>
       )}
 
       {!isLoading && !isError && (
         <>
           {activeTab === "drivers" && (
             <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1.1fr] gap-4 lg:gap-6">
-              <ProgressionChart
-                title="Drivers Progression"
-                rounds={rounds}
-                series={driverSeries}
-              />
+              <ProgressionChart title="Drivers Progression" rounds={rounds} series={driverSeries} />
               <StandingsTable
                 title="Driver Standings"
                 columns={[
@@ -263,11 +245,7 @@ const ScoreCardPage = ({ year }) => {
           )}
           {activeTab === "constructors" && (
             <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1.1fr] gap-4 lg:gap-6">
-              <ProgressionChart
-                title="Teams Progression"
-                rounds={rounds}
-                series={teamSeries}
-              />
+              <ProgressionChart title="Teams Progression" rounds={rounds} series={teamSeries} />
               <StandingsTable
                 title="Constructor Standings"
                 columns={[
@@ -282,7 +260,7 @@ const ScoreCardPage = ({ year }) => {
           )}
         </>
       )}
-    </div>
+    </PageShell>
   );
 };
 

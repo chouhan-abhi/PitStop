@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { APP_CACHE_CONFIG } from "../../common/AppConfig";
+
 const fetchRaceResults = async (year) => {
   const baseUrl = `https://api.jolpi.ca/ergast/f1/${year}/results/?format=json`;
   const pageLimit = 1000;
@@ -56,6 +58,5 @@ export const useRaceResults = (year) =>
     queryKey: ["race-results", year],
     queryFn: () => fetchRaceResults(year),
     enabled: Boolean(year),
-    staleTime: 1000 * 60 * 30,
-    gcTime: 1000 * 60 * 60 * 2,
+    ...APP_CACHE_CONFIG,
   });

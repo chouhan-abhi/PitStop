@@ -1,0 +1,118 @@
+:root {
+  color-scheme: dark;
+
+  --surface-0: #05070b;
+  --surface-1: #0b1020;
+  --surface-2: #11182b;
+  --surface-3: #1a233b;
+
+  --text-primary: #f4f7ff;
+  --text-secondary: #a7b0c5;
+  --text-muted: #7e879d;
+
+  --accent-red: #ff2d2d;
+  --accent-amber: #ffb347;
+  --success: #29cc7a;
+  --warning: #ffd166;
+  --danger: #ff5f6d;
+  --ring: rgba(255, 45, 45, 0.45);
+  --grid-line: rgba(255, 255, 255, 0.06);
+
+  --panel-glass: rgba(10, 14, 25, 0.72);
+  --panel-solid: #12192b;
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  --shadow-sm: 0 4px 14px rgba(2, 6, 23, 0.25);
+  --shadow-md: 0 14px 40px rgba(2, 6, 23, 0.42);
+
+  --font-display: "Rajdhani", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-body: "Barlow", "Inter", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* Legacy compatibility vars */
+  --primary-color: var(--accent-red);
+  --bg-color: var(--surface-0);
+  --text-color: var(--text-primary);
+  --panel-color: var(--panel-solid);
+  --border-color: var(--border-strong);
+  --header-bg: rgba(5, 7, 11, 0.9);
+  --header-text: var(--text-primary);
+  --card-bg: var(--surface-2);
+  --skeleton-color: rgba(255, 255, 255, 0.12);
+  --grid-color: var(--grid-line);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-0: #f4f6fb;
+  --surface-1: #ffffff;
+  --surface-2: #eef2fb;
+  --surface-3: #e5ebfa;
+
+  --text-primary: #111827;
+  --text-secondary: #394150;
+  --text-muted: #5e6778;
+
+  --accent-red: #e10600;
+  --accent-amber: #f2994a;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --ring: rgba(225, 6, 0, 0.32);
+  --grid-line: rgba(17, 24, 39, 0.06);
+
+  --panel-glass: rgba(255, 255, 255, 0.76);
+  --panel-solid: #ffffff;
+  --border-strong: rgba(17, 24, 39, 0.15);
+
+  --shadow-sm: 0 3px 10px rgba(17, 24, 39, 0.08);
+  --shadow-md: 0 14px 28px rgba(17, 24, 39, 0.15);
+
+  --primary-color: var(--accent-red);
+  --bg-color: var(--surface-0);
+  --text-color: var(--text-primary);
+  --panel-color: var(--panel-solid);
+  --border-color: var(--border-strong);
+  --header-bg: rgba(255, 255, 255, 0.88);
+  --header-text: var(--text-primary);
+  --card-bg: var(--surface-1);
+  --skeleton-color: rgba(17, 24, 39, 0.1);
+  --grid-color: var(--grid-line);
+}
+
+:root[data-theme="saint"] {
+  color-scheme: dark;
+
+  --surface-0: #0d111b;
+  --surface-1: #171c2b;
+  --surface-2: #1e273b;
+  --surface-3: #2b3550;
+
+  --text-primary: #e4ecff;
+  --text-secondary: #b5c0de;
+  --text-muted: #8f9abb;
+
+  --accent-red: #f75b5b;
+  --accent-amber: #f5bd4f;
+  --success: #57d68d;
+  --warning: #f9cf5d;
+  --danger: #ff717c;
+  --ring: rgba(247, 91, 91, 0.38);
+  --grid-line: rgba(228, 236, 255, 0.07);
+
+  --panel-glass: rgba(26, 33, 49, 0.78);
+  --panel-solid: #1e273b;
+  --border-strong: rgba(228, 236, 255, 0.16);
+
+  --primary-color: var(--accent-red);
+  --bg-color: var(--surface-0);
+  --text-color: var(--text-primary);
+  --panel-color: var(--panel-solid);
+  --border-color: var(--border-strong);
+  --header-bg: rgba(23, 28, 43, 0.9);
+  --header-text: var(--text-primary);
+  --card-bg: var(--surface-2);
+  --skeleton-color: rgba(228, 236, 255, 0.1);
+  --grid-color: var(--grid-line);
+}

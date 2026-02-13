@@ -42,7 +42,7 @@ export const EventDetails = ({ year }) => {
     isLoading: positionsLoading,
     isError: positionsError,
     error: positionsErrObj
-  } = usePositions(meetingKey, null, null);
+  } = usePositions(meetingKey, null, null, { year });
 
   const {
     data: eventDetailsData,
@@ -218,13 +218,13 @@ export const EventDetails = ({ year }) => {
 
   return (
 
-    <div className="p-3 sm:p-5 lg:p-8 w-full space-y-4 sm:space-y-5 lg:space-y-6" style={{ color: "var(--text-color)" }}>
+    <div className="app-shell py-4 lg:py-8 w-full space-y-4 sm:space-y-5 lg:space-y-6" style={{ color: "var(--text-color)" }}>
 
       {/* BACK BUTTON */}
       <button
+        type="button"
         onClick={() => navigate("/")}
-        className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full border border-[var(--border-color)] bg-[var(--panel-color)]/70 hover:opacity-80 transition-opacity"
-        style={{ color: "var(--primary-color)" }}
+        className="btn btn-ghost"
       >
         <ArrowLeft size={16} />
         Back to Dashboard
@@ -271,6 +271,8 @@ export const EventDetails = ({ year }) => {
                   location={currentEvent.location}
                   width={480}
                   height={240}
+                  enabled
+                  defer={false}
                 />
             </div>
           )}

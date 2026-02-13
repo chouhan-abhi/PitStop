@@ -1,14 +1,10 @@
+import { QUERY_ARCHIVE_DEFAULTS, QUERY_LIVE_DEFAULTS } from "./utils/queryDefaults";
+
 export const AppConfig = {
   name: "F1 PitStop",
   description: "A dashboard for F1 sports data",
-  version: "1.0.1",
+  version: "2.0.0",
 };
 
-// Legacy export for backward compatibility - now handled by queryClient.js
-export const APP_CACHE_CONFIG = {
-  staleTime: 1000 * 60 * 60 * 24, // 24 hours
-  gcTime: 1000 * 60 * 60 * 24, // 1 day
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-};
+export const APP_CACHE_CONFIG = QUERY_ARCHIVE_DEFAULTS;
+export const APP_LIVE_CACHE_CONFIG = QUERY_LIVE_DEFAULTS;

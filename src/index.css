@@ -1,209 +1,229 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "./styles/tokens.css";
 
-/* ===================================================== */
-/* ✅ GLOBAL ROOT VARIABLES                              */
-/* ===================================================== */
-
-:root {
-  --primary-color: #ff6b6b;
-  --skeleton-color: rgba(255, 255, 255, 0.08);
-  
-  /* Base layout */
-  --bg-color: #ffffff;
-  --text-color: #1a1a1a;
-  --panel-color: #f7f7f7;
-  --border-color: #e2e2e2;
-
-  /* Header / Sidebar */
-  --header-bg: #ffffff;
-  --header-text: #1a1a1a;
-
-  --sidebar-bg: #111827;
-  --sidebar-text: #ffffff;
-
-  --sidebar-icon-bg: #2d2d2d;
-  --sidebar-icon-text: #ffffff;
-
-  --font-family: "Inter", system-ui, sans-serif;
-
-  /* Additional accents */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.12);
-
-  --primary-red: #ff6b6b;
-  --primary-blue: #4dabf7;
-  --primary-green: #51cf66;
-  --primary-purple: #9b5de5;
-  --primary-orange: #ff922b;
-  --primary-pink: #f06595;
-  --primary-cyan: #22b8cf;
-  --primary-yellow: #fcc419;
+@font-face {
+  font-family: "Rajdhani";
+  src:
+    url("/fonts/rajdhani-semibold.woff2") format("woff2"),
+    local("Rajdhani");
+  font-display: swap;
 }
 
-/* ===================================================== */
-/* ✅ THEMES (Primary stays untouched)                   */
-/* ===================================================== */
-
-:root[data-theme="light"] {
-  --bg-color: #ffffff;
-  --text-color: #1a1a1a;
-  --panel-color: #f7f7f7;
-  --border-color: #dddddd;
-  --header-bg: #f6f6f6;
-  --sidebar-bg: #111827;
-  --sidebar-text: #ffffff;
-  --grid-color: rgba(0, 0, 0, 0.04);
+@font-face {
+  font-family: "Barlow";
+  src:
+    url("/fonts/barlow-regular.woff2") format("woff2"),
+    local("Barlow");
+  font-display: swap;
 }
 
-:root[data-theme="dark"] {
-  --bg-color: #0f1115;
-  --text-color: #e9ecef;
-  --panel-color: #1a1a1a;
-  --border-color: #333333;
-  --header-bg: #1a1c21;
-  --sidebar-bg: #0c0d11;
-  --sidebar-text: #e9ecef;
-  --sidebar-icon-bg: #3a3a3a;
-  --sidebar-icon-text: #e5e5e5;
-  --grid-color: rgba(255, 255, 255, 0.03);
+* {
+  box-sizing: border-box;
 }
 
-:root[data-theme="saint"] {
-  --bg-color: #2e3440;
-  --text-color: #d8dee9;
-  --panel-color: #3b4252;
-  --border-color: #4c566a;
-  --header-bg: #3b4252;
-  --sidebar-bg: #2e3440;
-  --sidebar-text: #eceff4;
-  --grid-color: rgba(255, 255, 255, 0.04);
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
 }
-
-/* ===================================================== */
-/* ✅ FONT MODES                                         */
-/* ===================================================== */
-
-.font-default { --font-family: "Inter", system-ui, sans-serif; }
-.font-mono    { --font-family: "JetBrains Mono", monospace; }
-.font-tech    { --font-family: "Inter", "JetBrains Mono", monospace; }
-
-/* ===================================================== */
-/* ✅ GLOBAL ELEMENTS                                    */
-/* ===================================================== */
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-body);
   background: var(--bg-color);
   color: var(--text-color);
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    font-family 0.25s ease;
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.45;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-red);
+  outline-offset: 2px;
+}
+
+.grid-background {
   position: relative;
 }
 
-/* Minimal grid background */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    linear-gradient(var(--grid-color, rgba(0, 0, 0, 0.03)) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-color, rgba(0, 0, 0, 0.03)) 1px, transparent 1px);
-  background-size: 24px 24px;
+.grid-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(255, 45, 45, 0.16), transparent 34%),
+    radial-gradient(circle at 82% 12%, rgba(255, 179, 71, 0.12), transparent 38%),
+    linear-gradient(180deg, rgba(5, 7, 11, 0.05), transparent 20%);
 }
 
-/* ===================================================== */
-/* ✅ Sidebar Icon Hover (Better + smoother)             */
-/* ===================================================== */
-
-.group:hover .w-10 {
-  background: var(--primary-color) !important;
-  color: #fff !important;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--panel-color) 75%, transparent);
+  color: var(--text-color);
+  padding: 0.4rem 0.85rem;
+  line-height: 1;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
 }
 
-/* ===================================================== */
-/* ✅ GLOBAL BUTTON HOVER STATE                           */
-/* ===================================================== */
-/* Works for ALL <button> unless overridden */
-
-button {
-  padding: 0.25rem 0.48rem;
-  border-radius: 50px;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent-red) 60%, var(--border-color));
 }
 
-button:hover {
-  color: white;
-  background: var(--primary-color);
-  border-color: var(--primary-color);
+.btn:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/* If button has bg already, only apply subtle tint */
-button:not([class*="bg-"]):hover {
-  background: var(--primary-color);
+.btn-ghost {
+  background: transparent;
 }
 
-/* ===================================================== */
-/* ✅ Scrollbar Styling                                   */
-/* ===================================================== */
+.btn-accent {
+  border-color: color-mix(in srgb, var(--accent-red) 72%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-red) 34%, transparent), color-mix(in srgb, var(--accent-amber) 16%, transparent));
+  color: var(--text-primary);
+}
+
+.app-shell {
+  width: min(1360px, 100%);
+  margin: 0 auto;
+  padding-left: clamp(0.8rem, 2vw, 1.4rem);
+  padding-right: clamp(0.8rem, 2vw, 1.4rem);
+}
+
+.panel {
+  border: 1px solid var(--border-color);
+  border-radius: 0.65rem;
+  background: var(--panel-glass);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+}
+
+.f1-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.65rem;
+}
+
+.f1-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--border-color) 88%, transparent);
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.f1-card::before {
+  content: "";
+  position: absolute;
+  top: -120%;
+  left: -40%;
+  width: 55%;
+  height: 320%;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 45, 45, 0.18) 45%,
+    rgba(255, 179, 71, 0.12) 55%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  opacity: 0;
+  transition: transform 420ms ease, opacity 420ms ease;
+}
+
+.f1-card:hover::after {
+  border-color: color-mix(in srgb, var(--accent-red) 55%, var(--border-color));
+  box-shadow: inset 0 0 0 1px rgba(255, 45, 45, 0.14);
+}
+
+.f1-card:hover::before {
+  opacity: 1;
+  transform: translateX(300%);
+}
+
+.display-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+}
+
+.angular-ui .rounded-3xl,
+.angular-ui .rounded-2xl,
+.angular-ui .rounded-xl,
+.angular-ui .rounded-lg,
+.angular-ui .rounded-md,
+.angular-ui .rounded-sm,
+.angular-ui .rounded-full {
+  border-radius: 0.4rem !important;
+}
+
+.angular-ui .rounded-t-2xl,
+.angular-ui .rounded-t-3xl,
+.angular-ui .rounded-t-xl,
+.angular-ui .rounded-t-lg,
+.angular-ui .rounded-t-md {
+  border-top-left-radius: 0.4rem !important;
+  border-top-right-radius: 0.4rem !important;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 9px;
+  height: 9px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c6ccd8;
-  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-secondary) 60%, transparent);
+  border-radius: 999px;
 }
 
-:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: #3b4252;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
-
-:root[data-theme="saint"] ::-webkit-scrollbar-thumb {
-  background: #4c566a;
-}
-
-/* ===================================================== */
-/* ✅ Animations                                          */
-/* ===================================================== */
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { transform: translateX(-10px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-.animate-fadeInUp { animation: fadeInUp 0.45s ease-out forwards; }
-.animate-slideIn  { animation: slideIn 0.25s ease-out forwards; }
-.animate-fadeIn   { animation: fadeIn 0.35s ease-in-out forwards; }
-
-/* ===================================================== */
-/* ✅ Accent Utility Classes                              */
-/* ===================================================== */
-
-.primary-red    { --primary-color: var(--primary-red); }
-.primary-blue   { --primary-color: var(--primary-blue); }
-.primary-green  { --primary-color: var(--primary-green); }
-.primary-purple { --primary-color: var(--primary-purple); }
-.primary-orange { --primary-color: var(--primary-orange); }
-.primary-pink   { --primary-color: var(--primary-pink); }
-.primary-cyan   { --primary-color: var(--primary-cyan); }
-.primary-yellow { --primary-color: var(--primary-yellow); }

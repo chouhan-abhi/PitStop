@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { APP_CACHE_CONFIG } from "../../common/AppConfig";
+
 const fetchDriverStandings = async (year) => {
   const response = await fetch(
     `https://api.jolpi.ca/ergast/f1/${year}/driverstandings/?format=json`
@@ -18,6 +20,5 @@ export const useDriverStandings = (year) =>
     queryKey: ["driver-standings", year],
     queryFn: () => fetchDriverStandings(year),
     enabled: Boolean(year),
-    staleTime: 1000 * 60 * 30,
-    gcTime: 1000 * 60 * 60 * 2,
+    ...APP_CACHE_CONFIG,
   });

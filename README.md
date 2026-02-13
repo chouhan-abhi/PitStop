@@ -168,7 +168,7 @@
 - **Background refetching** - Always up-to-date data
 - **Optimistic updates** - Instant UI feedback
 - **Local storage** - Persistent theme and cache preferences
-- **OpenF1 API** - Real-time Formula 1 data
+- **Jolpica (Ergast mirror)** - Formula 1 schedule, standings, and race results
 
 ---
 
@@ -227,7 +227,7 @@ src/
 | **3D** | Three.js (STL rendering) |
 | **Icons** | Lucide React |
 | **Data Layer** | @tanstack/react-query |
-| **API** | OpenF1 API, Ergast/Jolpica API |
+| **API** | Jolpica (Ergast mirror), Formula1.com RSS |
 | **Routing** | React Router v7 |
 | **State** | React Hooks (useState, useMemo, useCallback) |
 | **Build Tool** | Vite |
@@ -296,7 +296,9 @@ npm run build
 ### Environment Variables
 Create a `.env` file in the root directory:
 ```env
-VITE_API_BASE_URL=https://api.openf1.org/v1
+VITE_NEWS_SOURCE=reddit
+VITE_NEWS_SUBREDDIT=formula1
+VITE_F1_NEWS_FEED_URL=https://www.formula1.com/en/latest/all.xml
 ```
 
 ### Theme Customization
@@ -306,16 +308,14 @@ Edit `src/index.css` to customize theme colors and CSS variables.
 
 ## 📝 Data Sources
 
-- **OpenF1 API** - Real-time F1 data
-  - Driver information
-  - Session data
-  - Lap times and sectors
-  - Positions and standings
-  - Tyre stints
-- **Ergast/Jolpica API** - Standings and results
+- **Jolpica (Ergast mirror)** - Standings and results
+  - Season calendar and rounds
   - Driver standings
   - Constructor standings
   - Race results (progression graphs)
+  - Driver roster and profile metadata
+- **Official Formula 1 RSS** - News feed
+  - Source: `https://www.formula1.com/en/latest/all.xml`
 - **RacingNews365 Calendar** - Session schedule (`calendar.ics`)
 
 ---
@@ -340,7 +340,7 @@ This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- **OpenF1** for providing the API
+- **Jolpica / Ergast community mirror** for historical and season data
 - **Formula 1** for the data
 - All contributors and the F1 community
 

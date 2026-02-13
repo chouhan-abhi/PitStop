@@ -1,10 +1,8 @@
 import React, { useMemo } from "react";
 
-import {
-  getTeamColorWithOpacity,
-  getTeamColorBorder,
-} from "../../common/utils/colors";
+import { getTeamColorBorder } from "../../common/utils/colors";
 import WinnerDriverCard from "../Common/WinnerDriverCard";
+import SectionHeader from "../ui/SectionHeader";
 
 export const TopDriversCard = ({
   driversData,
@@ -14,13 +12,12 @@ export const TopDriversCard = ({
 }) => {
   const top3 = useMemo(() => driversData?.slice(0, 3) || [], [driversData]);
 
-  /* ---------------------- SHIMMER ---------------------- */
   const ShimmerRow = () => (
     <div className="flex items-center gap-3 p-3">
-      <div className="w-12 h-12 rounded-full bg-[var(--skeleton-color)]"></div>
+      <div className="w-12 h-12 rounded-full bg-[var(--skeleton-color)]" />
       <div className="flex flex-col gap-2">
-        <div className="h-3 w-32 bg-[var(--skeleton-color)] rounded"></div>
-        <div className="h-3 w-20 bg-[var(--skeleton-color)] rounded"></div>
+        <div className="h-3 w-32 bg-[var(--skeleton-color)] rounded" />
+        <div className="h-3 w-20 bg-[var(--skeleton-color)] rounded" />
       </div>
     </div>
   );
@@ -36,11 +33,7 @@ export const TopDriversCard = ({
   }
 
   if (driversIsError) {
-    return (
-      <p className="text-red-400">
-        {driversError?.message || "Failed to load driver data"}
-      </p>
-    );
+    return <p className="text-red-400">{driversError?.message || "Failed to load driver data"}</p>;
   }
 
   if (!top3.length) {
@@ -51,56 +44,48 @@ export const TopDriversCard = ({
   const runnerUps = top3.slice(1);
 
   return (
-    <div className="bg-[var(--card-bg)] text-[var(--text-color)]">
-      <h3 className="text-lg font-semibold mb-4 tracking-tight">
-        Podium Finishers
-      </h3>
+    <div className="text-[var(--text-color)]">
+      <SectionHeader title="Podium Finishers" subtitle="Latest classified order" compact />
 
-      <div className="flex flex-col sm:flex-row gap-6">
+      <div className="flex flex-col sm:flex-row gap-4">
         <WinnerDriverCard driver={winner} />
 
-        <div className="flex flex-col gap-4 sm:w-1/3">
-          {runnerUps.map((d, idx) => (
+        <div className="flex flex-col gap-3 sm:w-[48%]">
+          {runnerUps.map((driver, idx) => (
             <div
-              key={d.driver_number}
-              className="
-                relative overflow-hidden flex items-center gap-4 p-4 rounded-sm
-                bg-[var(--panel-color)]
-                hover:shadow-md transition-all
-              "
-              style={{
-                borderLeft: `4px solid ${getTeamColorBorder(d.team_colour)}`,
-              }}
+              key={driver.driver_number}
+              className="relative overflow-hidden flex items-center gap-3 p-3 rounded-xl bg-[var(--panel-color)] border border-[var(--border-color)]"
+              style={{ borderLeft: `4px solid ${getTeamColorBorder(driver.team_colour)}` }}
             >
               <div
-                className="absolute -right-2 -top-6 text-[90px] font-black tracking-tight text-white/10 select-none"
+                className="absolute -right-1 -top-3 text-[74px] display-title font-black tracking-tight text-white/10 select-none"
                 aria-hidden="true"
               >
-                {d.driver_number}
+                {driver.driver_number}
               </div>
+
               <div
-                className="w-18 h-18 rounded-full flex items-center justify-center shadow-inner"
+                className="w-14 h-14 rounded-full flex items-center justify-center shadow-inner"
                 style={{
-                  background: d.team_colour
-                    ? `conic-gradient(#${d.team_colour} 0%, #${d.team_colour}20 100%, transparent 40%)`
+                  background: driver.team_colour
+                    ? `conic-gradient(#${driver.team_colour} 0%, #${driver.team_colour}20 100%, transparent 40%)`
                     : "conic-gradient(var(--primary-color) 0%, transparent 40%)",
                 }}
               >
                 <img
-                  src={d.headshot_url}
-                  alt={d.full_name}
-                  className="w-16 h-16 rounded-full object-cover shadow-lg"
+                  src={driver.headshot_url}
+                  alt={driver.full_name}
+                  className="w-12 h-12 rounded-full object-cover shadow-lg"
+                  loading="lazy"
                 />
               </div>
 
               <div className="flex flex-col">
-                <span className="text-lg font-semibold tracking-tight">
-                  {idx === 0 ? "🥈" : "🥉"} {d.broadcast_name}
+                <span className="text-base font-semibold tracking-tight">
+                  P{idx + 2} {driver.broadcast_name}
                 </span>
-                <span className="text-sm opacity-70">{d.team_name}</span>
-                <span className="text-xs opacity-60 mt-1">
-                  Driver No: <b>{d.driver_number}</b>
-                </span>
+                <span className="text-sm opacity-70">{driver.team_name}</span>
+                <span className="text-xs opacity-60 mt-1">Driver #{driver.driver_number}</span>
               </div>
             </div>
           ))}

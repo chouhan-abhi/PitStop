@@ -1,26 +1,22 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 
-const fetchNews = async () => {
+import { APP_LIVE_CACHE_CONFIG } from "../../common/AppConfig";
+import { fetchNewsFeed } from "../../services/news/fetchNewsFeed";
 
-  const url = `https://hn.algolia.com/api/v1/search?query=Formula1`;
+export function useNews(options = {}) {
+  const {
+    timeframe = "week",
+    limit = 15,
+    source,
+    enabled = true,
+    ...queryOptions
+  } = options;
 
-  console.log('Fetching news from:', url);
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error('Failed to fetch news');
-  }
-
-  const data = await res.json();
-
-  return data;
-};
-
-export function useNews(timeframe = 'week', limit = 15) {
   return useQuery({
-    queryKey: ['news', timeframe, limit],
-    queryFn: fetchNews,
-    // staleTime: 1000 * 60 * 30,
-    // gcTime: 1000 * 60 * 60 * 2,
-    // refetchOnWindowFocus: false,
+    queryKey: ["news", timeframe, limit, source || "reddit"],
+    queryFn: () => fetchNewsFeed({ timeframe, limit, source }),
+    enabled,
+    ...APP_LIVE_CACHE_CONFIG,
+    ...queryOptions,
   });
 }

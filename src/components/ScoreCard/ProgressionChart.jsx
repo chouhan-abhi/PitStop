@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import {
   CategoryScale,
   Chart as ChartJS,
+  Decimation,
   Legend,
   LineElement,
   LinearScale,
@@ -15,6 +16,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  Decimation,
   Tooltip,
   Legend
 );
@@ -49,6 +51,7 @@ const ProgressionChart = ({ title, rounds, series }) => {
         backgroundColor: idx === 0 ? "rgba(255,77,77,0.2)" : "transparent",
         borderWidth: idx === 0 ? 3 : 2,
         pointRadius: 0,
+        pointHoverRadius: 2,
         tension: 0.35,
         fill: idx === 0,
       })),
@@ -62,6 +65,11 @@ const ProgressionChart = ({ title, rounds, series }) => {
       maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
+        decimation: {
+          enabled: true,
+          algorithm: "lttb",
+          samples: 80,
+        },
         legend: { display: false },
         tooltip: {
           backgroundColor: "rgba(0,0,0,0.8)",

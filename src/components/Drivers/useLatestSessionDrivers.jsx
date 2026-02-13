@@ -2,112 +2,238 @@ import { useQuery } from '@tanstack/react-query';
 
 import { APP_CACHE_CONFIG } from '../../common/AppConfig';
 
-const normalizeToken = (value = '') =>
-  value
-    .toLowerCase()
-    .replace(/[^a-z]/g, '');
+const NATIONALITY_TO_COUNTRY_CODE = {
+  british: 'GB',
+  dutch: 'NL',
+  spanish: 'ES',
+  monegasque: 'MC',
+  australian: 'AU',
+  french: 'FR',
+  german: 'DE',
+  thai: 'TH',
+  canadian: 'CA',
+  japanese: 'JP',
+  chinese: 'CN',
+  mexican: 'MX',
+  danish: 'DK',
+  finnish: 'FI',
+  american: 'US',
+  argentine: 'AR',
+  zealander: 'NZ',
+  brazilian: 'BR',
+  italian: 'IT',
+};
 
-const buildErgastIndex = (drivers = []) => {
-  const index = new Map();
+const fetchJolpi = async (paths = []) => {
+  for (const path of paths) {
+    const attempts = [`${path}/?format=json`, `${path}?format=json`];
 
-  drivers.forEach((driver) => {
-    const family = normalizeToken(driver.familyName);
-    const given = normalizeToken(driver.givenName);
-    const code = normalizeToken(driver.code || '');
-    const driverId = normalizeToken(driver.driverId || '');
+    for (const url of attempts) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          continue;
+        }
 
-    if (code) index.set(`code:${code}`, driver);
-    if (driverId) index.set(`id:${driverId}`, driver);
-    if (family && given) index.set(`name:${family}:${given[0]}`, driver);
-    if (family) index.set(`family:${family}`, driver);
-  });
+        return response.json();
+      } catch {
+        // try next URL
+      }
+    }
+  }
 
-  return index;
+  throw new Error('Jolpi endpoint unavailable');
 };
 
 const fetchErgastDrivers = async (year) => {
   if (!year) return [];
-  const url = `https://api.jolpi.ca/ergast/f1/${year}/drivers/?format=json`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Failed to load Ergast drivers');
+
+  try {
+    const data = await fetchJolpi([`https://api.jolpi.ca/ergast/f1/${year}/drivers`]);
+    return data?.MRData?.DriverTable?.Drivers || [];
+  } catch {
+    return [];
   }
-  const data = await response.json();
-  return data?.MRData?.DriverTable?.Drivers || [];
 };
 
-const mergeErgastDrivers = (openF1Drivers, ergastDrivers) => {
-  if (!ergastDrivers?.length) return openF1Drivers;
-  const index = buildErgastIndex(ergastDrivers);
-  const ergastIds = new Set(
-    ergastDrivers.map((driver) => normalizeToken(driver.driverId || ''))
-  );
+const fetchDriverStandings = async (year) => {
+  if (!year) return [];
 
-  return openF1Drivers
-    .map((driver) => {
-    const acronym = normalizeToken(driver.name_acronym || '');
-    const family = normalizeToken(driver.last_name || '');
-    const given = normalizeToken(driver.first_name || '');
+  try {
+    const data = await fetchJolpi([`https://api.jolpi.ca/ergast/f1/${year}/driverstandings`]);
+    return data?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings || [];
+  } catch {
+    return [];
+  }
+};
 
-    const match =
-      (acronym && index.get(`code:${acronym}`)) ||
-      (acronym && index.get(`id:${acronym}`)) ||
-      (family && given && index.get(`name:${family}:${given[0]}`)) ||
-      (family && index.get(`family:${family}`)) ||
-      null;
+const fetchSeasonRaceResults = async (year) => {
+  if (!year) return [];
 
-    if (!match) return driver;
+  try {
+    const data = await fetchJolpi([`https://api.jolpi.ca/ergast/f1/${year}/results`]);
+    return data?.MRData?.RaceTable?.Races || [];
+  } catch {
+    return [];
+  }
+};
 
-    return {
-      ...driver,
-      ergast: {
-        driverId: match.driverId,
-        code: match.code,
-        givenName: match.givenName,
-        familyName: match.familyName,
-        dateOfBirth: match.dateOfBirth,
-        nationality: match.nationality,
-        url: match.url,
-        permanentNumber: match.permanentNumber,
-      },
-    };
-  })
-    .filter((driver) => {
-      if (!ergastIds.size) return true;
-      const driverId = normalizeToken(driver?.ergast?.driverId || '');
-      return Boolean(driverId && ergastIds.has(driverId));
+const buildStandingsIndex = (standings = []) => {
+  const map = new Map();
+
+  standings.forEach((entry) => {
+    const driverId = entry?.Driver?.driverId;
+    if (!driverId) return;
+
+    map.set(driverId, {
+      position: Number(entry?.position || 0) || null,
+      points: Number(entry?.points || 0),
+      wins: Number(entry?.wins || 0),
+      team: entry?.Constructors?.[0]?.name || null,
     });
+  });
+
+  return map;
+};
+
+const buildSeasonStatsIndex = (races = []) => {
+  const map = new Map();
+
+  const sorted = [...races].sort((a, b) => Number(a?.round || 0) - Number(b?.round || 0));
+
+  sorted.forEach((race) => {
+    const round = Number(race?.round || 0);
+    const raceName = race?.raceName || `Round ${round}`;
+
+    (race?.Results || []).forEach((result) => {
+      const driverId = result?.Driver?.driverId;
+      if (!driverId) return;
+
+      const position = Number(result?.position || 0) || null;
+      const points = Number(result?.points || 0);
+      const constructor = result?.Constructor?.name || null;
+
+      if (!map.has(driverId)) {
+        map.set(driverId, {
+          races: 0,
+          podiums: 0,
+          wins: 0,
+          totalFinish: 0,
+          bestFinish: null,
+          team: constructor,
+          lastFive: [],
+        });
+      }
+
+      const stats = map.get(driverId);
+      stats.races += 1;
+
+      if (position) {
+        stats.totalFinish += position;
+        stats.bestFinish = stats.bestFinish ? Math.min(stats.bestFinish, position) : position;
+        if (position <= 3) stats.podiums += 1;
+        if (position === 1) stats.wins += 1;
+      }
+
+      if (constructor) {
+        stats.team = constructor;
+      }
+
+      stats.lastFive.push({ round, raceName, position, points });
+      if (stats.lastFive.length > 5) {
+        stats.lastFive = stats.lastFive.slice(-5);
+      }
+
+      map.set(driverId, stats);
+    });
+  });
+
+  return map;
+};
+
+const nationalityToCountryCode = (nationality) => {
+  const key = (nationality || '').toLowerCase().trim();
+  return NATIONALITY_TO_COUNTRY_CODE[key] || null;
+};
+
+const toUiDriver = (driver, index, standing, seasonStats) => {
+  const given = driver?.givenName || '';
+  const family = driver?.familyName || '';
+  const permanentNumber = Number(driver?.permanentNumber || 0);
+
+  const races = seasonStats?.races || 0;
+  const averageFinish = races
+    ? Number((seasonStats.totalFinish / races).toFixed(2))
+    : null;
+
+  return {
+    driver_number: permanentNumber || index + 1,
+    first_name: given,
+    last_name: family,
+    full_name: `${given} ${family}`.trim(),
+    broadcast_name: `${given ? `${given[0]}. ` : ''}${family}`.trim() || family,
+    name_acronym: driver?.code || family.slice(0, 3).toUpperCase(),
+    team_name: standing?.team || seasonStats?.team || 'F1 Team',
+    team_colour: null,
+    country_code: nationalityToCountryCode(driver?.nationality),
+    headshot_url: null,
+    season: {
+      position: standing?.position || null,
+      points: standing?.points || 0,
+      wins: standing?.wins || seasonStats?.wins || 0,
+      podiums: seasonStats?.podiums || 0,
+      races,
+      bestFinish: seasonStats?.bestFinish || null,
+      averageFinish,
+      lastFive: seasonStats?.lastFive || [],
+    },
+    ergast: {
+      driverId: driver?.driverId,
+      code: driver?.code,
+      givenName: driver?.givenName,
+      familyName: driver?.familyName,
+      dateOfBirth: driver?.dateOfBirth,
+      nationality: driver?.nationality,
+      url: driver?.url,
+      permanentNumber: driver?.permanentNumber,
+    },
+  };
 };
 
 const fetchLatestSessionDrivers = async ({ queryKey }) => {
-  const [_, meetingKey, sessionKey, year, enrichErgast] = queryKey;
-  let url = `https://api.openf1.org/v1/drivers`;
-  const params = new URLSearchParams();
+  const year = queryKey[3];
+  const resolvedYear = year || String(new Date().getFullYear());
 
-  if (meetingKey) {
-    params.append('meeting_key', meetingKey);
-  }
-  if (sessionKey) {
-    params.append('session_key', sessionKey);
-  }
+  const [drivers, standings, seasonResults] = await Promise.all([
+    fetchErgastDrivers(resolvedYear),
+    fetchDriverStandings(resolvedYear),
+    fetchSeasonRaceResults(resolvedYear),
+  ]);
 
-  if (params.toString()) {
-    url += `?${params.toString()}`;
+  if (!drivers.length && !standings.length) {
+    return [];
   }
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
+  const standingsIndex = buildStandingsIndex(standings);
+  const seasonStatsIndex = buildSeasonStatsIndex(seasonResults);
 
-  const openF1Drivers = await response.json();
+  const baseDrivers = drivers.length
+    ? drivers
+    : standings.map((entry) => entry?.Driver).filter(Boolean);
 
-  if (!enrichErgast || !year) {
-    return openF1Drivers;
-  }
-
-  const ergastDrivers = await fetchErgastDrivers(year);
-  return mergeErgastDrivers(openF1Drivers, ergastDrivers);
+  return baseDrivers
+    .map((driver, index) => {
+      const driverId = driver?.driverId;
+      const standing = standingsIndex.get(driverId);
+      const seasonStats = seasonStatsIndex.get(driverId);
+      return toUiDriver(driver, index, standing, seasonStats);
+    })
+    .sort((a, b) => {
+      const apos = a.season?.position || Number.POSITIVE_INFINITY;
+      const bpos = b.season?.position || Number.POSITIVE_INFINITY;
+      if (apos !== bpos) return apos - bpos;
+      return (b.season?.points || 0) - (a.season?.points || 0);
+    });
 };
 
 export function useLatestSessionDrivers(meetingKey, sessionKey = null, options = {}) {
@@ -118,12 +244,12 @@ export function useLatestSessionDrivers(meetingKey, sessionKey = null, options =
     ...queryOptions
   } = options;
 
-  const resolvedYear = year || '2026';
+  const resolvedYear = year || String(new Date().getFullYear());
 
   return useQuery({
     queryKey: ['latestSessionDrivers', meetingKey, sessionKey, resolvedYear, enrichErgast],
     queryFn: fetchLatestSessionDrivers,
-    enabled: enabled !== undefined ? enabled : Boolean(meetingKey),
+    enabled: enabled !== undefined ? enabled : Boolean(resolvedYear),
     ...APP_CACHE_CONFIG,
     ...queryOptions,
   });
