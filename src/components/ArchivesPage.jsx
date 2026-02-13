@@ -1,7 +1,7 @@
 import React, { useMemo, Suspense } from "react";
 
 import { useEvents } from "./Events/useEvents";
-import { getOlderEvents, getLatestEvent } from "../common/utils/dataProcessing";
+import HomeCountdownHero from "./HomeCountdownHero";
 import PageShell from "./ui/PageShell";
 import Panel from "./ui/Panel";
 import StatusPill from "./ui/StatusPill";
@@ -11,8 +11,28 @@ const EventCard = React.lazy(() => import("./Events/EventCard"));
 const ArchivesPage = ({ year }) => {
   const { data: eventsData, isLoading, isError, error } = useEvents(year, null);
 
-  const olderEvents = useMemo(() => getOlderEvents(eventsData), [eventsData]);
-  const latestEvent = useMemo(() => getLatestEvent(eventsData), [eventsData]);
+  const now = new Date();
+  const sortedEvents = useMemo(
+    () =>
+      Array.isArray(eventsData)
+        ? [...eventsData].sort((a, b) => new Date(a?.date_start || 0) - new Date(b?.date_start || 0))
+        : [],
+    [eventsData]
+  );
+  const completedEvents = useMemo(
+    () =>
+      sortedEvents.filter((event) => event?.date_start && new Date(event.date_start) <= now),
+    [sortedEvents, now]
+  );
+  const latestCompletedEvent = completedEvents[completedEvents.length - 1] || null;
+  const olderEvents = useMemo(
+    () => completedEvents.slice(0, -1).reverse(),
+    [completedEvents]
+  );
+  const nextEvent = useMemo(
+    () => sortedEvents.find((event) => event?.date_start && new Date(event.date_start) >= now) || null,
+    [sortedEvents, now]
+  );
 
   if (isLoading) {
     return (
@@ -33,32 +53,56 @@ const ArchivesPage = ({ year }) => {
   return (
     <PageShell
       title="Archives"
-      subtitle={`Past events from the ${year} season`}
-      actions={latestEvent ? <StatusPill tone="live">Latest: {latestEvent.meeting_name}</StatusPill> : null}
-    >
-      <Suspense
-        fallback={
-          <Panel className="p-8 text-center text-[var(--text-secondary)]">Loading archived events...</Panel>
-        }
-      >
-        {latestEvent && (
-          <div className="mb-4">
-            <EventCard event={latestEvent} isLatest />
-          </div>
-        )}
-
-        {olderEvents && olderEvents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-            {olderEvents.map((event) => (
-              <div key={event.meeting_key} className="rounded-2xl">
-                <EventCard event={event} />
-              </div>
-            ))}
-          </div>
+      subtitle={
+        latestCompletedEvent
+          ? `Past events from the ${year} season`
+          : `No completed events yet in ${year}`
+      }
+      actions={
+        latestCompletedEvent ? (
+          <StatusPill tone="live">Latest: {latestCompletedEvent.meeting_name}</StatusPill>
         ) : (
-          <Panel className="p-4 text-[var(--text-secondary)]">No archived events available for {year}.</Panel>
-        )}
-      </Suspense>
+          <StatusPill tone="warn">Event yet to start</StatusPill>
+        )
+      }
+    >
+      {!latestCompletedEvent ? (
+        <div className="space-y-4">
+          {nextEvent && <HomeCountdownHero eventsData={eventsData} />}
+          <Panel className="p-4 text-[var(--text-secondary)]">
+            {nextEvent ? (
+              <>
+                Event yet to start for this season. Next scheduled race is{" "}
+                <span className="text-[var(--text-primary)] font-semibold">{nextEvent.meeting_name}</span>.
+              </>
+            ) : (
+              "Event yet to start for this season."
+            )}
+          </Panel>
+        </div>
+      ) : (
+        <Suspense
+          fallback={
+            <Panel className="p-8 text-center text-[var(--text-secondary)]">Loading archived events...</Panel>
+          }
+        >
+          <div className="mb-4">
+            <EventCard event={latestCompletedEvent} isLatest />
+          </div>
+
+          {olderEvents && olderEvents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+              {olderEvents.map((event) => (
+                <div key={event.meeting_key} className="rounded-2xl">
+                  <EventCard event={event} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Panel className="p-4 text-[var(--text-secondary)]">No archived events available for {year}.</Panel>
+          )}
+        </Suspense>
+      )}
     </PageShell>
   );
 };

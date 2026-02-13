@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 
 import HomeCountdownHero from "./HomeCountdownHero";
+import HomeScheduleSection from "./HomeScheduleSection";
 import SectionHeader from "./ui/SectionHeader";
 import Panel from "./ui/Panel";
 import StatusPill from "./ui/StatusPill";
@@ -13,7 +14,6 @@ export const EventDashboard = ({
   eventsLoading,
   eventsIsError,
   eventsError,
-  latestEvent,
 }) => {
   if (eventsLoading) {
     return (
@@ -43,19 +43,29 @@ export const EventDashboard = ({
   }
 
   const now = new Date();
-  const hasSeasonStarted = Array.isArray(eventsData)
-    ? eventsData.some((event) => new Date(event.date_start) <= now)
-    : false;
+  const sortedEvents = Array.isArray(eventsData)
+    ? [...eventsData].sort((a, b) => new Date(a?.date_start || 0) - new Date(b?.date_start || 0))
+    : [];
+  const completedEvents = sortedEvents.filter(
+    (event) => event?.date_start && new Date(event.date_start) <= now
+  );
+  const upcomingEvents = sortedEvents.filter(
+    (event) => event?.date_start && new Date(event.date_start) > now
+  );
+  const latestCompletedEvent = completedEvents[completedEvents.length - 1] || null;
+  const hasSeasonStarted = completedEvents.length > 0;
+  const hasUpcomingEvent = upcomingEvents.length > 0;
 
   return (
     <div className="app-shell py-4 lg:py-8 space-y-5 lg:space-y-6">
-      <HomeCountdownHero />
+      {hasUpcomingEvent && <HomeCountdownHero eventsData={eventsData} />}
+      <HomeScheduleSection eventsData={eventsData} />
 
       {hasSeasonStarted && (
         <section className="f1-card relative overflow-hidden rounded-xl border border-red-500/30 bg-[var(--panel-color)] shadow-[var(--shadow-md)]">
           <div className="absolute inset-0 opacity-90 bg-gradient-to-r from-red-900/70 via-black/75 to-black/30" />
           <div className="absolute -right-6 -top-10 text-[120px] sm:text-[180px] display-title font-black uppercase tracking-tight opacity-10 text-white select-none" aria-hidden="true">
-            {latestEvent?.meeting_name?.split(" ")[0] || "F1"}
+            {latestCompletedEvent?.meeting_name?.split(" ")[0] || "F1"}
           </div>
 
           <div className="relative z-10 p-4 sm:p-6 lg:p-8">
@@ -65,8 +75,8 @@ export const EventDashboard = ({
               actions={<StatusPill tone="live">Live telemetry view</StatusPill>}
             />
             <div className="mt-3">
-              {latestEvent ? (
-                <EventCard event={latestEvent} isLatest />
+              {latestCompletedEvent ? (
+                <EventCard event={latestCompletedEvent} isLatest />
               ) : (
                 <p className="text-[var(--text-secondary)]">No latest event available.</p>
               )}

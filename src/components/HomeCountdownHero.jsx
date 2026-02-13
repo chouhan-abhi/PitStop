@@ -51,8 +51,27 @@ const formatCountdown = (ms) => {
   return { days, hours, minutes, seconds };
 };
 
-const HomeCountdownHero = () => {
-  const events = useMemo(() => parseIcsEvents(calendarText), []);
+const normalizeScheduleEvents = (eventsData = []) =>
+  eventsData
+    .filter((event) => event?.date_start)
+    .map((event) => {
+      const date = new Date(event.date_start);
+      if (Number.isNaN(date.getTime())) return null;
+
+      const parts = [event.location, event.country_name].filter(Boolean);
+      return {
+        summary: event.meeting_name || "Next Session",
+        location: parts.join(", "),
+        date,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.date - b.date);
+
+const HomeCountdownHero = ({ eventsData = [] }) => {
+  const fallbackEvents = useMemo(() => parseIcsEvents(calendarText), []);
+  const scheduleEvents = useMemo(() => normalizeScheduleEvents(eventsData), [eventsData]);
+  const events = scheduleEvents.length ? scheduleEvents : fallbackEvents;
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -66,7 +85,7 @@ const HomeCountdownHero = () => {
   if (!nextEvent) {
     return (
       <div className="panel p-6">
-        <p className="text-lg text-[var(--text-secondary)]">Awaiting season start</p>
+        <p className="text-lg text-[var(--text-secondary)]">No upcoming events in this schedule.</p>
       </div>
     );
   }
@@ -81,7 +100,9 @@ const HomeCountdownHero = () => {
         <div className="space-y-4">
           <div>
             <StatusPill tone="live">Next Session</StatusPill>
-            <h2 className="display-title text-2xl sm:text-3xl font-bold mt-2">{nextEvent.summary.replace("RN365 ", "")}</h2>
+            <h2 className="display-title text-2xl sm:text-3xl font-bold mt-2">
+              {(nextEvent.summary || "Next Session").replace("RN365 ", "")}
+            </h2>
             {nextEvent.location && <p className="text-sm text-[var(--text-secondary)] mt-1">{nextEvent.location}</p>}
             <p className="text-sm text-[var(--text-muted)] mt-1">{nextEvent.date.toLocaleString()}</p>
           </div>

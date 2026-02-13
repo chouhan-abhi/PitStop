@@ -1,7 +1,6 @@
 import React, { useMemo, Suspense } from "react";
 
 import { useEvents } from "../Events/useEvents";
-import { getLatestEvent } from "../../common/utils/dataProcessing";
 import PageShell from "../ui/PageShell";
 import Panel from "../ui/Panel";
 import StatusPill from "../ui/StatusPill";
@@ -11,7 +10,14 @@ const SessionDriversGrid = React.lazy(() => import("./DriversGrid"));
 const DriversPage = ({ year }) => {
   const { data: eventsData, isLoading, isError, error } = useEvents(year, null);
 
-  const latestEvent = useMemo(() => getLatestEvent(eventsData), [eventsData]);
+  const latestEvent = useMemo(() => {
+    if (!Array.isArray(eventsData) || !eventsData.length) return null;
+    const now = new Date();
+    const completed = eventsData
+      .filter((event) => event?.date_start && new Date(event.date_start) <= now)
+      .sort((a, b) => new Date(b.date_start) - new Date(a.date_start));
+    return completed[0] || null;
+  }, [eventsData]);
 
   if (isLoading) {
     return (
@@ -32,7 +38,7 @@ const DriversPage = ({ year }) => {
   return (
     <PageShell
       title="Drivers"
-      subtitle={`Season ${year} roster with standings and detail view`}
+      subtitle={`Season ${year} roster in list view with side-by-side details`}
       actions={latestEvent ? <StatusPill tone="live">Latest Round: {latestEvent.meeting_name}</StatusPill> : null}
     >
       <Panel className="p-3 sm:p-4 border-red-500/20">

@@ -23,6 +23,7 @@ const fallbackColorForDriver = (num) => `hsl(${(num * 57) % 360} 68% 50%)`;
 const SECTOR_GRAPH_HEIGHT = 160;
 const PACE_GRAPH_HEIGHT = 320;
 const DELTA_GRAPH_HEIGHT = 180;
+const SPEED_GRAPH_HEIGHT = 190;
 
 const parseN = (value) => {
   if (value == null) return null;
@@ -39,6 +40,18 @@ const getSectorValue = (lap, sectorKey) => {
     return parseN(lap.duration_sector_2 ?? lap.lap_duration_sector_2 ?? lap.sector2_time);
   }
   return parseN(lap.duration_sector_3 ?? lap.lap_duration_sector_3 ?? lap.sector3_time);
+};
+
+const getTopSpeedFromLap = (lap) => {
+  if (!lap) return null;
+
+  const speeds = [
+    parseN(lap.st_speed),
+    parseN(lap.i1_speed),
+    parseN(lap.i2_speed),
+  ].filter((value) => value != null);
+
+  return speeds.length ? Math.max(...speeds) : null;
 };
 
 const baseLineOptions = {
@@ -210,11 +223,15 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
       let lowestS1 = null;
       let lowestS2 = null;
       let lowestS3 = null;
+      let speedSum = 0;
+      let speedCount = 0;
+      let speedPeak = null;
 
       rows.forEach((row) => {
         const s1 = getSectorValue(row, 1);
         const s2 = getSectorValue(row, 2);
         const s3 = getSectorValue(row, 3);
+        const topSpeed = getTopSpeedFromLap(row);
 
         if (s1 != null) {
           sumS1 += s1;
@@ -231,6 +248,12 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
           cnt3 += 1;
           if (lowestS3 == null || s3 < lowestS3) lowestS3 = s3;
         }
+
+        if (topSpeed != null) {
+          speedSum += topSpeed;
+          speedCount += 1;
+          if (speedPeak == null || topSpeed > speedPeak) speedPeak = topSpeed;
+        }
       });
 
       out[num] = {
@@ -240,6 +263,8 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
         lowestS1,
         lowestS2,
         lowestS3,
+        avgTopSpeed: speedCount ? +(speedSum / speedCount).toFixed(1) : null,
+        peakSpeed: speedPeak,
         fastestLap: fastestLapByDriver[num] ? { ...fastestLapByDriver[num] } : null,
       };
     }
@@ -369,6 +394,41 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
     driversTeamMap,
     selectedTeamGroups,
     fastestLapByDriver,
+    driversMap,
+    lapLookupByDriver,
+  ]);
+
+  const speedGraphData = useMemo(() => {
+    if (!selectedDrivers.length) return { labels: lapLabels, datasets: [] };
+
+    const datasets = selectedDrivers.map((driverNum) => {
+      const teamInfo = driversTeamMap[driverNum];
+      const color = teamInfo?.teamColor || fallbackColorForDriver(Number(driverNum));
+      const teamName = teamInfo?.teamName;
+      const sameTeamCount = teamName ? selectedTeamGroups[teamName]?.length || 0 : 0;
+
+      const data = lapLabels.map((lap) => {
+        const lapRecord = lapLookupByDriver[driverNum]?.get(lap);
+        return getTopSpeedFromLap(lapRecord);
+      });
+
+      return {
+        label: driversMap[driverNum] || `#${driverNum}`,
+        data,
+        borderColor: color,
+        borderDash: sameTeamCount > 1 ? [5, 5] : [],
+        tension: 0.2,
+        pointRadius: 0,
+        pointHoverRadius: 2,
+      };
+    });
+
+    return { labels: lapLabels, datasets };
+  }, [
+    selectedDrivers,
+    lapLabels,
+    driversTeamMap,
+    selectedTeamGroups,
     driversMap,
     lapLookupByDriver,
   ]);
@@ -581,6 +641,8 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
                 <div className="text-xs opacity-80">S1: {stats.lowestS1 ? `${stats.lowestS1.toFixed(3)}s` : "-"}</div>
                 <div className="text-xs opacity-80">S2: {stats.lowestS2 ? `${stats.lowestS2.toFixed(3)}s` : "-"}</div>
                 <div className="text-xs opacity-80">S3: {stats.lowestS3 ? `${stats.lowestS3.toFixed(3)}s` : "-"}</div>
+                <div className="text-xs opacity-80">Avg Speed: {stats.avgTopSpeed ? `${stats.avgTopSpeed} km/h` : "-"}</div>
+                <div className="text-xs opacity-80">Peak Speed: {stats.peakSpeed ? `${Math.round(stats.peakSpeed)} km/h` : "-"}</div>
                 {stats.fastestLap && (
                   <div
                     className="text-xs opacity-70 mt-2 font-bold"
@@ -683,6 +745,30 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
                   Select exactly 2 drivers for delta
                 </div>
               )}
+            </div>
+          </section>
+
+          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h5 className="text-sm font-semibold">Speed Trap Telemetry</h5>
+              <div className="text-xs opacity-60">Top speed by lap (km/h)</div>
+            </div>
+            <div style={{ height: SPEED_GRAPH_HEIGHT, position: "relative" }}>
+              <Line
+                key={`speed-${selectedDrivers.join(",")}`}
+                data={speedGraphData}
+                options={{
+                  ...baseLineOptions,
+                  plugins: {
+                    ...baseLineOptions.plugins,
+                    legend: { position: "top", labels: { boxWidth: 12, font: { size: 11 } } },
+                  },
+                  scales: {
+                    x: { title: { display: true, text: "Lap" } },
+                    y: { title: { display: true, text: "Speed (km/h)" } },
+                  },
+                }}
+              />
             </div>
           </section>
         </div>

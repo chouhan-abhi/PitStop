@@ -1,7 +1,6 @@
-import React, { useMemo, lazy, Suspense } from "react";
+import React, { lazy, Suspense } from "react";
 
 import { useEvents } from "./Events/useEvents";
-import { getLatestEvent } from "../common/utils/dataProcessing";
 import ShimmerLoader from './Common/ShimmerLoader';
 
 // Lazy-load the EventDashboard
@@ -19,8 +18,6 @@ export const Dashboard = ({ year }) => {
     error: eventsError,
   } = useEvents(year, null);
 
-  const latestEvent = useMemo(() => getLatestEvent(eventsData), [eventsData]);
-
   return (
     <Suspense fallback={<ShimmerLoader />}>
       <EventDashboard
@@ -28,7 +25,6 @@ export const Dashboard = ({ year }) => {
         eventsLoading={eventsLoading}
         eventsIsError={eventsIsError}
         eventsError={eventsError}
-        latestEvent={latestEvent}
       />
     </Suspense>
   );

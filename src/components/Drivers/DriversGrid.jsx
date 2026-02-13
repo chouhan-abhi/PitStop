@@ -1,29 +1,58 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ChevronRight, Loader2, Trophy, Medal, Gauge, CalendarClock } from "lucide-react";
+import { CalendarClock, Gauge, Loader2, Medal, Trophy } from "lucide-react";
 
+import DriverAvatar from "../Common/DriverAvatar";
 import { useLatestSessionDrivers } from "./useLatestSessionDrivers";
 
 const formatAvg = (value) => (value == null ? "-" : value.toFixed(2));
 
-const DriverDetailPanel = ({ driver, onClose }) => {
-  if (!driver) return null;
+const getTeamColor = (teamColour) => {
+  if (!teamColour) return "var(--primary-color)";
+  return teamColour.startsWith("#") ? teamColour : `#${teamColour}`;
+};
+
+const getTeamBadgeStyle = (teamColor) =>
+  teamColor.startsWith("#")
+    ? { color: teamColor, borderColor: `${teamColor}66`, backgroundColor: `${teamColor}1A` }
+    : {
+        color: "var(--primary-color)",
+        borderColor: "color-mix(in srgb, var(--primary-color) 40%, transparent)",
+        backgroundColor: "color-mix(in srgb, var(--primary-color) 12%, transparent)",
+      };
+
+const DriverDetailPanel = ({ driver }) => {
+  if (!driver) {
+    return (
+      <div className="f1-card rounded-md border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-5 h-full">
+        <p className="text-sm text-[var(--text-secondary)]">Select a driver to view season stats.</p>
+      </div>
+    );
+  }
 
   const season = driver.season || {};
+  const teamColor = getTeamColor(driver.team_colour);
+  const teamBadgeStyle = getTeamBadgeStyle(teamColor);
 
   return (
-    <div className="f1-card rounded-md border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-4 mb-4">
+    <div className="f1-card rounded-md border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-4 sm:p-5 h-full">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Driver Detail</p>
-          <h3 className="display-title text-2xl font-bold mt-1">{driver.full_name}</h3>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">{driver.team_name || "F1 Team"}</p>
+        <div className="flex items-center gap-3 min-w-0">
+          <DriverAvatar driver={driver} sizeClass="w-14 h-14" roundedClass="rounded-md" textClass="text-base" />
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Driver Detail</p>
+            <h3 className="display-title text-xl sm:text-2xl font-bold mt-1 truncate">{driver.full_name}</h3>
+            <p className="text-sm text-[var(--text-secondary)] mt-1 truncate">{driver.team_name || "F1 Team"}</p>
+          </div>
         </div>
-        <button type="button" className="btn btn-ghost" onClick={onClose}>
-          Close
-        </button>
+        <span
+          className="inline-flex items-center justify-center rounded-full px-2.5 py-1 text-xs font-semibold border"
+          style={teamBadgeStyle}
+        >
+          #{driver.driver_number}
+        </span>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-4 text-sm">
         <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/20 p-2">
           <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Position</p>
           <p className="text-lg font-bold">{season.position || "-"}</p>
@@ -36,30 +65,32 @@ const DriverDetailPanel = ({ driver, onClose }) => {
           <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Wins / Podiums</p>
           <p className="text-lg font-bold">{season.wins || 0} / {season.podiums || 0}</p>
         </div>
-        <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/20 p-2">
+        <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/15 p-2">
           <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Races</p>
           <p className="text-lg font-bold">{season.races || 0}</p>
         </div>
+        <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/15 p-2">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Best Finish</p>
+          <p className="text-lg font-bold">P{season.bestFinish || "-"}</p>
+        </div>
+        <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/15 p-2">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Avg Finish</p>
+          <p className="text-lg font-bold">{formatAvg(season.averageFinish)}</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 text-sm">
-        <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/15 p-3">
-          <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs uppercase tracking-[0.14em]">
-            <Medal size={14} /> Best Finish
-          </div>
-          <p className="text-xl font-bold mt-1">P{season.bestFinish || "-"}</p>
-        </div>
-        <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/15 p-3">
-          <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs uppercase tracking-[0.14em]">
-            <Gauge size={14} /> Avg Finish
-          </div>
-          <p className="text-xl font-bold mt-1">{formatAvg(season.averageFinish)}</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 text-sm">
         <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/15 p-3">
           <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs uppercase tracking-[0.14em]">
             <Trophy size={14} /> Nationality
           </div>
           <p className="text-base font-semibold mt-2">{driver.ergast?.nationality || "Unknown"}</p>
+        </div>
+        <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/15 p-3">
+          <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs uppercase tracking-[0.14em]">
+            <Gauge size={14} /> Season Pace
+          </div>
+          <p className="text-base font-semibold mt-2">{formatAvg(season.averageFinish)} average finish</p>
         </div>
       </div>
 
@@ -67,16 +98,20 @@ const DriverDetailPanel = ({ driver, onClose }) => {
         <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs uppercase tracking-[0.14em]">
           <CalendarClock size={14} /> Recent Results
         </div>
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="mt-2 space-y-1.5">
           {(season.lastFive || []).length ? (
-            season.lastFive.map((result) => (
-              <span
-                key={`${driver.driver_number}-${result.round}`}
-                className="f1-card rounded-sm border border-[var(--border-color)] bg-black/25 px-2 py-1 text-xs"
-              >
-                R{result.round} · P{result.position || "-"} · {result.points || 0} pts
-              </span>
-            ))
+            season.lastFive
+              .slice()
+              .reverse()
+              .map((result) => (
+                <div
+                  key={`${driver.driver_number}-${result.round}`}
+                  className="f1-card rounded-sm border border-[var(--border-color)] bg-black/25 px-2 py-1.5 text-xs flex items-center justify-between gap-2"
+                >
+                  <span className="truncate">{result.raceName || `Round ${result.round}`}</span>
+                  <span className="font-semibold">P{result.position || "-"} · {result.points || 0} pts</span>
+                </div>
+              ))
           ) : (
             <span className="text-xs text-[var(--text-secondary)]">No recent race records.</span>
           )}
@@ -90,7 +125,7 @@ const DriverDetailPanel = ({ driver, onClose }) => {
           rel="noreferrer"
           className="inline-flex items-center gap-1 text-xs mt-4 text-[var(--primary-color)]"
         >
-          Profile source <ChevronRight size={12} />
+          Profile source <Medal size={12} />
         </a>
       )}
     </div>
@@ -127,8 +162,7 @@ function SessionDriversGrid({ meetingKey, sessionKey, year }) {
 
     if (
       selectedNumber === undefined ||
-      (selectedNumber !== null &&
-        !filteredDrivers.some((driver) => driver.driver_number === selectedNumber))
+      !filteredDrivers.some((driver) => driver.driver_number === selectedNumber)
     ) {
       setSelectedNumber(filteredDrivers[0].driver_number);
     }
@@ -156,57 +190,53 @@ function SessionDriversGrid({ meetingKey, sessionKey, year }) {
   }
 
   return (
-    <div>
-      <DriverDetailPanel driver={selectedDriver} onClose={() => setSelectedNumber(null)} />
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-4">
+      <div className="f1-card rounded-md border border-[var(--border-color)] bg-[var(--panel-color)]/70 p-2 sm:p-3">
+        <p className="px-2 pb-2 text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+          Driver List
+        </p>
+        <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1 scrollbar-thin">
+          {filteredDrivers.map((driver) => {
+            const isSelected = selectedNumber === driver.driver_number;
+            const teamColor = getTeamColor(driver.team_colour);
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 max-h-[72vh] sm:max-h-none overflow-y-auto sm:overflow-visible pr-1">
-        {filteredDrivers.map((driver) => {
-          const season = driver.season || {};
-          const isSelected = selectedNumber === driver.driver_number;
+            return (
+              <button
+                key={driver.driver_number}
+                type="button"
+                onClick={() => setSelectedNumber(driver.driver_number)}
+                className={`w-full text-left relative flex items-center gap-3 p-3 rounded-md border transition-all ${
+                  isSelected
+                    ? "border-red-500/70 ring-1 ring-red-500/40 bg-black/30"
+                    : "border-[var(--border-color)] bg-black/20 hover:border-red-500/35"
+                }`}
+              >
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                  style={{ backgroundColor: teamColor }}
+                />
 
-          return (
-            <button
-              key={driver.driver_number}
-              type="button"
-              onClick={() => setSelectedNumber(driver.driver_number)}
-              className={`f1-card text-left relative flex items-start gap-3 p-3 rounded-md border bg-[var(--panel-color)]/85 transition-all hover:-translate-y-0.5 ${
-                isSelected ? 'border-red-500/70 ring-1 ring-red-500/40' : 'border-[var(--border-color)]'
-              }`}
-            >
-              <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: 'var(--primary-color)' }} />
+                <DriverAvatar driver={driver} sizeClass="w-10 h-10" roundedClass="rounded-md" textClass="text-sm" />
 
-              <div className="w-12 h-12 rounded-sm border border-[var(--border-color)] bg-black/25 flex items-center justify-center text-sm font-bold">
-                {driver.name_acronym || '?'}
-              </div>
+                <div className="min-w-0 flex-1">
+                  <p className="display-title text-base font-bold truncate">{driver.full_name}</p>
+                  <p className="text-xs text-[var(--text-secondary)] truncate">{driver.team_name || "F1 Team"}</p>
+                </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="display-title text-lg font-bold truncate">{driver.last_name}</span>
+                <div className="flex flex-col items-end">
                   <span className="text-xs text-[var(--text-muted)]">#{driver.driver_number}</span>
+                  <span className="inline-flex items-center gap-1 text-[10px] text-[var(--text-secondary)]">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: teamColor }} />
+                    Team
+                  </span>
                 </div>
-
-                <p className="text-xs text-[var(--text-secondary)] truncate">{driver.full_name}</p>
-                <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">{driver.team_name || 'F1 Team'}</p>
-
-                <div className="grid grid-cols-3 gap-1 mt-2 text-[11px]">
-                  <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/20 px-1.5 py-1">
-                    <p className="text-[9px] uppercase text-[var(--text-muted)]">Pos</p>
-                    <p className="font-semibold">{season.position || '-'}</p>
-                  </div>
-                  <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/20 px-1.5 py-1">
-                    <p className="text-[9px] uppercase text-[var(--text-muted)]">Pts</p>
-                    <p className="font-semibold">{season.points || 0}</p>
-                  </div>
-                  <div className="f1-card rounded-sm border border-[var(--border-color)] bg-black/20 px-1.5 py-1">
-                    <p className="text-[9px] uppercase text-[var(--text-muted)]">Pod</p>
-                    <p className="font-semibold">{season.podiums || 0}</p>
-                  </div>
-                </div>
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      <DriverDetailPanel driver={selectedDriver} />
     </div>
   );
 }

@@ -24,6 +24,19 @@ const NATIONALITY_TO_COUNTRY_CODE = {
   italian: 'IT',
 };
 
+const TEAM_COLOR_RULES = [
+  { match: ['mclaren'], color: 'FF8000' },
+  { match: ['ferrari'], color: 'E80020' },
+  { match: ['red bull'], color: '3671C6' },
+  { match: ['mercedes'], color: '27F4D2' },
+  { match: ['aston martin'], color: '229971' },
+  { match: ['alpine'], color: 'FF87BC' },
+  { match: ['williams'], color: '64C4FF' },
+  { match: ['haas'], color: 'B6BABD' },
+  { match: ['racing bulls', 'visa cash app rb', 'rb f1'], color: '6692FF' },
+  { match: ['sauber', 'kick'], color: '52E252' },
+];
+
 const fetchJolpi = async (paths = []) => {
   for (const path of paths) {
     const attempts = [`${path}/?format=json`, `${path}?format=json`];
@@ -156,6 +169,17 @@ const nationalityToCountryCode = (nationality) => {
   return NATIONALITY_TO_COUNTRY_CODE[key] || null;
 };
 
+const teamNameToColor = (teamName) => {
+  const normalized = (teamName || '').toLowerCase();
+  if (!normalized) return null;
+
+  const matchedRule = TEAM_COLOR_RULES.find((rule) =>
+    rule.match.some((token) => normalized.includes(token))
+  );
+
+  return matchedRule?.color || null;
+};
+
 const toUiDriver = (driver, index, standing, seasonStats) => {
   const given = driver?.givenName || '';
   const family = driver?.familyName || '';
@@ -166,6 +190,8 @@ const toUiDriver = (driver, index, standing, seasonStats) => {
     ? Number((seasonStats.totalFinish / races).toFixed(2))
     : null;
 
+  const teamName = standing?.team || seasonStats?.team || 'F1 Team';
+
   return {
     driver_number: permanentNumber || index + 1,
     first_name: given,
@@ -173,8 +199,8 @@ const toUiDriver = (driver, index, standing, seasonStats) => {
     full_name: `${given} ${family}`.trim(),
     broadcast_name: `${given ? `${given[0]}. ` : ''}${family}`.trim() || family,
     name_acronym: driver?.code || family.slice(0, 3).toUpperCase(),
-    team_name: standing?.team || seasonStats?.team || 'F1 Team',
-    team_colour: null,
+    team_name: teamName,
+    team_colour: teamNameToColor(teamName),
     country_code: nationalityToCountryCode(driver?.nationality),
     headshot_url: null,
     season: {

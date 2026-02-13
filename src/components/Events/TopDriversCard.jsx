@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 
 import { getTeamColorBorder } from "../../common/utils/colors";
+import DriverAvatar from "../Common/DriverAvatar";
 import WinnerDriverCard from "../Common/WinnerDriverCard";
 import SectionHeader from "../ui/SectionHeader";
 
@@ -64,21 +65,13 @@ export const TopDriversCard = ({
                 {driver.driver_number}
               </div>
 
-              <div
-                className="w-14 h-14 rounded-full flex items-center justify-center shadow-inner"
-                style={{
-                  background: driver.team_colour
-                    ? `conic-gradient(#${driver.team_colour} 0%, #${driver.team_colour}20 100%, transparent 40%)`
-                    : "conic-gradient(var(--primary-color) 0%, transparent 40%)",
-                }}
-              >
-                <img
-                  src={driver.headshot_url}
-                  alt={driver.full_name}
-                  className="w-12 h-12 rounded-full object-cover shadow-lg"
-                  loading="lazy"
-                />
-              </div>
+              <DriverAvatar
+                driver={driver}
+                sizeClass="w-14 h-14"
+                roundedClass="rounded-full"
+                className="shadow-inner"
+                textClass="text-sm"
+              />
 
               <div className="flex flex-col">
                 <span className="text-base font-semibold tracking-tight">

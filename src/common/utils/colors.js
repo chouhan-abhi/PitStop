@@ -58,6 +58,6 @@ export const getTeamColorWithOpacity = (teamColor, opacity = '20') => {
  * Get team color border
  */
 export const getTeamColorBorder = (teamColor) => {
-  return `#${teamColor}`;
+  if (!teamColor) return 'var(--primary-color)';
+  return teamColor.startsWith('#') ? teamColor : `#${teamColor}`;
 };
-
