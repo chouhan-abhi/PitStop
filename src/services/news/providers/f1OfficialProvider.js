@@ -1,3 +1,5 @@
+import { requestJson, requestText } from "../../../common/api/httpClient";
+
 const DEFAULT_F1_FEED_URL = "https://www.formula1.com/en/latest/all.xml";
 
 const TIMEFRAME_TO_MS = {
@@ -89,29 +91,20 @@ const filterByTimeframe = (items, timeframe) => {
   });
 };
 
-const tryFetchXml = async (url, extractor) => {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`F1 RSS request failed (${response.status})`);
-  }
-
-  return extractor(response);
-};
-
 const fetchFeedXmlWithFallbacks = async (feedUrl) => {
   const encodedFeedUrl = encodeURIComponent(feedUrl);
 
   const attempts = [
-    () => tryFetchXml(feedUrl, (res) => res.text()),
+    () => requestText(feedUrl, { source: "f1-rss" }),
     () =>
-      tryFetchXml(
+      requestText(
         `https://api.allorigins.win/raw?url=${encodedFeedUrl}`,
-        (res) => res.text()
+        { source: "f1-rss-fallback" }
       ),
     async () => {
-      const payload = await tryFetchXml(
+      const payload = await requestJson(
         `https://api.allorigins.win/get?url=${encodedFeedUrl}`,
-        (res) => res.json()
+        { source: "f1-rss-fallback" }
       );
       if (!payload?.contents) {
         throw new Error("AllOrigins returned empty payload");

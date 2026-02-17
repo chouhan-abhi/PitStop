@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 
 import ProgressionChart from "./ProgressionChart";
@@ -9,21 +9,15 @@ import { useRaceResults } from "./useRaceResults";
 import PageShell from "../ui/PageShell";
 import Panel from "../ui/Panel";
 import StatusPill from "../ui/StatusPill";
-
-const YEAR_OPTIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020"];
+import DataStatusBanner from "../ui/DataStatusBanner";
 
 const ScoreCardPage = ({ year }) => {
   const [activeTab, setActiveTab] = useState("drivers");
-  const [scoreYear, setScoreYear] = useState(year || "2025");
-
-  useEffect(() => {
-    if (year) {
-      setScoreYear(year);
-    }
-  }, [year]);
+  const scoreYear = year || String(new Date().getFullYear());
 
   const {
     data: driverStandings,
+    dataMeta: driverMeta,
     isLoading: standingsLoading,
     isError: standingsError,
     error: standingsErrObj,
@@ -31,6 +25,7 @@ const ScoreCardPage = ({ year }) => {
 
   const {
     data: constructorStandings,
+    dataMeta: constructorMeta,
     isLoading: constructorsLoading,
     isError: constructorsError,
     error: constructorsErrObj,
@@ -38,6 +33,7 @@ const ScoreCardPage = ({ year }) => {
 
   const {
     data: raceResults,
+    dataMeta: raceMetaData,
     isLoading: resultsLoading,
     isError: resultsError,
     error: resultsErrObj,
@@ -161,14 +157,31 @@ const ScoreCardPage = ({ year }) => {
       };
     });
   }, [constructorRows, progression.constructorMap]);
+  const chartTitle = activeTab === "drivers" ? "Drivers Progression" : "Teams Progression";
+  const chartSeries = activeTab === "drivers" ? driverSeries : teamSeries;
 
   const isLoading = standingsLoading || constructorsLoading || resultsLoading;
   const isError = standingsError || constructorsError || resultsError;
+  const hasAnyData = Boolean(driverRows.length || constructorRows.length || raceResults?.length);
   const errorMessage =
     standingsErrObj?.message ||
     constructorsErrObj?.message ||
     resultsErrObj?.message ||
     "Unable to load score card data";
+  const combinedMeta = useMemo(() => {
+    const metas = [driverMeta, constructorMeta, raceMetaData].filter(Boolean);
+    if (!metas.length) return null;
+    const stale = metas.some((meta) => meta?.isStale);
+    const warning = metas.map((meta) => meta?.warning).find(Boolean) || (isError ? errorMessage : null);
+    const source = metas.map((meta) => meta?.source).find(Boolean) || null;
+    const fetchedAt = metas.map((meta) => meta?.fetchedAt).find(Boolean) || null;
+    return {
+      isStale: stale,
+      warning,
+      source,
+      fetchedAt,
+    };
+  }, [driverMeta, constructorMeta, raceMetaData, isError, errorMessage]);
 
   return (
     <PageShell
@@ -176,20 +189,7 @@ const ScoreCardPage = ({ year }) => {
       subtitle={`Standings and progression for ${scoreYear}`}
       meta={`Events loaded: ${raceMeta.raceCount} · Max round: ${raceMeta.maxRound} · Results: ${raceMeta.totalResults}`}
       actions={(
-        <>
-          <StatusPill tone="live">Season Pulse</StatusPill>
-          <select
-            value={scoreYear}
-            onChange={(event) => setScoreYear(event.target.value)}
-            className="btn btn-ghost !text-[11px] !tracking-[0.1em] !normal-case"
-          >
-            {YEAR_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </>
+        <StatusPill tone="live">Season Pulse</StatusPill>
       )}
     >
       <Panel className="p-1">
@@ -221,15 +221,17 @@ const ScoreCardPage = ({ year }) => {
         </Panel>
       )}
 
-      {isError && (
+      <DataStatusBanner meta={combinedMeta} />
+
+      {isError && !hasAnyData && (
         <Panel className="p-6 text-sm text-red-400">{errorMessage}</Panel>
       )}
 
-      {!isLoading && !isError && (
+      {!isLoading && (!isError || hasAnyData) && (
         <>
-          {activeTab === "drivers" && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1.1fr] gap-4 lg:gap-6">
-              <ProgressionChart title="Drivers Progression" rounds={rounds} series={driverSeries} />
+          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1.1fr] gap-4 lg:gap-6">
+            <ProgressionChart title={chartTitle} rounds={rounds} series={chartSeries} />
+            {activeTab === "drivers" && (
               <StandingsTable
                 title="Driver Standings"
                 columns={[
@@ -241,11 +243,8 @@ const ScoreCardPage = ({ year }) => {
                 ]}
                 rows={driverRows}
               />
-            </div>
-          )}
-          {activeTab === "constructors" && (
-            <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1.1fr] gap-4 lg:gap-6">
-              <ProgressionChart title="Teams Progression" rounds={rounds} series={teamSeries} />
+            )}
+            {activeTab === "constructors" && (
               <StandingsTable
                 title="Constructor Standings"
                 columns={[
@@ -256,8 +255,8 @@ const ScoreCardPage = ({ year }) => {
                 ]}
                 rows={constructorRows}
               />
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
     </PageShell>

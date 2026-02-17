@@ -23,6 +23,7 @@ import {
   CalendarDays
 } from "lucide-react";
 import CircuitModel from './Common/CircuitModel';
+import DataStatusBanner from './ui/DataStatusBanner';
 import {
   getF1Points,
   SESSION_TITLE_MAP
@@ -39,6 +40,7 @@ export const EventDetails = ({ year }) => {
 
   const {
     data: allPositionsRaw,
+    dataMeta: positionsMeta,
     isLoading: positionsLoading,
     isError: positionsError,
     error: positionsErrObj
@@ -46,6 +48,7 @@ export const EventDetails = ({ year }) => {
 
   const {
     data: eventDetailsData,
+    dataMeta: eventsMeta,
     isLoading: eventsLoading,
     isError: eventsError,
     error: eventsErrObj
@@ -77,20 +80,39 @@ export const EventDetails = ({ year }) => {
 
   const {
     data: allDriversRaw,
-    isLoading: driversLoading,
+    dataMeta: driversMeta,
     isError: driversError,
     error: driversErrObj
   } = useLatestSessionDrivers(meetingKey, null, {
     year: currentEventYear,
+    enabled: Boolean(currentEventYear),
   });
 
   // --- COMBINED LOADING / ERROR ---------------------------------------------
 
-  const isLoading = driversLoading || positionsLoading || eventsLoading;
+  const isLoading = positionsLoading || eventsLoading;
 
   const isError = driversError || positionsError || eventsError;
   const errorObj =
     driversErrObj || positionsErrObj || eventsErrObj;
+  const hasSomeData =
+    eventList.length > 0 || positionsList.length > 0 || (Array.isArray(allDriversRaw) && allDriversRaw.length > 0);
+  const combinedMeta = useMemo(() => {
+    const metas = [eventsMeta, positionsMeta, driversMeta].filter(Boolean);
+    if (!metas.length) return null;
+    const stale = metas.some((meta) => meta?.isStale);
+    const warning =
+      metas.map((meta) => meta?.warning).find(Boolean)
+      || (isError ? (errorObj?.message || "Some data failed to load.") : null);
+    const source = metas.map((meta) => meta?.source).find(Boolean) || null;
+    const fetchedAt = metas.map((meta) => meta?.fetchedAt).find(Boolean) || null;
+    return {
+      isStale: stale,
+      warning,
+      source,
+      fetchedAt,
+    };
+  }, [driversMeta, errorObj?.message, eventsMeta, isError, positionsMeta]);
 
 
   // --- SESSION DATA PROCESSING ----------------------------------------------
@@ -178,7 +200,7 @@ export const EventDetails = ({ year }) => {
 
   // --- ERROR STATE -----------------------------------------------------------
 
-  if (isError) {
+  if (isError && !hasSomeData) {
     return (
       <div className="flex items-center justify-center min-h-screen p-8">
         <p className="text-lg" style={{ color: 'var(--primary-color)' }}>
@@ -219,6 +241,7 @@ export const EventDetails = ({ year }) => {
   return (
 
     <div className="app-shell py-4 lg:py-8 w-full space-y-4 sm:space-y-5 lg:space-y-6" style={{ color: "var(--text-color)" }}>
+      <DataStatusBanner meta={combinedMeta} />
 
       {/* BACK BUTTON */}
       <button

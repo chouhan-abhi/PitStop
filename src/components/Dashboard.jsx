@@ -13,6 +13,7 @@ const EventDashboard = lazy(() =>
 export const Dashboard = ({ year }) => {
   const {
     data: eventsData,
+    dataMeta: eventsMeta,
     isLoading: eventsLoading,
     isError: eventsIsError,
     error: eventsError,
@@ -22,6 +23,7 @@ export const Dashboard = ({ year }) => {
     <Suspense fallback={<ShimmerLoader />}>
       <EventDashboard
         eventsData={eventsData}
+        eventsMeta={eventsMeta}
         eventsLoading={eventsLoading}
         eventsIsError={eventsIsError}
         eventsError={eventsError}

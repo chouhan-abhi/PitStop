@@ -3,3 +3,4 @@ export { default as Panel } from "./Panel";
 export { default as SectionHeader } from "./SectionHeader";
 export { default as StatusPill } from "./StatusPill";
 export { default as StatChip } from "./StatChip";
+export { default as DataStatusBanner } from "./DataStatusBanner";

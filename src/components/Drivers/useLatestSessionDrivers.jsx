@@ -1,41 +1,47 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 
-import { APP_CACHE_CONFIG } from '../../common/AppConfig';
+import { APP_CACHE_CONFIG } from "../../common/AppConfig";
+import { requestJson } from "../../common/api/httpClient";
+import { buildApiEndpoint, isProxyEnabled } from "../../common/api/endpoints";
+import { queryKeys, toStaleCacheKey } from "../../common/api/queryKeys";
+import { withQueryDataMeta, withStaleFallback } from "../../common/api/staleCache";
 
 const NATIONALITY_TO_COUNTRY_CODE = {
-  british: 'GB',
-  dutch: 'NL',
-  spanish: 'ES',
-  monegasque: 'MC',
-  australian: 'AU',
-  french: 'FR',
-  german: 'DE',
-  thai: 'TH',
-  canadian: 'CA',
-  japanese: 'JP',
-  chinese: 'CN',
-  mexican: 'MX',
-  danish: 'DK',
-  finnish: 'FI',
-  american: 'US',
-  argentine: 'AR',
-  zealander: 'NZ',
-  brazilian: 'BR',
-  italian: 'IT',
+  british: "GB",
+  dutch: "NL",
+  spanish: "ES",
+  monegasque: "MC",
+  australian: "AU",
+  french: "FR",
+  german: "DE",
+  thai: "TH",
+  canadian: "CA",
+  japanese: "JP",
+  chinese: "CN",
+  mexican: "MX",
+  danish: "DK",
+  finnish: "FI",
+  american: "US",
+  argentine: "AR",
+  zealander: "NZ",
+  brazilian: "BR",
+  italian: "IT",
 };
 
 const TEAM_COLOR_RULES = [
-  { match: ['mclaren'], color: 'FF8000' },
-  { match: ['ferrari'], color: 'E80020' },
-  { match: ['red bull'], color: '3671C6' },
-  { match: ['mercedes'], color: '27F4D2' },
-  { match: ['aston martin'], color: '229971' },
-  { match: ['alpine'], color: 'FF87BC' },
-  { match: ['williams'], color: '64C4FF' },
-  { match: ['haas'], color: 'B6BABD' },
-  { match: ['racing bulls', 'visa cash app rb', 'rb f1'], color: '6692FF' },
-  { match: ['sauber', 'kick'], color: '52E252' },
+  { match: ["mclaren"], color: "FF8000" },
+  { match: ["ferrari"], color: "E80020" },
+  { match: ["red bull"], color: "3671C6" },
+  { match: ["mercedes"], color: "27F4D2" },
+  { match: ["aston martin"], color: "229971" },
+  { match: ["alpine"], color: "FF87BC" },
+  { match: ["williams"], color: "64C4FF" },
+  { match: ["haas"], color: "B6BABD" },
+  { match: ["racing bulls", "visa cash app rb", "rb f1"], color: "6692FF" },
+  { match: ["sauber", "kick"], color: "52E252" },
 ];
+
+const JOLPI_BASE_URL = "https://api.jolpi.ca/ergast/f1";
 
 const fetchJolpi = async (paths = []) => {
   for (const path of paths) {
@@ -43,26 +49,24 @@ const fetchJolpi = async (paths = []) => {
 
     for (const url of attempts) {
       try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          continue;
+        const data = await requestJson(url, { source: "jolpi" });
+        if (data) {
+          return data;
         }
-
-        return response.json();
       } catch {
         // try next URL
       }
     }
   }
 
-  throw new Error('Jolpi endpoint unavailable');
+  throw new Error("Jolpi endpoint unavailable");
 };
 
 const fetchErgastDrivers = async (year) => {
   if (!year) return [];
 
   try {
-    const data = await fetchJolpi([`https://api.jolpi.ca/ergast/f1/${year}/drivers`]);
+    const data = await fetchJolpi([`${JOLPI_BASE_URL}/${year}/drivers`]);
     return data?.MRData?.DriverTable?.Drivers || [];
   } catch {
     return [];
@@ -73,7 +77,7 @@ const fetchDriverStandings = async (year) => {
   if (!year) return [];
 
   try {
-    const data = await fetchJolpi([`https://api.jolpi.ca/ergast/f1/${year}/driverstandings`]);
+    const data = await fetchJolpi([`${JOLPI_BASE_URL}/${year}/driverstandings`]);
     return data?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings || [];
   } catch {
     return [];
@@ -84,7 +88,7 @@ const fetchSeasonRaceResults = async (year) => {
   if (!year) return [];
 
   try {
-    const data = await fetchJolpi([`https://api.jolpi.ca/ergast/f1/${year}/results`]);
+    const data = await fetchJolpi([`${JOLPI_BASE_URL}/${year}/results`]);
     return data?.MRData?.RaceTable?.Races || [];
   } catch {
     return [];
@@ -165,12 +169,12 @@ const buildSeasonStatsIndex = (races = []) => {
 };
 
 const nationalityToCountryCode = (nationality) => {
-  const key = (nationality || '').toLowerCase().trim();
+  const key = (nationality || "").toLowerCase().trim();
   return NATIONALITY_TO_COUNTRY_CODE[key] || null;
 };
 
 const teamNameToColor = (teamName) => {
-  const normalized = (teamName || '').toLowerCase();
+  const normalized = (teamName || "").toLowerCase();
   if (!normalized) return null;
 
   const matchedRule = TEAM_COLOR_RULES.find((rule) =>
@@ -181,8 +185,8 @@ const teamNameToColor = (teamName) => {
 };
 
 const toUiDriver = (driver, index, standing, seasonStats) => {
-  const given = driver?.givenName || '';
-  const family = driver?.familyName || '';
+  const given = driver?.givenName || "";
+  const family = driver?.familyName || "";
   const permanentNumber = Number(driver?.permanentNumber || 0);
 
   const races = seasonStats?.races || 0;
@@ -190,14 +194,14 @@ const toUiDriver = (driver, index, standing, seasonStats) => {
     ? Number((seasonStats.totalFinish / races).toFixed(2))
     : null;
 
-  const teamName = standing?.team || seasonStats?.team || 'F1 Team';
+  const teamName = standing?.team || seasonStats?.team || "F1 Team";
 
   return {
     driver_number: permanentNumber || index + 1,
     first_name: given,
     last_name: family,
     full_name: `${given} ${family}`.trim(),
-    broadcast_name: `${given ? `${given[0]}. ` : ''}${family}`.trim() || family,
+    broadcast_name: `${given ? `${given[0]}. ` : ""}${family}`.trim() || family,
     name_acronym: driver?.code || family.slice(0, 3).toUpperCase(),
     team_name: teamName,
     team_colour: teamNameToColor(teamName),
@@ -226,16 +230,7 @@ const toUiDriver = (driver, index, standing, seasonStats) => {
   };
 };
 
-const fetchLatestSessionDrivers = async ({ queryKey }) => {
-  const year = queryKey[3];
-  const resolvedYear = year || String(new Date().getFullYear());
-
-  const [drivers, standings, seasonResults] = await Promise.all([
-    fetchErgastDrivers(resolvedYear),
-    fetchDriverStandings(resolvedYear),
-    fetchSeasonRaceResults(resolvedYear),
-  ]);
-
+const buildSeasonDrivers = ({ drivers, standings, seasonResults }) => {
   if (!drivers.length && !standings.length) {
     return [];
   }
@@ -262,6 +257,44 @@ const fetchLatestSessionDrivers = async ({ queryKey }) => {
     });
 };
 
+const fetchSeasonDriversDirect = async (year) => {
+  const [drivers, standings, seasonResults] = await Promise.all([
+    fetchErgastDrivers(year),
+    fetchDriverStandings(year),
+    fetchSeasonRaceResults(year),
+  ]);
+
+  return {
+    payload: buildSeasonDrivers({ drivers, standings, seasonResults }),
+    source: "jolpi",
+  };
+};
+
+const fetchSeasonDriversFromProxy = async (year) => {
+  const url = buildApiEndpoint("/api/season-drivers", { year });
+  const payload = await requestJson(url, { source: "worker" });
+  const drivers = Array.isArray(payload?.items) ? payload.items : (Array.isArray(payload) ? payload : []);
+  return {
+    payload: drivers,
+    source: payload?.source || "worker",
+  };
+};
+
+const fetchLatestSessionDrivers = async ({ queryKey }) => {
+  const [, year] = queryKey;
+  const resolvedYear = year || String(new Date().getFullYear());
+  const cacheKey = toStaleCacheKey(queryKey);
+
+  return withStaleFallback({
+    cacheKey,
+    source: isProxyEnabled() ? "worker" : "jolpi",
+    fetcher: () =>
+      (isProxyEnabled()
+        ? fetchSeasonDriversFromProxy(resolvedYear)
+        : fetchSeasonDriversDirect(resolvedYear)),
+  });
+};
+
 export function useLatestSessionDrivers(meetingKey, sessionKey = null, options = {}) {
   const {
     year,
@@ -271,12 +304,17 @@ export function useLatestSessionDrivers(meetingKey, sessionKey = null, options =
   } = options;
 
   const resolvedYear = year || String(new Date().getFullYear());
-
-  return useQuery({
-    queryKey: ['latestSessionDrivers', meetingKey, sessionKey, resolvedYear, enrichErgast],
+  const queryResult = useQuery({
+    queryKey: queryKeys.seasonDrivers(resolvedYear),
     queryFn: fetchLatestSessionDrivers,
     enabled: enabled !== undefined ? enabled : Boolean(resolvedYear),
     ...APP_CACHE_CONFIG,
     ...queryOptions,
   });
+
+  void meetingKey;
+  void sessionKey;
+  void enrichErgast;
+
+  return withQueryDataMeta(queryResult, []);
 }

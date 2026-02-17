@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -33,6 +33,7 @@ const normalizeSeries = (values, length) => {
 };
 
 const ProgressionChart = ({ title, rounds, series }) => {
+  const chartRef = useRef(null);
   const height = 220;
   const pointCount = rounds?.length || 0;
   const normalizedSeries = series.map((line) => ({
@@ -45,6 +46,7 @@ const ProgressionChart = ({ title, rounds, series }) => {
     () => ({
       labels,
       datasets: normalizedSeries.map((line, idx) => ({
+        id: line.id,
         label: line.name,
         data: line.points,
         borderColor: line.color || "#ff4d4d",
@@ -93,6 +95,13 @@ const ProgressionChart = ({ title, rounds, series }) => {
     []
   );
 
+  useEffect(() => () => {
+    if (chartRef.current) {
+      chartRef.current.destroy();
+      chartRef.current = null;
+    }
+  }, []);
+
   return (
     <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-4 shadow-[0_10px_24px_rgba(0,0,0,0.18)]">
       <div className="flex items-center justify-between mb-3">
@@ -106,7 +115,14 @@ const ProgressionChart = ({ title, rounds, series }) => {
 
       <div className="w-full">
         <div style={{ width: "100%", height }}>
-          <Line data={chartData} options={options} height={height} />
+          <Line
+            ref={chartRef}
+            data={chartData}
+            options={options}
+            height={height}
+            datasetIdKey="id"
+            redraw
+          />
         </div>
       </div>
 

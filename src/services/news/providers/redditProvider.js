@@ -1,4 +1,5 @@
 import { normalizeRedditPost } from "../normalizeNewsItem";
+import { requestJson } from "../../../common/api/httpClient";
 
 const TIMEFRAME_MAP = {
   day: "day",
@@ -13,17 +14,12 @@ export const fetchRedditNews = async ({ timeframe = "week", limit = 15, subreddi
   const query = encodeURIComponent('flair_name:"News" OR "Formula 1" OR F1');
   const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${query}&restrict_sr=on&sort=new&t=${t}&limit=${limit}`;
 
-  const response = await fetch(url, {
+  const json = await requestJson(url, {
+    source: "reddit",
     headers: {
       "Content-Type": "application/json",
     },
   });
-
-  if (!response.ok) {
-    throw new Error(`Reddit news request failed (${response.status})`);
-  }
-
-  const json = await response.json();
   const children = json?.data?.children || [];
 
   const items = children

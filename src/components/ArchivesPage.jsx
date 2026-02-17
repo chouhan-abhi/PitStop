@@ -5,11 +5,18 @@ import HomeCountdownHero from "./HomeCountdownHero";
 import PageShell from "./ui/PageShell";
 import Panel from "./ui/Panel";
 import StatusPill from "./ui/StatusPill";
+import DataStatusBanner from "./ui/DataStatusBanner";
 
 const EventCard = React.lazy(() => import("./Events/EventCard"));
 
 const ArchivesPage = ({ year }) => {
-  const { data: eventsData, isLoading, isError, error } = useEvents(year, null);
+  const {
+    data: eventsData,
+    dataMeta: eventsMeta,
+    isLoading,
+    isError,
+    error,
+  } = useEvents(year, null);
 
   const now = new Date();
   const sortedEvents = useMemo(
@@ -66,6 +73,12 @@ const ArchivesPage = ({ year }) => {
         )
       }
     >
+      <DataStatusBanner
+        meta={{
+          ...eventsMeta,
+          warning: eventsMeta?.warning || (isError ? (error?.message || "Some event data is unavailable.") : null),
+        }}
+      />
       {!latestCompletedEvent ? (
         <div className="space-y-4">
           {nextEvent && <HomeCountdownHero eventsData={eventsData} />}

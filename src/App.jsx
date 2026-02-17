@@ -21,6 +21,7 @@ import {
 import "./App.css";
 import { AppConfig } from "./common/AppConfig";
 import { getBucket, setActiveSubApp } from "./common/storage";
+import { queryPrefixesByRoute } from "./common/api/queryKeys";
 
 const Dashboard = lazy(() =>
   import("./components/Dashboard").then((module) => ({ default: module.Dashboard }))
@@ -46,6 +47,14 @@ const APP_ROUTES = [
   { to: "/drivers", label: "Drivers" },
   { to: "/score-card", label: "Score Card" },
 ];
+
+const routeRefreshPrefixes = (pathname = "/") => {
+  if (pathname.startsWith("/event")) return queryPrefixesByRoute["/event"];
+  if (pathname.startsWith("/score-card")) return queryPrefixesByRoute["/score-card"];
+  if (pathname.startsWith("/drivers")) return queryPrefixesByRoute["/drivers"];
+  if (pathname.startsWith("/archives")) return queryPrefixesByRoute["/archives"];
+  return queryPrefixesByRoute["/"];
+};
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -137,8 +146,20 @@ export default function App() {
     setIsRefreshing(true);
 
     try {
-      await queryClient.invalidateQueries();
-      await queryClient.refetchQueries();
+      const path = window.location?.pathname || "/";
+      const prefixes = routeRefreshPrefixes(path);
+
+      await Promise.all(
+        prefixes.map((prefix) => queryClient.invalidateQueries({ queryKey: [prefix] }))
+      );
+      await Promise.all(
+        prefixes.map((prefix) =>
+          queryClient.refetchQueries({
+            queryKey: [prefix],
+            type: "active",
+          })
+        )
+      );
     } catch (error) {
       console.error("Failed to refresh data:", error);
     } finally {

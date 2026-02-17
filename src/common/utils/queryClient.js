@@ -44,7 +44,6 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       ...QUERY_DEFAULTS,
-      retryDelay: 1000,
     },
   },
 });

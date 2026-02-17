@@ -5,16 +5,22 @@ import HomeScheduleSection from "./HomeScheduleSection";
 import SectionHeader from "./ui/SectionHeader";
 import Panel from "./ui/Panel";
 import StatusPill from "./ui/StatusPill";
+import DataStatusBanner from "./ui/DataStatusBanner";
 
 const EventCard = React.lazy(() => import("./Events/EventCard"));
 const News = React.lazy(() => import("./News/News"));
 
 export const EventDashboard = ({
   eventsData,
+  eventsMeta,
   eventsLoading,
   eventsIsError,
   eventsError,
 }) => {
+  const eventsBannerMeta = {
+    ...eventsMeta,
+    warning: eventsMeta?.warning || (eventsIsError ? (eventsError?.message || "Some event data is unavailable.") : null),
+  };
   if (eventsLoading) {
     return (
       <div className="app-shell py-8">
@@ -23,7 +29,7 @@ export const EventDashboard = ({
     );
   }
 
-  if (eventsIsError) {
+  if (eventsIsError && (!eventsData || eventsData.length === 0)) {
     return (
       <div className="app-shell py-8">
         <Panel className="p-8 text-center text-red-400">
@@ -58,6 +64,7 @@ export const EventDashboard = ({
 
   return (
     <div className="app-shell py-4 lg:py-8 space-y-5 lg:space-y-6">
+      <DataStatusBanner meta={eventsBannerMeta} />
       {hasUpcomingEvent && <HomeCountdownHero eventsData={eventsData} />}
       <HomeScheduleSection eventsData={eventsData} />
 

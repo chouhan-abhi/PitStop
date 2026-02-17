@@ -12,6 +12,7 @@ import {
 import { useNews } from "./useNews";
 import SectionHeader from "../ui/SectionHeader";
 import StatusPill from "../ui/StatusPill";
+import DataStatusBanner from "../ui/DataStatusBanner";
 
 const DEFAULT_VISIBLE_COUNT = 6;
 
@@ -158,6 +159,7 @@ const News = ({ showHeader = true, layout = "standard" }) => {
 
   const {
     data,
+    dataMeta,
     isLoading,
     isError,
     error,
@@ -191,6 +193,7 @@ const News = ({ showHeader = true, layout = "standard" }) => {
 
   return (
     <div className="space-y-4">
+      <DataStatusBanner meta={dataMeta} />
       {layout === "carousel" && <NewsCarousel posts={posts} />}
 
       {showHeader && (

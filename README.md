@@ -115,6 +115,23 @@
    ```
    Navigate to `http://localhost:5173`
 
+2. **Optional: Enable API Gateway Mode**
+   - Set `VITE_API_BASE_URL` to your deployed Worker origin (for example `https://pitstop-api.example.workers.dev`)
+   - Frontend hooks automatically route through `/api/*` gateway endpoints when this variable is set
+
+3. **Cloudflare Worker (Optional Phase 2)**
+   - Worker source lives in `worker/src/index.ts`
+   - Wrangler config: `worker/wrangler.toml`
+   - Exposed endpoints:
+     - `/api/events`
+     - `/api/positions`
+     - `/api/season-drivers`
+     - `/api/laps`
+     - `/api/stints`
+     - `/api/driver-standings`
+     - `/api/constructor-standings`
+     - `/api/race-results`
+
 2. **Navigate the Dashboard**
    - View latest event details in the main card
    - Browse older events in the right sidebar
