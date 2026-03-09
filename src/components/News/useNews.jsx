@@ -10,7 +10,7 @@ const fetchNews = async ({ queryKey }) => {
 
   return withStaleFallback({
     cacheKey: toStaleCacheKey(queryKey),
-    source: source || "reddit",
+    source: source || "crawler-reddit",
     fetcher: () => fetchNewsFeed({ timeframe, limit, source }),
   });
 };
@@ -19,7 +19,7 @@ export function useNews(options = {}) {
   const {
     timeframe = "week",
     limit = 15,
-    source,
+    source = "crawler-reddit",
     enabled = true,
     ...queryOptions
   } = options;
@@ -29,6 +29,10 @@ export function useNews(options = {}) {
     queryFn: fetchNews,
     enabled,
     ...APP_LIVE_CACHE_CONFIG,
+    staleTime: 1000 * 60,
+    refetchOnMount: "always",
+    refetchOnReconnect: "always",
+    refetchOnWindowFocus: true,
     ...queryOptions,
   });
 

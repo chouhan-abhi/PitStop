@@ -36,7 +36,11 @@ const ScoreCardPage = lazy(() => import("./components/ScoreCard/ScoreCardPage"))
 const prefsBucket = getBucket("app", "prefs", "prefs");
 const THEME_ORDER = ["system", "dark", "light", "saint"];
 const CURRENT_YEAR = String(new Date().getFullYear());
-const YEAR_OPTIONS = ["2026", "2025", "2024", "2023", "2022", "2021", "2020"];
+const MIN_YEAR = 2020;
+const YEAR_OPTIONS = Array.from(
+  { length: Number(CURRENT_YEAR) - MIN_YEAR + 1 },
+  (_, idx) => String(Number(CURRENT_YEAR) - idx)
+);
 
 const getSystemTheme = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -48,12 +52,28 @@ const APP_ROUTES = [
   { to: "/score-card", label: "Score Card" },
 ];
 
+const ROUTE_META = {
+  "/": { title: "Dashboard" },
+  "/archives": { title: "Archives", subtitle: "Past weekends and season snapshots" },
+  "/drivers": { title: "Drivers", subtitle: "Season form, stints, and pace comparisons" },
+  "/score-card": { title: "Score Card", subtitle: "Championship standings and points flow" },
+  "/event": { title: "Event Detail", subtitle: "Session-by-session analysis and telemetry" },
+};
+
 const routeRefreshPrefixes = (pathname = "/") => {
   if (pathname.startsWith("/event")) return queryPrefixesByRoute["/event"];
   if (pathname.startsWith("/score-card")) return queryPrefixesByRoute["/score-card"];
   if (pathname.startsWith("/drivers")) return queryPrefixesByRoute["/drivers"];
   if (pathname.startsWith("/archives")) return queryPrefixesByRoute["/archives"];
   return queryPrefixesByRoute["/"];
+};
+
+const routeMetaForPath = (pathname = "/") => {
+  if (pathname.startsWith("/event")) return ROUTE_META["/event"];
+  if (pathname.startsWith("/score-card")) return ROUTE_META["/score-card"];
+  if (pathname.startsWith("/drivers")) return ROUTE_META["/drivers"];
+  if (pathname.startsWith("/archives")) return ROUTE_META["/archives"];
+  return ROUTE_META["/"];
 };
 
 const ScrollToTop = () => {
@@ -108,12 +128,15 @@ const ThemeButton = ({ themeMode, cycleTheme }) => (
   </button>
 );
 
-export default function App() {
+const AppLayout = () => {
+  const { pathname } = useLocation();
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [lastRefreshAt, setLastRefreshAt] = useState(null);
   const [themeMode, setThemeMode] = useState(() => prefsBucket.getRecord("theme") || "system");
   const [seasonYear, setSeasonYear] = useState(() => prefsBucket.getRecord("seasonYear") || CURRENT_YEAR);
+  const routeMeta = routeMetaForPath(pathname);
 
   useEffect(() => {
     const themeToApply = themeMode === "system" ? getSystemTheme() : themeMode;
@@ -137,6 +160,21 @@ export default function App() {
     return () => media.removeEventListener("change", handleChange);
   }, [themeMode]);
 
+  useEffect(() => {
+    setIsMobileControlsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isMobileControlsOpen) return undefined;
+    const onEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsMobileControlsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [isMobileControlsOpen]);
+
   const cycleTheme = () => {
     const currentIndex = THEME_ORDER.indexOf(themeMode);
     setThemeMode(THEME_ORDER[(currentIndex + 1) % THEME_ORDER.length]);
@@ -146,8 +184,7 @@ export default function App() {
     setIsRefreshing(true);
 
     try {
-      const path = window.location?.pathname || "/";
-      const prefixes = routeRefreshPrefixes(path);
+      const prefixes = routeRefreshPrefixes(pathname);
 
       await Promise.all(
         prefixes.map((prefix) => queryClient.invalidateQueries({ queryKey: [prefix] }))
@@ -160,6 +197,7 @@ export default function App() {
           })
         )
       );
+      setLastRefreshAt(Date.now());
     } catch (error) {
       console.error("Failed to refresh data:", error);
     } finally {
@@ -170,7 +208,7 @@ export default function App() {
   const closeMobileControls = () => setIsMobileControlsOpen(false);
 
   return (
-    <Router>
+    <>
       <ScrollToTop />
       <RouteStorageSync />
 
@@ -182,11 +220,14 @@ export default function App() {
 
               <div className="text-center sm:text-left">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
-                  Race Control
+                  Race Control · {routeMeta?.title || "Dashboard"}
                 </p>
                 <h1 className="display-title text-xl sm:text-2xl font-bold tracking-wider text-[var(--text-primary)]">
                   {AppConfig.name}
                 </h1>
+                <p className="hidden sm:block text-[11px] text-[var(--text-secondary)] mt-0.5">
+                  {routeMeta?.subtitle}
+                </p>
               </div>
 
               <div className="flex justify-end sm:hidden">
@@ -244,6 +285,14 @@ export default function App() {
                 <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
               </button>
 
+              <div className="hidden lg:block text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] min-w-[120px] text-right">
+                {isRefreshing
+                  ? "Syncing..."
+                  : lastRefreshAt
+                    ? `Synced ${new Date(lastRefreshAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                    : "Not synced"}
+              </div>
+
               <ThemeButton themeMode={themeMode} cycleTheme={cycleTheme} />
             </div>
           </div>
@@ -292,6 +341,17 @@ export default function App() {
                   >
                     <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
                   </button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Status</span>
+                  <span className="text-[10px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">
+                    {isRefreshing
+                      ? "Syncing..."
+                      : lastRefreshAt
+                        ? `Synced ${new Date(lastRefreshAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                        : "Not synced"}
+                  </span>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -345,6 +405,14 @@ export default function App() {
           </div>
         </footer>
       </div>
+    </>
+  );
+};
+
+export default function App() {
+  return (
+    <Router>
+      <AppLayout />
     </Router>
   );
 }

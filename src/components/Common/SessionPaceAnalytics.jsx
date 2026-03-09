@@ -57,8 +57,9 @@ const getTopSpeedFromLap = (lap) => {
 const baseLineOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  parsing: false,
-  normalized: true,
+  parsing: true,
+  normalized: false,
+  spanGaps: false,
   interaction: { mode: "index", intersect: false },
   plugins: {
     decimation: {
@@ -463,6 +464,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
   }, [selectedDrivers, lapLabels, driversMap, lapLookupByDriver]);
 
   const overallLoading = loadingLaps || driversLoading;
+  const chartScopeKey = `${meetingKey || "mk"}-${sessionKey || "sk"}-${selectedDrivers.join(",") || "none"}`;
 
   useEffect(() => {
     const onKey = (event) => {
@@ -673,7 +675,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
                 </div>
                 <div style={{ height: SECTOR_GRAPH_HEIGHT, position: "relative" }}>
                   <Line
-                    key={`sector-${sector}-${selectedDrivers.join(",")}`}
+                    key={`sector-${sector}-${chartScopeKey}`}
                     data={data}
                     options={{
                       ...baseLineOptions,
@@ -701,7 +703,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
             </div>
             <div style={{ height: PACE_GRAPH_HEIGHT, position: "relative" }}>
               <Line
-                key={`pace-${selectedDrivers.join(",")}`}
+                key={`pace-${chartScopeKey}`}
                 data={paceGraphData}
                 options={{
                   ...baseLineOptions,
@@ -726,7 +728,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
             <div style={{ height: DELTA_GRAPH_HEIGHT, position: "relative" }}>
               {deltaGraphData ? (
                 <Line
-                  key={`delta-${selectedDrivers.join(",")}`}
+                  key={`delta-${chartScopeKey}`}
                   data={deltaGraphData}
                   options={{
                     ...baseLineOptions,
@@ -755,7 +757,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
             </div>
             <div style={{ height: SPEED_GRAPH_HEIGHT, position: "relative" }}>
               <Line
-                key={`speed-${selectedDrivers.join(",")}`}
+                key={`speed-${chartScopeKey}`}
                 data={speedGraphData}
                 options={{
                   ...baseLineOptions,

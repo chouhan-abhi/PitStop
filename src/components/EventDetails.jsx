@@ -35,6 +35,8 @@ export const EventDetails = ({ year }) => {
 
   const { meetingKey } = useParams();
   const navigate = useNavigate();
+  const meetingKeyNumber = Number(meetingKey);
+  const hasValidMeetingKey = Number.isFinite(meetingKeyNumber);
 
   // --- FETCH QUERIES ---------------------------------------------------------
 
@@ -69,10 +71,9 @@ export const EventDetails = ({ year }) => {
   // --- CURRENT EVENT DETAILS -------------------------------------------------
 
   const currentEvent = useMemo(() => {
-    if (!eventList.length || !meetingKey) return null;
-    const id = Number(meetingKey);
-    return eventList.find(ev => ev.meeting_key === id) || null;
-  }, [eventList, meetingKey]);
+    if (!eventList.length || !hasValidMeetingKey) return null;
+    return eventList.find((ev) => ev.meeting_key === meetingKeyNumber) || null;
+  }, [eventList, hasValidMeetingKey, meetingKeyNumber]);
 
   const currentEventYear = currentEvent?.date_start
     ? new Date(currentEvent.date_start).getFullYear()
@@ -87,6 +88,16 @@ export const EventDetails = ({ year }) => {
     year: currentEventYear,
     enabled: Boolean(currentEventYear),
   });
+  const driversList = Array.isArray(allDriversRaw) ? allDriversRaw : [];
+  const driversByNumber = useMemo(
+    () =>
+      new Map(
+        driversList
+          .map((driver) => [Number(driver?.driver_number), driver])
+          .filter(([driverNumber]) => Number.isFinite(driverNumber))
+      ),
+    [driversList]
+  );
 
   // --- COMBINED LOADING / ERROR ---------------------------------------------
 
@@ -96,7 +107,7 @@ export const EventDetails = ({ year }) => {
   const errorObj =
     driversErrObj || positionsErrObj || eventsErrObj;
   const hasSomeData =
-    eventList.length > 0 || positionsList.length > 0 || (Array.isArray(allDriversRaw) && allDriversRaw.length > 0);
+    eventList.length > 0 || positionsList.length > 0 || driversList.length > 0;
   const combinedMeta = useMemo(() => {
     const metas = [eventsMeta, positionsMeta, driversMeta].filter(Boolean);
     if (!metas.length) return null;
@@ -206,6 +217,25 @@ export const EventDetails = ({ year }) => {
         <p className="text-lg" style={{ color: 'var(--primary-color)' }}>
           Error: {errorObj?.message || 'Failed to load event details.'}
         </p>
+      </div>
+    );
+  }
+
+  if (!hasValidMeetingKey) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-8">
+        <div className="text-center">
+          <p className="text-lg mb-4" style={{ color: "var(--text-color)" }}>
+            Invalid event identifier.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 rounded-md text-white"
+            style={{ backgroundColor: "var(--primary-color)" }}
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
     );
   }
@@ -389,9 +419,7 @@ export const EventDetails = ({ year }) => {
                         )
                         .map(driverPos => {
 
-                          const full = allDriversRaw?.find(
-                            d => d.driver_number === driverPos.driver_number
-                          );
+                          const full = driversByNumber.get(Number(driverPos?.driver_number));
 
                           const final = driverPos.finalPosition ?? driverPos.position;
                           const start = driverPos.startingPosition ?? driverPos.starting_grid_position;
@@ -475,7 +503,7 @@ export const EventDetails = ({ year }) => {
                   Array.isArray(stintsData) && stintsData.length > 0 ? (
                     <StintsGraph
                       stintsByDriver={stintsByDriver}
-                      allDrivers={allDriversRaw}
+                      allDrivers={driversList}
                       totalLaps={71}
                     />
                   ) : (
@@ -579,9 +607,7 @@ export const EventDetails = ({ year }) => {
                                 )
                                 .map(driverPos => {
 
-                                  const full = allDriversRaw?.find(
-                                    d => d.driver_number === driverPos.driver_number
-                                  );
+                                  const full = driversByNumber.get(Number(driverPos?.driver_number));
 
                                   const final = driverPos.finalPosition ?? driverPos.position;
                                   const start = driverPos.startingPosition ?? driverPos.starting_grid_position;

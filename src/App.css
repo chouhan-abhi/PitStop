@@ -2,51 +2,40 @@
   min-height: 100vh;
   position: relative;
   color: var(--text-color);
+  background-color: var(--bg-color);
 }
 
 .app-chrome::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 10% 2%, rgba(255, 45, 45, 0.12), transparent 26%),
-    radial-gradient(circle at 88% 8%, rgba(255, 179, 71, 0.12), transparent 24%),
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-3) 26%, transparent), transparent 22%);
+  content: none;
 }
 
 .race-header {
   border-bottom: 1px solid var(--border-color);
-  background: color-mix(in srgb, var(--header-bg) 88%, transparent);
-  backdrop-filter: blur(12px);
+  background-color: var(--header-bg);
 }
 
 .race-tab {
   position: relative;
-  padding: 0.4rem 0.65rem;
-  border-radius: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
   color: var(--text-secondary);
-  transition: color 160ms ease, background-color 160ms ease;
+  background-color: transparent;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
 }
 
 .race-tab:hover {
   color: var(--text-color);
-  background: color-mix(in srgb, var(--panel-color) 38%, transparent);
+  background-color: var(--panel-color);
+  border-color: var(--border-color);
 }
 
 .race-tab-active {
   color: var(--text-primary);
-  background: color-mix(in srgb, var(--accent-red) 20%, transparent);
+  background-color: var(--panel-color);
+  border-color: var(--border-color);
 }
 
 .race-tab-active::after {
-  content: "";
-  position: absolute;
-  left: 0.45rem;
-  right: 0.45rem;
-  bottom: -0.38rem;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent-red), var(--accent-amber));
+  content: none;
 }

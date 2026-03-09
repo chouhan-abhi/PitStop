@@ -35,7 +35,7 @@ export const queryKeys = {
     "news",
     normalizeText(timeframe) || "week",
     Number(limit) || 15,
-    normalizeText(source) || "reddit",
+    normalizeText(source) || "crawler-reddit",
   ],
 };
 
@@ -48,4 +48,3 @@ export const queryPrefixesByRoute = {
 };
 
 export const toStaleCacheKey = (queryKey) => JSON.stringify(queryKey);
-

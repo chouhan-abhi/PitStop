@@ -94,8 +94,9 @@ const filterByTimeframe = (items, timeframe) => {
 const fetchFeedXmlWithFallbacks = async (feedUrl) => {
   const encodedFeedUrl = encodeURIComponent(feedUrl);
 
+  // Formula1.com RSS does not expose browser CORS headers.
+  // Always fetch through CORS-safe relay endpoints in the client.
   const attempts = [
-    () => requestText(feedUrl, { source: "f1-rss" }),
     () =>
       requestText(
         `https://api.allorigins.win/raw?url=${encodedFeedUrl}`,

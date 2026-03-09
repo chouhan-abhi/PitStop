@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { CalendarClock, Gauge, Loader2, Medal, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarClock, Gauge, Loader2, Medal, Trophy } from "lucide-react";
 
 import DriverAvatar from "../Common/DriverAvatar";
 import { useLatestSessionDrivers } from "./useLatestSessionDrivers";
@@ -135,6 +135,7 @@ const DriverDetailPanel = ({ driver }) => {
 function SessionDriversGrid({ meetingKey, sessionKey, year }) {
   const { data: drivers, isLoading, isError } = useLatestSessionDrivers(meetingKey, sessionKey, { year });
   const [selectedNumber, setSelectedNumber] = useState(undefined);
+  const [viewMode, setViewMode] = useState("grid");
 
   const filteredDrivers = useMemo(() => {
     if (!drivers) return [];
@@ -157,6 +158,7 @@ function SessionDriversGrid({ meetingKey, sessionKey, year }) {
   useEffect(() => {
     if (!filteredDrivers.length) {
       setSelectedNumber(undefined);
+      setViewMode("grid");
       return;
     }
 
@@ -172,6 +174,11 @@ function SessionDriversGrid({ meetingKey, sessionKey, year }) {
     () => filteredDrivers.find((driver) => driver.driver_number === selectedNumber) || null,
     [filteredDrivers, selectedNumber]
   );
+
+  const openDriverDetails = (driverNumber) => {
+    setSelectedNumber(driverNumber);
+    setViewMode("details");
+  };
 
   if (isLoading) {
     return (
@@ -189,9 +196,66 @@ function SessionDriversGrid({ meetingKey, sessionKey, year }) {
     );
   }
 
+  if (viewMode === "grid") {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-end justify-between gap-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              Driver Grid
+            </p>
+            <p className="text-sm text-[var(--text-secondary)]">
+              Select a driver card to open detailed list view.
+            </p>
+          </div>
+          <span className="text-xs text-[var(--text-muted)]">{filteredDrivers.length} drivers</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          {filteredDrivers.map((driver) => {
+            const teamColor = getTeamColor(driver.team_colour);
+
+            return (
+              <button
+                key={driver.driver_number}
+                type="button"
+                onClick={() => openDriverDetails(driver.driver_number)}
+                className="f1-card w-full text-left border border-[var(--border-color)] bg-[var(--panel-color)] p-3 transition-all hover:border-red-500/45"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <DriverAvatar driver={driver} sizeClass="w-11 h-11" roundedClass="rounded-md" textClass="text-sm" />
+                    <div className="min-w-0">
+                      <p className="display-title text-base font-bold truncate">{driver.full_name}</p>
+                      <p className="text-xs text-[var(--text-secondary)] truncate">{driver.team_name || "F1 Team"}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-[var(--text-muted)]">#{driver.driver_number}</span>
+                </div>
+
+                <div className="mt-2 flex w-full items-center justify-end gap-1 text-[11px] text-[var(--text-secondary)]">
+                  <ArrowRight size={12} />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-4">
-      <div className="f1-card rounded-md border border-[var(--border-color)] bg-[var(--panel-color)]/70 p-2 sm:p-3">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <button type="button" onClick={() => setViewMode("grid")} className="btn btn-ghost">
+          <ArrowLeft size={14} />
+          Back to Driver Grid
+        </button>
+        <span className="text-xs text-[var(--text-muted)]">Detailed roster view</span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-4">
+        <div className="f1-card rounded-md border border-[var(--border-color)] bg-[var(--panel-color)]/70 p-2 sm:p-3">
         <p className="px-2 pb-2 text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
           Driver List
         </p>
@@ -235,8 +299,8 @@ function SessionDriversGrid({ meetingKey, sessionKey, year }) {
           })}
         </div>
       </div>
-
-      <DriverDetailPanel driver={selectedDriver} />
+        <DriverDetailPanel driver={selectedDriver} />
+      </div>
     </div>
   );
 }
