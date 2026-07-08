@@ -46,18 +46,18 @@ const getSystemTheme = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
 const APP_ROUTES = [
-  { to: "/", label: "Home" },
-  { to: "/archives", label: "Archives" },
-  { to: "/drivers", label: "Drivers" },
-  { to: "/score-card", label: "Score Card" },
+  { to: "/", label: "Home", icon: "home" },
+  { to: "/archives", label: "Archives", icon: "archives" },
+  { to: "/drivers", label: "Drivers", icon: "drivers" },
+  { to: "/score-card", label: "Standings", icon: "standings" },
 ];
 
 const ROUTE_META = {
-  "/": { title: "Dashboard" },
-  "/archives": { title: "Archives", subtitle: "Past weekends and season snapshots" },
-  "/drivers": { title: "Drivers", subtitle: "Season form, stints, and pace comparisons" },
-  "/score-card": { title: "Score Card", subtitle: "Championship standings and points flow" },
-  "/event": { title: "Event Detail", subtitle: "Session-by-session analysis and telemetry" },
+  "/": { title: "Home", subtitle: "Next session, championship, and latest race" },
+  "/archives": { title: "Archives", subtitle: "Season timeline and past weekends" },
+  "/drivers": { title: "Drivers", subtitle: "Roster, form, and season stats" },
+  "/score-card": { title: "Standings", subtitle: "Championship tables and points flow" },
+  "/event": { title: "Weekend", subtitle: "Session results and telemetry" },
 };
 
 const routeRefreshPrefixes = (pathname = "/") => {
@@ -220,10 +220,11 @@ const AppLayout = () => {
 
               <div className="text-center sm:text-left">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
-                  Race Control · {routeMeta?.title || "Dashboard"}
+                  {routeMeta?.title || "Home"}
                 </p>
-                <h1 className="display-title text-xl sm:text-2xl font-bold tracking-wider text-[var(--text-primary)]">
-                  {AppConfig.name}
+                <h1 className="display-title text-xl sm:text-2xl font-bold tracking-wider">
+                  <span className="text-[var(--text-primary)]">Pit</span>
+                  <span className="text-[var(--accent-red)]">Stop</span>
                 </h1>
                 <p className="hidden sm:block text-[11px] text-[var(--text-secondary)] mt-0.5">
                   {routeMeta?.subtitle}
@@ -264,7 +265,7 @@ const AppLayout = () => {
               <select
                 value={seasonYear}
                 onChange={(event) => setSeasonYear(event.target.value)}
-                className="btn btn-ghost !text-[11px] !tracking-[0.1em] !normal-case"
+                className="rounded-[var(--radius-full)] border border-[var(--border-color)] bg-[var(--surface-2)] px-3 py-1.5 text-[11px] font-semibold text-[var(--text-primary)]"
                 aria-label="Select season year"
               >
                 {YEAR_OPTIONS.map((year) => (
@@ -385,9 +386,9 @@ const AppLayout = () => {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `px-2 py-1 rounded-md transition-colors ${
+                  `px-2 py-1 rounded-[var(--radius-md)] transition-colors ${
                     isActive
-                      ? "text-[var(--text-primary)] bg-red-500/20"
+                      ? "text-[var(--text-primary)] bg-[var(--accent-red-subtle)] border border-[var(--accent-red-border)]"
                       : "text-[var(--text-secondary)]"
                   }`
                 }

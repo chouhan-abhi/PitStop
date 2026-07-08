@@ -1,89 +1,102 @@
-import React, { useMemo, Suspense } from "react";
-import { Users, Flag, Trophy } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Users, Flag, Trophy, LayoutGrid, List } from "lucide-react";
 
 import { useEvents } from "../Events/useEvents";
-import { useLatestSessionDrivers } from "./useLatestSessionDrivers";
+import { useDriverRegistry } from "../../common/drivers/useDriverRegistry";
 import PageShell from "../ui/PageShell";
 import Panel from "../ui/Panel";
 import StatusPill from "../ui/StatusPill";
 import DataStatusBanner from "../ui/DataStatusBanner";
-
-const SessionDriversGrid = React.lazy(() => import("./DriversGrid"));
+import Button from "../ui/Button";
+import DriversGridView from "./DriversGridView";
+import DriversListView from "./DriversListView";
+import DriverDetailDrawer from "./DriverDetailDrawer";
 
 const DriversPage = ({ year }) => {
+  const [viewMode, setViewMode] = useState("grid");
+  const [selectedDriver, setSelectedDriver] = useState(null);
+
   const {
     data: eventsData,
     dataMeta: eventsMeta,
     isError: eventsIsError,
     error: eventsError,
   } = useEvents(year, null);
+
   const {
     data: driversData,
     dataMeta: driversMeta,
     isLoading: driversLoading,
     isError: driversIsError,
     error: driversError,
-  } = useLatestSessionDrivers(null, null, { year });
+  } = useDriverRegistry(null, null, { year });
 
   const { latestEvent, isUpcomingEvent } = useMemo(() => {
     if (!Array.isArray(eventsData) || !eventsData.length) {
       return { latestEvent: null, isUpcomingEvent: false };
     }
-
     const now = new Date();
     const completed = eventsData
       .filter((event) => event?.date_start && new Date(event.date_start) <= now)
       .sort((a, b) => new Date(b.date_start) - new Date(a.date_start));
-
-    if (completed.length > 0) {
-      return { latestEvent: completed[0], isUpcomingEvent: false };
-    }
-
+    if (completed.length > 0) return { latestEvent: completed[0], isUpcomingEvent: false };
     const upcoming = eventsData
       .filter((event) => event?.date_start && new Date(event.date_start) > now)
       .sort((a, b) => new Date(a.date_start) - new Date(b.date_start));
-
     return { latestEvent: upcoming[0] || null, isUpcomingEvent: true };
   }, [eventsData]);
 
   const roster = Array.isArray(driversData) ? driversData : [];
-
   const teamsCount = useMemo(
-    () => new Set(roster.map((driver) => driver?.team_name).filter(Boolean)).size,
+    () => new Set(roster.map((d) => d?.team_name).filter(Boolean)).size,
     [roster]
   );
   const championshipLeader = useMemo(
-    () => roster.find((driver) => Number(driver?.season?.position) === 1) || roster[0] || null,
+    () => roster.find((d) => Number(d?.season?.position) === 1) || roster[0] || null,
     [roster]
   );
-  const dataBannerMeta = useMemo(() => {
-    const warning =
+
+  const dataBannerMeta = useMemo(() => ({
+    isStale: Boolean(driversMeta?.isStale || eventsMeta?.isStale),
+    warning:
       driversMeta?.warning ||
       eventsMeta?.warning ||
-      (driversIsError ? (driversError?.message || "Some driver data is unavailable.") : null) ||
-      (eventsIsError ? (eventsError?.message || "Some schedule data is unavailable.") : null);
-
-    return {
-      isStale: Boolean(driversMeta?.isStale || eventsMeta?.isStale),
-      warning,
-      source: driversMeta?.source || eventsMeta?.source || null,
-      fetchedAt: driversMeta?.fetchedAt || eventsMeta?.fetchedAt || null,
-    };
-  }, [driversError?.message, driversIsError, driversMeta, eventsError?.message, eventsIsError, eventsMeta]);
-  const shouldShowFatalDriversError = driversIsError && roster.length === 0;
+      (driversIsError ? driversError?.message : null) ||
+      (eventsIsError ? eventsError?.message : null),
+    source: driversMeta?.source || eventsMeta?.source || null,
+    fetchedAt: driversMeta?.fetchedAt || eventsMeta?.fetchedAt || null,
+  }), [driversError, driversIsError, driversMeta, eventsError, eventsIsError, eventsMeta]);
 
   return (
     <PageShell
-      title="Drivers Command Center"
-      subtitle={`Season ${year} lineup, standings intelligence, and driver-by-driver breakdown`}
+      title="Drivers"
+      subtitle={`Season ${year} roster and championship form`}
       actions={(
         <>
           <StatusPill tone="neutral">Season {year}</StatusPill>
           {latestEvent && (
             <StatusPill tone={isUpcomingEvent ? "warn" : "live"}>
-              {isUpcomingEvent ? "Next Round" : "Latest Round"}: {latestEvent.meeting_name}
+              {isUpcomingEvent ? "Next" : "Latest"}: {latestEvent.meeting_name}
             </StatusPill>
           )}
+          <div className="flex gap-1">
+            <Button
+              variant={viewMode === "grid" ? "accent" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              aria-label="Grid view"
+            >
+              <LayoutGrid size={14} />
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "accent" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+              aria-label="List view"
+            >
+              <List size={14} />
+            </Button>
+          </div>
         </>
       )}
     >
@@ -95,50 +108,40 @@ const DriversPage = ({ year }) => {
             <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Active Drivers</p>
             <Users size={15} className="text-[var(--text-secondary)]" />
           </div>
-          <p className="display-title text-3xl font-bold mt-2">{roster.length || (driversLoading ? "..." : 0)}</p>
+          <p className="display-title text-3xl font-bold mt-2">{roster.length || (driversLoading ? "…" : 0)}</p>
         </Panel>
-
         <Panel className="p-4">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Teams Tracked</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Teams</p>
             <Flag size={15} className="text-[var(--text-secondary)]" />
           </div>
-          <p className="display-title text-3xl font-bold mt-2">{teamsCount || (driversLoading ? "..." : 0)}</p>
+          <p className="display-title text-3xl font-bold mt-2">{teamsCount || (driversLoading ? "…" : 0)}</p>
         </Panel>
-
         <Panel className="p-4">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Championship Leader</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Leader</p>
             <Trophy size={15} className="text-[var(--text-secondary)]" />
           </div>
-          <p className="display-title text-xl font-bold mt-2 truncate">{championshipLeader?.full_name || (driversLoading ? "Loading..." : "N/A")}</p>
+          <p className="display-title text-xl font-bold mt-2 truncate">
+            {championshipLeader?.full_name || (driversLoading ? "…" : "N/A")}
+          </p>
           <p className="text-xs text-[var(--text-secondary)] mt-1">
-            {championshipLeader ? `${championshipLeader?.season?.points || 0} pts` : "No standings available"}
+            {championshipLeader ? `${championshipLeader.season?.points || 0} pts` : ""}
           </p>
         </Panel>
       </div>
 
-      {shouldShowFatalDriversError && (
-        <Panel className="p-6 text-center text-red-400">
-          {driversError?.message || "Unable to load season driver roster."}
-        </Panel>
-      )}
-
       <Panel className="p-3 sm:p-4">
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center p-8 text-[var(--text-secondary)]">
-              Loading driver grid...
-            </div>
-          }
-        >
-          <SessionDriversGrid
-            meetingKey={latestEvent?.meeting_key}
-            sessionKey={latestEvent?.session_key}
-            year={year}
-          />
-        </Suspense>
+        {driversIsError && !roster.length ? (
+          <p className="text-center py-8 text-[var(--danger)]">{driversError?.message || "Unable to load drivers."}</p>
+        ) : viewMode === "grid" ? (
+          <DriversGridView drivers={roster} loading={driversLoading} onSelect={setSelectedDriver} />
+        ) : (
+          <DriversListView drivers={roster} loading={driversLoading} onSelect={setSelectedDriver} />
+        )}
       </Panel>
+
+      <DriverDetailDrawer driver={selectedDriver} onClose={() => setSelectedDriver(null)} />
     </PageShell>
   );
 };

@@ -68,15 +68,45 @@ export const getLatestPositionsForDrivers = (positionsData, sessionKey) => {
  * Merge driver data with position data
  */
 export const mergeDriversWithPositions = (driversData, positionsData) => {
-  if (!driversData || !positionsData) return [];
+  if (!positionsData?.length) return [];
+  if (!driversData?.length) {
+    return positionsData
+      .map((pos) => ({
+        driver_number: pos.driver_number,
+        full_name: pos.full_name,
+        team_name: pos.team_name,
+        headshot_url: null,
+        position: pos.finalPosition ?? pos.position,
+      }))
+      .sort((a, b) => (a.position || 999) - (b.position || 999));
+  }
 
-  return driversData
-    .map(driver => {
-      const positionInfo = positionsData.find(pos => pos.driver_number === driver.driver_number);
-      return { ...driver, position: positionInfo?.position };
-    })
-    .filter(driver => driver.position !== undefined)
-    .sort((a, b) => a.position - b.position);
+  const driverByNumber = new Map(
+    driversData
+      .map((driver) => [Number(driver?.driver_number), driver])
+      .filter(([num]) => Number.isFinite(num))
+  );
+
+  const merged = new Map();
+
+  positionsData.forEach((pos) => {
+    const num = Number(pos?.driver_number);
+    if (!Number.isFinite(num)) return;
+    const driver = driverByNumber.get(num);
+    merged.set(num, {
+      ...(driver || {
+        driver_number: num,
+        full_name: pos.full_name,
+        team_name: pos.team_name,
+        headshot_url: null,
+      }),
+      position: pos.finalPosition ?? pos.position,
+      team_name: pos.team_name || driver?.team_name,
+      full_name: driver?.full_name || pos.full_name,
+    });
+  });
+
+  return Array.from(merged.values()).sort((a, b) => (a.position || 999) - (b.position || 999));
 };
 
 /**
@@ -104,13 +134,13 @@ export const processSessionsData = (positionsData) => {
     const posDate = new Date(pos.date);
 
     if (!currentDriver) {
-      // First position entry for this driver in this session
+      const startPos = pos.startingPosition ?? pos.starting_grid_position ?? null;
       sessionsData[pos.session_key].drivers[driverKey] = {
         ...pos,
-        finalPosition: pos.position,
-        startingPosition: pos.position,
+        finalPosition: pos.finalPosition ?? pos.position,
+        startingPosition: startPos,
         finalDate: pos.date,
-        startingDate: pos.date
+        startingDate: pos.date,
       };
     } else {
       const currentFinalDate = new Date(currentDriver.finalDate || currentDriver.date);

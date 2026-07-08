@@ -27,6 +27,7 @@ export const Dashboard = ({ year }) => {
         eventsLoading={eventsLoading}
         eventsIsError={eventsIsError}
         eventsError={eventsError}
+        year={year}
       />
     </Suspense>
   );

@@ -1,51 +1,46 @@
-import React, { lazy, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
-import { usePositions } from './Drivers/usePositions';
-import { useEvents } from './Events/useEvents';
-import { useLatestSessionDrivers } from './Drivers/useLatestSessionDrivers';
-import { useStints } from './Drivers/useStints';
+import { usePositions } from "./Drivers/usePositions";
+import { useEvents } from "./Events/useEvents";
+import { useDriverRegistry } from "../common/drivers/useDriverRegistry";
+import { useStints } from "./Drivers/useStints";
+import { buildDriversByNumber, enrichDriversWithPositions } from "../common/drivers/driverRegistry";
+import { processSessionsData } from "../common/utils/dataProcessing";
+import { getLatestPositionsForDrivers } from "../common/utils/dataProcessing";
 
-import {
-  processSessionsData,
-  formatDate
-} from '../common/utils/dataProcessing';
+import DataStatusBanner from "./ui/DataStatusBanner";
+import Button from "./ui/Button";
+import Tabs from "./ui/Tabs";
+import LoadingState from "./ui/LoadingState";
 
-import {
-  getTeamColorBorder,
-  getTeamColorWithOpacity
-} from '../common/utils/colors';
+import EventWeekendHeader from "./event/EventWeekendHeader";
+import EventResultsTab from "./event/EventResultsTab";
+import EventPaceTab from "./event/EventPaceTab";
+import EventStintsTab from "./event/EventStintsTab";
+import EventCompareTab from "./event/EventCompareTab";
 
-import {
-  ArrowLeft,
-  Flag,
-  MapPin,
-  CalendarDays
-} from "lucide-react";
-import CircuitModel from './Common/CircuitModel';
-import DataStatusBanner from './ui/DataStatusBanner';
-import {
-  getF1Points,
-  SESSION_TITLE_MAP
-} from '../common/utils/constants';
-const StintsGraph = lazy(() => import('./Common/StintsGraph'));
-const SessionPaceAnalytics = lazy(() => import('./Common/SessionPaceAnalytics'));
+const EVENT_TABS = [
+  { key: "results", label: "Results" },
+  { key: "pace", label: "Pace" },
+  { key: "stints", label: "Stints" },
+  { key: "compare", label: "Compare" },
+];
 
 export const EventDetails = ({ year }) => {
-
   const { meetingKey } = useParams();
   const navigate = useNavigate();
   const meetingKeyNumber = Number(meetingKey);
   const hasValidMeetingKey = Number.isFinite(meetingKeyNumber);
-
-  // --- FETCH QUERIES ---------------------------------------------------------
+  const [activeTab, setActiveTab] = useState("results");
 
   const {
     data: allPositionsRaw,
     dataMeta: positionsMeta,
     isLoading: positionsLoading,
     isError: positionsError,
-    error: positionsErrObj
+    error: positionsErrObj,
   } = usePositions(meetingKey, null, null, { year });
 
   const {
@@ -53,22 +48,11 @@ export const EventDetails = ({ year }) => {
     dataMeta: eventsMeta,
     isLoading: eventsLoading,
     isError: eventsError,
-    error: eventsErrObj
+    error: eventsErrObj,
   } = useEvents(year, null);
 
-
-  // --- SAFETY GUARDS ---------------------------------------------------------
-
-  const eventList = Array.isArray(eventDetailsData)
-    ? eventDetailsData
-    : [];
-
-  const positionsList = Array.isArray(allPositionsRaw)
-    ? allPositionsRaw
-    : [];
-
-
-  // --- CURRENT EVENT DETAILS -------------------------------------------------
+  const eventList = Array.isArray(eventDetailsData) ? eventDetailsData : [];
+  const positionsList = Array.isArray(allPositionsRaw) ? allPositionsRaw : [];
 
   const currentEvent = useMemo(() => {
     if (!eventList.length || !hasValidMeetingKey) return null;
@@ -79,607 +63,144 @@ export const EventDetails = ({ year }) => {
     ? new Date(currentEvent.date_start).getFullYear()
     : null;
 
-  const {
-    data: allDriversRaw,
-    dataMeta: driversMeta,
-    isError: driversError,
-    error: driversErrObj
-  } = useLatestSessionDrivers(meetingKey, null, {
-    year: currentEventYear,
-    enabled: Boolean(currentEventYear),
-  });
-  const driversList = Array.isArray(allDriversRaw) ? allDriversRaw : [];
-  const driversByNumber = useMemo(
-    () =>
-      new Map(
-        driversList
-          .map((driver) => [Number(driver?.driver_number), driver])
-          .filter(([driverNumber]) => Number.isFinite(driverNumber))
-      ),
-    [driversList]
+  const sessionsData = useMemo(
+    () => (positionsList.length ? processSessionsData(positionsList) : {}),
+    [positionsList]
   );
-
-  // --- COMBINED LOADING / ERROR ---------------------------------------------
-
-  const isLoading = positionsLoading || eventsLoading;
-
-  const isError = driversError || positionsError || eventsError;
-  const errorObj =
-    driversErrObj || positionsErrObj || eventsErrObj;
-  const hasSomeData =
-    eventList.length > 0 || positionsList.length > 0 || driversList.length > 0;
-  const combinedMeta = useMemo(() => {
-    const metas = [eventsMeta, positionsMeta, driversMeta].filter(Boolean);
-    if (!metas.length) return null;
-    const stale = metas.some((meta) => meta?.isStale);
-    const warning =
-      metas.map((meta) => meta?.warning).find(Boolean)
-      || (isError ? (errorObj?.message || "Some data failed to load.") : null);
-    const source = metas.map((meta) => meta?.source).find(Boolean) || null;
-    const fetchedAt = metas.map((meta) => meta?.fetchedAt).find(Boolean) || null;
-    return {
-      isStale: stale,
-      warning,
-      source,
-      fetchedAt,
-    };
-  }, [driversMeta, errorObj?.message, eventsMeta, isError, positionsMeta]);
-
-
-  // --- SESSION DATA PROCESSING ----------------------------------------------
-
-  const sessionsData = useMemo(() => {
-    return positionsList.length
-      ? processSessionsData(positionsList)
-      : {};
-  }, [positionsList]);
-
 
   const sortedSessions = useMemo(() => {
     const arr = Object.values(sessionsData);
     if (!arr.length) return [];
-    return arr.sort(
-      (a, b) => new Date(b.date || 0) - new Date(a.date || 0)
-    );
+    return arr.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
   }, [sessionsData]);
-
-
-  // --- LATEST SESSION FOR STINTS --------------------------------------------
 
   const latestSessionKey = sortedSessions[0]?.session_key || null;
 
-  const { data: stintsData, isLoading: stintsLoading } = useStints(
-    latestSessionKey,
-    { enabled: Boolean(latestSessionKey) }
-  );
+  const {
+    data: allDriversRaw,
+    dataMeta: driversMeta,
+    isError: driversError,
+    error: driversErrObj,
+  } = useDriverRegistry(meetingKey, latestSessionKey, {
+    year: currentEventYear,
+    enabled: Boolean(currentEventYear),
+  });
 
+  const driversList = Array.isArray(allDriversRaw) ? allDriversRaw : [];
+  const driversByNumber = useMemo(() => buildDriversByNumber(driversList), [driversList]);
 
-  // --- LOCAL STATE -----------------------------------------------------------
+  const driversWithPositions = useMemo(() => {
+    if (!latestSessionKey || !positionsList.length) return driversList;
+    const latestPositions = getLatestPositionsForDrivers(positionsList, latestSessionKey);
+    return enrichDriversWithPositions(driversList, latestPositions);
+  }, [driversList, latestSessionKey, positionsList]);
 
-  const [openSessionKey, setOpenSessionKey] = useState(
-    sortedSessions[0]?.session_key || null
-  );
+  const raceWinner = useMemo(() => {
+    const raceSession = sortedSessions.find((s) =>
+      (s.session_name || "").toLowerCase().includes("race")
+    ) || sortedSessions[0];
+    if (!raceSession) return null;
+    const p1 = Object.values(raceSession.drivers || {}).find(
+      (d) => (d.finalPosition ?? d.position) === 1
+    );
+    if (!p1) return null;
+    return driversByNumber.get(Number(p1.driver_number)) || p1;
+  }, [sortedSessions, driversByNumber]);
 
-  const toggleSession = (key) => {
-    setOpenSessionKey((prev) => (prev === key ? null : key));
-  };
-
-
-  // --- PROCESS STINT DATA ----------------------------------------------------
+  const { data: stintsData, isLoading: stintsLoading } = useStints(latestSessionKey, {
+    enabled: Boolean(latestSessionKey),
+  });
 
   const stintsByDriver = useMemo(() => {
     if (!Array.isArray(stintsData)) return {};
-
     const map = {};
-
-    stintsData.forEach(stint => {
-      if (!map[stint.driver_number]) {
-        map[stint.driver_number] = [];
-      }
+    stintsData.forEach((stint) => {
+      if (!map[stint.driver_number]) map[stint.driver_number] = [];
       map[stint.driver_number].push(stint);
     });
-
-    Object.keys(map).forEach(driverNum => {
-      map[driverNum].sort(
-        (a, b) => a.lap_start - b.lap_start
-      );
+    Object.keys(map).forEach((driverNum) => {
+      map[driverNum].sort((a, b) => a.lap_start - b.lap_start);
     });
-
     return map;
   }, [stintsData]);
 
+  const isLoading = positionsLoading || eventsLoading;
+  const isError = driversError || positionsError || eventsError;
+  const errorObj = driversErrObj || positionsErrObj || eventsErrObj;
+  const hasSomeData = eventList.length > 0 || positionsList.length > 0 || driversList.length > 0;
 
-  // --- SESSION TITLE ---------------------------------------------------------
-
-  const getSessionTitle = (index, totalSessions) => {
-    const raceIndex = totalSessions - 1 - index;
-    return SESSION_TITLE_MAP[raceIndex] || `Session ${raceIndex + 1}`;
-  };
-
-
-  // --- LOADING STATE ---------------------------------------------------------
+  const combinedMeta = useMemo(() => {
+    const metas = [eventsMeta, positionsMeta, driversMeta].filter(Boolean);
+    if (!metas.length) return null;
+    return {
+      isStale: metas.some((m) => m?.isStale),
+      warning:
+        metas.map((m) => m?.warning).find(Boolean) ||
+        (isError ? errorObj?.message || "Some data failed to load." : null),
+      source: metas.map((m) => m?.source).find(Boolean) || null,
+      fetchedAt: metas.map((m) => m?.fetchedAt).find(Boolean) || null,
+    };
+  }, [driversMeta, errorObj?.message, eventsMeta, isError, positionsMeta]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen p-8">
-        <p className="text-lg" style={{ color: 'var(--text-color)' }}>
-          Loading event details...
-        </p>
-      </div>
-    );
+    return <LoadingState message="Loading event details..." className="min-h-[50vh]" />;
   }
-
-  // --- ERROR STATE -----------------------------------------------------------
 
   if (isError && !hasSomeData) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-8">
-        <p className="text-lg" style={{ color: 'var(--primary-color)' }}>
-          Error: {errorObj?.message || 'Failed to load event details.'}
-        </p>
+      <div className="app-shell py-10 text-center text-[var(--danger)]">
+        Error: {errorObj?.message || "Failed to load event details."}
       </div>
     );
   }
 
   if (!hasValidMeetingKey) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-8">
-        <div className="text-center">
-          <p className="text-lg mb-4" style={{ color: "var(--text-color)" }}>
-            Invalid event identifier.
-          </p>
-          <button
-            onClick={() => navigate("/")}
-            className="px-4 py-2 rounded-md text-white"
-            style={{ backgroundColor: "var(--primary-color)" }}
-          >
-            Back to Dashboard
-          </button>
-        </div>
+      <div className="app-shell py-10 text-center space-y-4">
+        <p className="text-[var(--text-primary)]">Invalid event identifier.</p>
+        <Button variant="primary" onClick={() => navigate("/")}>Back to Home</Button>
       </div>
     );
   }
-
-
-  // --- NO EVENT FOUND --------------------------------------------------------
 
   if (!currentEvent) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-8">
-        <div className="text-center">
-          <p className="text-lg mb-4" style={{ color: 'var(--text-color)' }}>
-            Event not found.
-          </p>
-
-          <button
-            onClick={() => navigate('/')}
-            className="px-4 py-2 rounded-md text-white"
-            style={{ backgroundColor: 'var(--primary-color)' }}
-          >
-            Back to Dashboard
-          </button>
-        </div>
+      <div className="app-shell py-10 text-center space-y-4">
+        <p className="text-[var(--text-primary)]">Event not found.</p>
+        <Button variant="primary" onClick={() => navigate("/")}>Back to Home</Button>
       </div>
     );
   }
 
-
-  // ---------------------------------------------------------------------------
-  //                                RENDER
-  // ---------------------------------------------------------------------------
-
   return (
-
-    <div className="app-shell py-4 lg:py-8 w-full space-y-4 sm:space-y-5 lg:space-y-6" style={{ color: "var(--text-color)" }}>
+    <div className="app-shell py-4 lg:py-8 space-y-5">
       <DataStatusBanner meta={combinedMeta} />
 
-      {/* BACK BUTTON */}
-      <button
-        type="button"
-        onClick={() => navigate("/")}
-        className="btn btn-ghost"
-      >
+      <Button variant="ghost" onClick={() => navigate("/")}>
         <ArrowLeft size={16} />
-        Back to Dashboard
-      </button>
+        Back to Home
+      </Button>
 
+      <EventWeekendHeader event={currentEvent} winner={raceWinner} />
 
-      {/* HEADER */}
-      <div className="relative overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--panel-color)]/70 p-4 sm:p-6 lg:p-8 shadow-[0_16px_40px_rgba(0,0,0,0.2)]">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute -right-6 -top-10 text-[120px] sm:text-[180px] font-black tracking-tight text-white/5 select-none">
-          {currentEvent.country_name?.slice(0, 2) || "GP"}
-        </div>
-        <div className="relative flex flex-col md:flex-row items-start justify-between w-full gap-4 sm:gap-5 lg:gap-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.35em] text-red-300/80 mb-2">
-              Event Details
-              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 flex items-center gap-3"
-              style={{ color: "var(--primary-color)" }}>
-              {currentEvent.meeting_name}
-              <Flag size={24} className="opacity-80" />
-            </h1>
+      <Tabs tabs={EVENT_TABS} activeKey={activeTab} onChange={setActiveTab} />
 
-            <div className="space-y-1">
-              <p className="text-base flex items-center gap-2"
-                style={{ color: "var(--text-color)", opacity: 0.7 }}>
-                <MapPin size={16} />
-                {currentEvent.location}, {currentEvent.country_name}
-              </p>
-
-              <p className="text-sm flex items-center gap-2"
-                style={{ color: "var(--text-color)", opacity: 0.5 }}>
-                <CalendarDays size={16} />
-                {formatDate(currentEvent.date_start)}
-              </p>
-            </div>
-          </div>
-
-          {currentEvent && (
-            <div className="flex-shrink-0 flex justify-center md:justify-end">
-                <CircuitModel
-                  circuitName={currentEvent.circuit_short_name}
-                  location={currentEvent.location}
-                  width={480}
-                  height={240}
-                  enabled
-                  defer={false}
-                />
-            </div>
-          )}
-        </div>
-      </div>
-
-
-      {/* SESSIONS AREA */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold tracking-wide"
-          style={{ color: 'var(--text-color)', opacity: 0.85 }}>
-          Sessions Analysis
-        </h2>
-        <span className="text-[10px] uppercase tracking-[0.3em] text-red-300/80">
-          Live Insights
-        </span>
-      </div>
-
-      {/* NO SESSIONS */}
-      {!sortedSessions.length && (
-        <p className="text-sm" style={{ color: 'var(--text-color)', opacity: 0.5 }}>
-          No session data available.
-        </p>
+      {activeTab === "results" && (
+        <EventResultsTab sortedSessions={sortedSessions} driversByNumber={driversByNumber} />
       )}
-
-
-      {/* MAIN CONTENT */}
-      {sortedSessions.length > 0 && (
-        <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-
-          {/* LATEST SESSION (FULL WIDTH) */}
-          {sortedSessions[0] && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-
-              {/* TABLE: POSITIONS */}
-              <div>
-                <div className="relative mb-0">
-                  <h3
-                    className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
-                    style={{
-                      backgroundColor: 'var(--card-bg)',
-                      borderColor: 'var(--border-color)',
-                      marginBottom: '-1px',
-                    }}
-                  >
-                    {getSessionTitle(0, sortedSessions.length)}
-                    {' - '}
-                    {sortedSessions[0].session_name}
-                  </h3>
-                </div>
-
-                <div className="overflow-x-auto rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/80">
-                  <table className="min-w-full border-t"
-                    style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <thead>
-                      <tr>
-                        <th className="py-2 px-4 text-left text-sm font-semibold"
-                          style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                          Pos
-                        </th>
-
-                        <th className="py-2 px-4 text-left text-sm font-semibold"
-                          style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                          Driver
-                        </th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold"
-                          style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                          Team
-                        </th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold"
-                          style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                          Start
-                        </th>
-
-                        {/* RACE ONLY COLUMN */}
-                        {getSessionTitle(0, sortedSessions.length).toLowerCase() === "race day" && (
-                          <th className="py-2 px-4 text-left text-sm font-semibold"
-                            style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                            Pts
-                          </th>
-                        )}
-                      </tr>
-                    </thead>
-
-                    <tbody>
-
-                      {Object.values(sortedSessions[0].drivers || {})
-                        .sort((a, b) =>
-                          (a.finalPosition || a.position || 999) -
-                          (b.finalPosition || b.position || 999)
-                        )
-                        .map(driverPos => {
-
-                          const full = driversByNumber.get(Number(driverPos?.driver_number));
-
-                          const final = driverPos.finalPosition ?? driverPos.position;
-                          const start = driverPos.startingPosition ?? driverPos.starting_grid_position;
-
-                          return (
-                            <tr key={driverPos.driver_number}
-                              className="transition-opacity duration-150 hover:opacity-80"
-                              style={{
-                                borderBottom: `1px solid var(--border-color)`,
-                                backgroundColor: full?.team_colour
-                                  ? getTeamColorWithOpacity(full.team_colour, '15')
-                                  : "transparent"
-                              }}
-                            >
-
-                              <td className="py-2 px-4 text-base"
-                                style={{ color: 'var(--text-color)' }}>
-                                {final}
-                              </td>
-
-                              <td className="py-2 px-4">
-                                <div className="flex items-center">
-                                  {full?.headshot_url && (
-                                    <img
-                                      src={full.headshot_url}
-                                      alt={full.full_name}
-                                      className="w-8 h-8 rounded-full mr-3 border"
-                                      style={{
-                                        borderColor: getTeamColorBorder(
-                                          full.team_colour
-                                        )
-                                      }}
-                                    />
-                                  )}
-                                  <span className="text-base font-medium"
-                                    style={{ color: 'var(--text-color)' }}>
-                                    {full?.full_name || driverPos.full_name}
-                                  </span>
-                                </div>
-                              </td>
-
-                              <td className="py-2 px-4 text-base"
-                                style={{
-                                  color: getTeamColorBorder(full?.team_colour || "ffffff")
-                                }}>
-                                {full?.team_name || driverPos.team_name}
-                              </td>
-
-                              <td className="py-2 px-4 text-base"
-                                style={{ color: 'var(--text-color)', opacity: 0.6 }}>
-                                {start || "N/A"}
-                              </td>
-
-                              {/* RACE ONLY COLUMN */}
-                              {getSessionTitle(0, sortedSessions.length).toLowerCase() === "race day" && (
-                                <td className="py-2 px-4 text-base"
-                                  style={{ color: 'var(--text-color)' }}>
-                                  {getF1Points(final)}
-                                </td>
-                              )}
-                            </tr>
-                          );
-                        })}
-
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-
-              {/* STINTS GRAPH */}
-              <div className="rounded-2xl">
-
-                <div className="rounded-xl bg-[var(--card-bg)]/70">
-                {stintsLoading ? (
-                  <p className="text-sm"
-                    style={{ color: 'var(--text-color)', opacity: 0.6 }}>
-                    Loading stints…
-                  </p>
-                ) : (
-                  Array.isArray(stintsData) && stintsData.length > 0 ? (
-                    <StintsGraph
-                      stintsByDriver={stintsByDriver}
-                      allDrivers={driversList}
-                      totalLaps={71}
-                    />
-                  ) : (
-                    <p className="text-sm"
-                      style={{ color: 'var(--text-color)', opacity: 0.5 }}>
-                      No stints data available.
-                    </p>
-                  )
-                )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="w-full rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/70 p-2 sm:p-3">
-            <SessionPaceAnalytics
-              sessionKey={sortedSessions[0].session_key}
-              meetingKey={meetingKey}
-              year={year}
-            />
-          </div>
-
-
-          {/* OTHER SESSIONS — COLLAPSIBLE */}
-          {sortedSessions.length > 1 && (
-            <div className="space-y-4 mt-6">
-
-              {sortedSessions.slice(1).map((session, index) => {
-                const actualIndex = index + 1;
-                const isOpen = openSessionKey === session.session_key;
-
-                return (
-                  <div
-                    key={session.session_key}
-                    className="rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/70"
-                  >
-
-                    {/* HEADER */}
-                    <div
-                      onClick={() => toggleSession(session.session_key)}
-                      className="w-full flex items-center justify-between px-4 py-3 text-left hover:shadow-lg cursor-pointer"
-                    >
-
-                      <div className="text-sm font-semibold flex gap-2"
-                        style={{ color: "var(--text-color)", opacity: 0.9 }}>
-                        <svg
-                          width="18"
-                          height="18"
-                          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : "rotate-0"}`}
-                          style={{ opacity: 0.6 }}
-                        >
-                          <path
-                            d="M6 9l6 6 6-6"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-
-                        {getSessionTitle(actualIndex, sortedSessions.length)}
-                      </div>
-
-                    </div>
-
-
-                    {/* BODY */}
-                    {isOpen && (
-                      <div className="px-4 pb-4">
-
-                        <div className="overflow-x-auto mt-2">
-                          <table className="min-w-full"
-                            style={{ border: `1px solid var(--border-color)` }}>
-                            <thead>
-                              <tr>
-                                <th className="py-3 px-5 text-left text-sm font-semibold"
-                                  style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                                  Pos
-                                </th>
-                                <th className="py-3 px-5 text-left text-sm font-semibold"
-                                  style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                                  Driver
-                                </th>
-                                <th className="py-3 px-5 text-left text-sm font-semibold"
-                                  style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                                  Team
-                                </th>
-                                <th className="py-3 px-5 text-left text-sm font-semibold"
-                                  style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                                  Start
-                                </th>
-                              </tr>
-                            </thead>
-
-                            <tbody>
-
-                              {Object.values(session.drivers || {})
-                                .sort((a, b) =>
-                                  (a.finalPosition || a.position || 999) -
-                                  (b.finalPosition || b.position || 999)
-                                )
-                                .map(driverPos => {
-
-                                  const full = driversByNumber.get(Number(driverPos?.driver_number));
-
-                                  const final = driverPos.finalPosition ?? driverPos.position;
-                                  const start = driverPos.startingPosition ?? driverPos.starting_grid_position;
-
-                                  return (
-                                    <tr key={driverPos.driver_number}
-                                      className="transition-opacity duration-150 hover:opacity-70"
-                                      style={{
-                                        borderBottom: `1px solid var(--border-color)`,
-                                        backgroundColor: full?.team_colour
-                                          ? getTeamColorWithOpacity(full.team_colour, "15")
-                                          : "transparent"
-                                      }}
-                                    >
-
-                                      <td className="py-3 px-5 text-base"
-                                        style={{ color: "var(--text-color)" }}>
-                                        {final}
-                                      </td>
-
-                                      <td className="py-3 px-5">
-                                        <div className="flex items-center">
-                                          {full?.headshot_url && (
-                                            <img
-                                              src={full.headshot_url}
-                                              alt={full.full_name}
-                                              className="w-8 h-8 rounded-full mr-3 border"
-                                              style={{
-                                                borderColor: getTeamColorBorder(full.team_colour)
-                                              }}
-                                            />
-                                          )}
-                                          <span className="text-base font-medium"
-                                            style={{ color: "var(--text-color)" }}>
-                                            {full?.full_name || driverPos.full_name}
-                                          </span>
-                                        </div>
-                                      </td>
-
-                                      <td className="py-3 px-5 text-base"
-                                        style={{
-                                          color: getTeamColorBorder(full?.team_colour || "ffffff")
-                                        }}>
-                                        {full?.team_name || driverPos.team_name}
-                                      </td>
-
-                                      <td className="py-3 px-5 text-base"
-                                        style={{ color: "var(--text-color)", opacity: 0.6 }}>
-                                        {start || "N/A"}
-                                      </td>
-
-                                    </tr>
-                                  );
-                                })}
-
-                            </tbody>
-                          </table>
-                        </div>
-
-                      </div>
-                    )}
-
-                  </div>
-                );
-              })}
-
-            </div>
-          )}
-
-        </div>
+      {activeTab === "pace" && (
+        <EventPaceTab sessionKey={latestSessionKey} meetingKey={meetingKey} year={year} />
       )}
-
+      {activeTab === "stints" && (
+        <EventStintsTab
+          stintsByDriver={stintsByDriver}
+          driversWithPositions={driversWithPositions}
+          stintsLoading={stintsLoading}
+        />
+      )}
+      {activeTab === "compare" && (
+        <EventCompareTab sessionKey={latestSessionKey} meetingKey={meetingKey} year={year} />
+      )}
     </div>
   );
 };

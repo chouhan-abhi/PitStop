@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 import { ArrowLeft } from "lucide-react";
 
-import { useLatestSessionDrivers } from "../Drivers/useLatestSessionDrivers";
+import { useDriverRegistry } from "../../common/drivers/useDriverRegistry";
 import { useLaps } from "./useLaps";
 import { getTeamColorBorder } from "../../common/utils/colors";
 
@@ -78,7 +78,7 @@ export default function SessionPaceAnalytics({ meetingKey, sessionKey, year }) {
 
   const overlayRef = useRef();
 
-  const { data: latestDrivers = [], isLoading: driversLoading } = useLatestSessionDrivers(
+  const { data: latestDrivers = [], isLoading: driversLoading } = useDriverRegistry(
     meetingKey,
     sessionKey,
     { enabled: Boolean(meetingKey || sessionKey), year }

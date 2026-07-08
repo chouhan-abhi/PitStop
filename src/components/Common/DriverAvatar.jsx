@@ -41,10 +41,11 @@ const DriverAvatar = ({
 
   return (
     <div
-      className={`${sizeClass} ${roundedClass} ${className} flex items-center justify-center overflow-hidden font-bold uppercase`}
+      className={`${sizeClass} ${roundedClass} ${className} flex items-center justify-center overflow-hidden font-bold uppercase ring-2 ring-offset-1 ring-offset-[var(--panel-color)]`}
       style={{
         background,
         color: teamColor,
+        boxShadow: `0 0 0 2px ${teamColor}`,
       }}
     >
       {showImage ? (

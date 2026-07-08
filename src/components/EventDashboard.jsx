@@ -1,13 +1,22 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 import HomeCountdownHero from "./HomeCountdownHero";
 import HomeScheduleSection from "./HomeScheduleSection";
 import SectionHeader from "./ui/SectionHeader";
 import Panel from "./ui/Panel";
-import StatusPill from "./ui/StatusPill";
 import DataStatusBanner from "./ui/DataStatusBanner";
+import ChampionshipStrip from "./ui/ChampionshipStrip";
+import DriverCard from "./ui/DriverCard";
+import Button from "./ui/Button";
+import { useDriverRegistry } from "../common/drivers/useDriverRegistry";
+import { usePositions } from "./Drivers/usePositions";
+import {
+  getLatestSessionFromPositions,
+  getLatestPositionsForDrivers,
+  mergeDriversWithPositions,
+} from "../common/utils/dataProcessing";
 
-const EventCard = React.lazy(() => import("./Events/EventCard"));
 const News = React.lazy(() => import("./News/News"));
 
 export const EventDashboard = ({
@@ -16,11 +25,23 @@ export const EventDashboard = ({
   eventsLoading,
   eventsIsError,
   eventsError,
+  year,
 }) => {
+  const navigate = useNavigate();
+
   const eventsBannerMeta = {
     ...eventsMeta,
-    warning: eventsMeta?.warning || (eventsIsError ? (eventsError?.message || "Some event data is unavailable.") : null),
+    warning:
+      eventsMeta?.warning ||
+      (eventsIsError ? eventsError?.message || "Some event data is unavailable." : null),
   };
+
+  const { data: seasonDrivers } = useDriverRegistry(null, null, { year, enabled: Boolean(year) });
+  const leaders = useMemo(() => {
+    const roster = Array.isArray(seasonDrivers) ? seasonDrivers : [];
+    return roster.filter((d) => d.season?.position).slice(0, 3);
+  }, [seasonDrivers]);
+
   if (eventsLoading) {
     return (
       <div className="app-shell py-8">
@@ -32,7 +53,7 @@ export const EventDashboard = ({
   if (eventsIsError && (!eventsData || eventsData.length === 0)) {
     return (
       <div className="app-shell py-8">
-        <Panel className="p-8 text-center text-red-400">
+        <Panel className="p-8 text-center text-[var(--danger)]">
           {eventsError?.message || "Failed to load events"}
         </Panel>
       </div>
@@ -63,36 +84,94 @@ export const EventDashboard = ({
   const hasUpcomingEvent = upcomingEvents.length > 0;
 
   return (
+    <HomeDashboardContent
+      eventsBannerMeta={eventsBannerMeta}
+      hasUpcomingEvent={hasUpcomingEvent}
+      eventsData={eventsData}
+      hasSeasonStarted={hasSeasonStarted}
+      latestCompletedEvent={latestCompletedEvent}
+      leaders={leaders}
+      year={year}
+      navigate={navigate}
+    />
+  );
+};
+
+const HomeDashboardContent = ({
+  eventsBannerMeta,
+  hasUpcomingEvent,
+  eventsData,
+  hasSeasonStarted,
+  latestCompletedEvent,
+  leaders,
+  year,
+  navigate,
+}) => {
+  const eventYear = latestCompletedEvent?.date_start
+    ? new Date(latestCompletedEvent.date_start).getFullYear()
+    : year;
+
+  const { data: positionsData } = usePositions(
+    latestCompletedEvent?.meeting_key,
+    null,
+    null,
+    { enabled: Boolean(latestCompletedEvent?.meeting_key), year: eventYear }
+  );
+
+  const latestSession = useMemo(() => {
+    if (!positionsData?.length || !latestCompletedEvent) return null;
+    return getLatestSessionFromPositions(positionsData, latestCompletedEvent.meeting_key);
+  }, [positionsData, latestCompletedEvent]);
+
+  const { data: sessionDrivers } = useDriverRegistry(
+    latestCompletedEvent?.meeting_key,
+    latestSession?.session_key,
+    { enabled: Boolean(latestSession?.session_key), year: eventYear }
+  );
+
+  const podium = useMemo(() => {
+    if (!sessionDrivers?.length || !positionsData?.length || !latestSession) return [];
+    const positions = getLatestPositionsForDrivers(positionsData, latestSession.session_key);
+    return mergeDriversWithPositions(sessionDrivers, positions).slice(0, 3);
+  }, [sessionDrivers, positionsData, latestSession]);
+
+  return (
     <div className="app-shell py-4 lg:py-8 space-y-5 lg:space-y-6">
       <DataStatusBanner meta={eventsBannerMeta} />
       {hasUpcomingEvent && <HomeCountdownHero eventsData={eventsData} />}
       <HomeScheduleSection eventsData={eventsData} />
 
       {hasSeasonStarted && (
-        <section className="f1-card relative overflow-hidden rounded-xl border border-red-500/30 bg-[var(--panel-color)] shadow-[var(--shadow-md)]">
-          <div className="absolute inset-0 opacity-90 bg-gradient-to-r from-red-900/70 via-black/75 to-black/30" />
-          <div className="absolute -right-6 -top-10 text-[120px] sm:text-[180px] display-title font-black uppercase tracking-tight opacity-10 text-white select-none" aria-hidden="true">
-            {latestCompletedEvent?.meeting_name?.split(" ")[0] || "F1"}
-          </div>
-
-          <div className="relative z-10 p-4 sm:p-6 lg:p-8">
+        <section className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-4">
+          <ChampionshipStrip leaders={leaders} title="Championship Top 3" />
+          <Panel className="p-4 sm:p-5 border-l-2 border-l-[var(--accent-red)]">
             <SectionHeader
-              title="Latest Event"
-              subtitle="Fastest route to current weekend insights"
-              actions={<StatusPill tone="live">Live telemetry view</StatusPill>}
+              title="Latest Race Podium"
+              subtitle={latestCompletedEvent?.meeting_name}
+              actions={
+                <Button
+                  variant="accent"
+                  size="sm"
+                  onClick={() => navigate(`/event/${latestCompletedEvent.meeting_key}`)}
+                >
+                  View Weekend
+                </Button>
+              }
             />
-            <div className="mt-3">
-              {latestCompletedEvent ? (
-                <EventCard event={latestCompletedEvent} isLatest />
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {podium.length > 0 ? (
+                podium.map((driver) => (
+                  <DriverCard key={driver.driver_number} driver={driver} position={driver.position} compact />
+                ))
               ) : (
-                <p className="text-[var(--text-secondary)]">No latest event available.</p>
+                <p className="text-sm text-[var(--text-muted)] col-span-3">Podium data loading…</p>
               )}
             </div>
-          </div>
+          </Panel>
         </section>
       )}
 
-      <Panel className="p-3 sm:p-4 border-red-500/25">
+      <Panel className="p-3 sm:p-4">
         <Suspense
           fallback={
             <div className="flex items-center justify-center p-8 text-[var(--text-secondary)]">

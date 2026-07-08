@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -10,6 +10,8 @@ import {
   Tooltip,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+
+import { getChartTheme } from "../../common/utils/chartTheme";
 
 ChartJS.register(
   CategoryScale,
@@ -32,8 +34,10 @@ const normalizeSeries = (values, length) => {
   });
 };
 
-const ProgressionChart = ({ title, rounds, series }) => {
+const ProgressionChart = ({ title, rounds, series, collapsible = false }) => {
   const chartRef = useRef(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const [theme, setTheme] = useState(() => getChartTheme());
   const height = 220;
   const pointCount = rounds?.length || 0;
   const normalizedSeries = series.map((line) => ({
@@ -74,26 +78,35 @@ const ProgressionChart = ({ title, rounds, series }) => {
         },
         legend: { display: false },
         tooltip: {
-          backgroundColor: "rgba(0,0,0,0.8)",
-          titleColor: "#fff",
-          bodyColor: "#fff",
-          borderColor: "rgba(255,255,255,0.1)",
+          backgroundColor: theme.tooltipBg,
+          titleColor: theme.tooltipText,
+          bodyColor: theme.tooltipText,
+          borderColor: theme.grid,
           borderWidth: 1,
         },
       },
       scales: {
         x: {
-          ticks: { color: "rgba(255,255,255,0.6)", font: { size: 10 } },
-          grid: { color: "rgba(255,255,255,0.05)" },
+          ticks: { color: theme.text, font: { size: 10 } },
+          grid: { color: theme.grid },
         },
         y: {
-          ticks: { color: "rgba(255,255,255,0.6)", font: { size: 10 } },
-          grid: { color: "rgba(255,255,255,0.05)" },
+          ticks: { color: theme.text, font: { size: 10 } },
+          grid: { color: theme.grid },
         },
       },
     }),
-    []
+    [theme]
   );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => setTheme(getChartTheme()));
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => () => {
     if (chartRef.current) {
@@ -103,47 +116,53 @@ const ProgressionChart = ({ title, rounds, series }) => {
   }, []);
 
   return (
-    <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-4 shadow-[0_10px_24px_rgba(0,0,0,0.18)]">
+    <div className="rounded-[var(--radius-lg)] border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-4 shadow-[var(--shadow-sm)]">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[var(--text-color)]">
-          {title}
-        </h3>
-        <span className="text-[10px] uppercase tracking-[0.2em] text-red-400">
-          Progression
-        </span>
-      </div>
-
-      <div className="w-full">
-        <div style={{ width: "100%", height }}>
-          <Line
-            ref={chartRef}
-            data={chartData}
-            options={options}
-            height={height}
-            datasetIdKey="id"
-            redraw
-          />
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">{title}</h3>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+            Progression
+          </span>
+          {collapsible && (
+            <button
+              type="button"
+              onClick={() => setCollapsed((v) => !v)}
+              className="text-[10px] uppercase tracking-wider text-[var(--accent-red)]"
+            >
+              {collapsed ? "Show" : "Hide"}
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-        {normalizedSeries.map((line) => (
-          <div
-            key={line.id}
-            className="flex items-center gap-2 px-2 py-1 rounded-full border border-[var(--border-color)] bg-black/10"
-          >
-            <span
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: line.color }}
-            />
-            <span className="opacity-80">{line.name}</span>
+      {!collapsed && (
+        <>
+          <div className="w-full">
+            <div style={{ width: "100%", height }}>
+              <Line
+                ref={chartRef}
+                data={chartData}
+                options={options}
+                height={height}
+                datasetIdKey="id"
+                redraw
+              />
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="mt-2 text-[10px] opacity-50">
-        Rounds: {rounds.map((r) => r.label).join(" · ")}
-      </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+            {normalizedSeries.map((line) => (
+              <div
+                key={line.id}
+                className="flex items-center gap-2 px-2 py-1 rounded-[var(--radius-full)] border border-[var(--border-color)] bg-[var(--surface-2)]/40"
+              >
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: line.color }} />
+                <span className="text-[var(--text-secondary)]">{line.name}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

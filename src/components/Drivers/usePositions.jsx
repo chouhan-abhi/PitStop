@@ -5,6 +5,7 @@ import { requestJson } from "../../common/api/httpClient";
 import { buildApiEndpoint, isProxyEnabled } from "../../common/api/endpoints";
 import { queryKeys, toStaleCacheKey } from "../../common/api/queryKeys";
 import { withQueryDataMeta, withStaleFallback } from "../../common/api/staleCache";
+import { resolveErgastRound } from "../../common/drivers/driverRegistry";
 
 const OPENF1_BASE_URL = "https://api.openf1.org/v1";
 const JOLPI_BASE_URL = "https://api.jolpi.ca/ergast/f1";
@@ -67,9 +68,10 @@ const fetchJolpiRacePositions = async ({ meetingKey, driverNumber, position, yea
   if (!meetingKey) return [];
 
   const resolvedYear = year || String(new Date().getFullYear());
+  const ergastRound = (await resolveErgastRound(meetingKey, resolvedYear)) || meetingKey;
   const attempts = [
-    `${JOLPI_BASE_URL}/${resolvedYear}/${meetingKey}/results/?format=json`,
-    `${JOLPI_BASE_URL}/${resolvedYear}/${meetingKey}/results?format=json`,
+    `${JOLPI_BASE_URL}/${resolvedYear}/${ergastRound}/results/?format=json`,
+    `${JOLPI_BASE_URL}/${resolvedYear}/${ergastRound}/results?format=json`,
   ];
 
   for (const url of attempts) {
@@ -216,16 +218,6 @@ const fetchOpenF1MeetingPositions = async ({ meetingKey, driverNumber, position 
   );
   if (!sessions.length) return [];
 
-  const sessionKeys = sessions
-    .map((session) => toNumber(session?.session_key))
-    .filter(Boolean);
-
-  const primarySessionKey = sessionKeys[sessionKeys.length - 1] || sessionKeys[0];
-  const meetingDrivers = primarySessionKey
-    ? await maybeFetch(`${OPENF1_BASE_URL}/drivers?session_key=${primarySessionKey}`, "openf1")
-    : [];
-  const driverIndex = buildDriverIndex(meetingDrivers);
-
   const perSessionRows = await runWithConcurrency(
     sessions,
     OPENF1_CONCURRENCY,
@@ -233,13 +225,16 @@ const fetchOpenF1MeetingPositions = async ({ meetingKey, driverNumber, position 
       const sessionKey = toNumber(session?.session_key);
       if (!sessionKey) return [];
 
-      const [positions, results, startingGrid] = await Promise.all([
+      const [positions, results, startingGrid, sessionDrivers] = await Promise.all([
         maybeFetch(`${OPENF1_BASE_URL}/position?session_key=${sessionKey}`, "openf1"),
         maybeFetch(`${OPENF1_BASE_URL}/session_result?session_key=${sessionKey}`, "openf1"),
         isRaceSession(session?.session_name, session?.session_type)
           ? maybeFetch(`${OPENF1_BASE_URL}/starting_grid?session_key=${sessionKey}`, "openf1")
           : Promise.resolve([]),
+        maybeFetch(`${OPENF1_BASE_URL}/drivers?session_key=${sessionKey}`, "openf1"),
       ]);
+
+      const driverIndex = buildDriverIndex(sessionDrivers);
 
       return mapOpenF1SessionRows({
         session,

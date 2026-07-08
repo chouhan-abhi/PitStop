@@ -25,7 +25,11 @@ export const queryKeys = {
     normalizeNumericId(position),
     normalizeYear(year),
   ],
-  seasonDrivers: (year) => ["season-drivers", normalizeYear(year)],
+  seasonDrivers: (year, sessionKey = null) => [
+    "season-drivers",
+    normalizeYear(year),
+    normalizeNumericId(sessionKey),
+  ],
   stints: (sessionKey) => ["stints", normalizeNumericId(sessionKey)],
   laps: (sessionKey) => ["laps", normalizeNumericId(sessionKey)],
   driverStandings: (year) => ["driver-standings", normalizeYear(year)],
