@@ -11,7 +11,7 @@ const DataTable = ({
 }) => {
   if (!rows.length) {
     return (
-      <p className="md3-body-md text-[var(--md-on-surface-variant)] py-8 text-center">
+      <p className="md3-body-md text-[var(--md-on-surface-variant)] py-6 text-center">
         {emptyMessage}
       </p>
     );
@@ -19,15 +19,15 @@ const DataTable = ({
 
   return (
     <div
-      className={`overflow-x-auto rounded-[var(--shape-lg)] bg-[var(--md-surface-container)] md3-content-auto ${className}`}
+      className={`overflow-x-auto rounded-[var(--shape-lg)] border border-[var(--md-outline-variant)] bg-[var(--md-surface-container)] ${className}`}
     >
       <table className="min-w-full">
         <thead>
-          <tr>
+          <tr className="border-b border-[var(--md-outline-variant)]">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`py-3 px-4 text-left md3-label-md text-[var(--md-on-surface-variant)] ${col.align || ""}`}
+                className={`py-2 px-3 text-left md3-label-md text-[var(--md-on-surface-variant)] bg-[var(--md-surface-container-high)] first:rounded-tl-[var(--shape-lg)] last:rounded-tr-[var(--shape-lg)] ${col.align || ""}`}
               >
                 {col.label}
               </th>
@@ -39,21 +39,21 @@ const DataTable = ({
             const key = getRowKey ? getRowKey(row, idx) : row.id || idx;
             const teamColor = row.team_colour || row.teamColor;
             const bg = teamColor
-              ? getTeamColorWithOpacity(teamColor, "10")
-              : idx % 2 === 0
-                ? "transparent"
-                : "color-mix(in srgb, var(--md-on-surface) 3%, transparent)";
+              ? getTeamColorWithOpacity(teamColor, "08")
+              : "transparent";
 
             return (
               <tr
                 key={key}
-                className="md3-state-layer transition-colors hover:bg-[color-mix(in_srgb,var(--md-on-surface)_6%,transparent)]"
-                style={{ backgroundColor: bg, minHeight: "56px" }}
+                className={`md3-state-layer transition-colors hover:bg-[color-mix(in_srgb,var(--md-on-surface)_5%,transparent)] ${
+                  idx < rows.length - 1 ? "border-b border-[var(--md-outline-variant)]/40" : ""
+                }`}
+                style={{ backgroundColor: bg }}
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`py-4 px-4 md3-body-md text-[var(--md-on-surface)] ${col.align || ""}`}
+                    className={`py-2.5 px-3 md3-body-md text-[var(--md-on-surface)] ${col.align || ""}`}
                   >
                     {col.render ? col.render(row) : row[col.key]}
                   </td>

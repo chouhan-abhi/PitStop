@@ -45,17 +45,17 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Type scale */
-  --type-display-lg: 3.5rem;
-  --type-display-md: 2.75rem;
-  --type-headline-lg: 2rem;
-  --type-headline-md: 1.75rem;
-  --type-title-lg: 1.375rem;
-  --type-title-md: 1rem;
-  --type-body-lg: 1rem;
-  --type-body-md: 0.875rem;
-  --type-label-lg: 0.875rem;
-  --type-label-md: 0.75rem;
+  /* Type scale — tighter for information density */
+  --type-display-lg: 2.75rem;
+  --type-display-md: 2rem;
+  --type-headline-lg: 1.5rem;
+  --type-headline-md: 1.25rem;
+  --type-title-lg: 1.0625rem;
+  --type-title-md: 0.9375rem;
+  --type-body-lg: 0.9375rem;
+  --type-body-md: 0.8125rem;
+  --type-label-lg: 0.8125rem;
+  --type-label-md: 0.6875rem;
 
   /* Semantic (legacy aliases) */
   --surface-0: var(--md-surface-dim);
@@ -78,8 +78,9 @@
   --panel-solid: var(--md-surface-container);
   --border-strong: var(--md-outline-variant);
 
-  --shadow-sm: none;
-  --shadow-md: none;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-md: 0 3px 8px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-raised: 0 6px 16px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.4);
 
   --accent-red-subtle: var(--md-primary-container);
   --accent-red-border: var(--md-outline-variant);
@@ -115,12 +116,16 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --md-surface-dim: #e8eaed;
-  --md-surface: #f1f3f4;
+  --md-surface-dim: #f0f2f5;
+  --md-surface: #f4f5f7;
   --md-surface-container-low: #f8f9fa;
   --md-surface-container: #ffffff;
-  --md-surface-container-high: #eef0f2;
-  --md-surface-container-highest: #e2e5e9;
+  --md-surface-container-high: #f1f3f5;
+  --md-surface-container-highest: #e9ebef;
+
+  --shadow-sm: 0 1px 2px rgba(9,30,66,0.2), 0 0 0 1px rgba(9,30,66,0.08);
+  --shadow-md: 0 3px 8px rgba(9,30,66,0.16), 0 1px 2px rgba(9,30,66,0.12);
+  --shadow-raised: 0 6px 16px rgba(9,30,66,0.14), 0 2px 4px rgba(9,30,66,0.1);
 
   --md-on-surface: #1a1c1e;
   --md-on-surface-variant: #44474e;

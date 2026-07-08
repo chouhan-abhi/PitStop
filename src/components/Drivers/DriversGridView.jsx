@@ -15,12 +15,13 @@ const DriversGridView = ({ drivers, loading, onSelect }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md3-content-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
       {drivers.map((driver) => (
         <DriverCard
           key={driver.driverId || driver.driver_number}
           driver={driver}
           position={driver.season?.position}
+          compact
           onClick={() => onSelect(driver)}
         />
       ))}

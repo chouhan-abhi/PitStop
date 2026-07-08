@@ -68,43 +68,40 @@ const NewsCard = ({ post }) => {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block overflow-hidden p-0 no-underline text-inherit transition-transform hover:-translate-y-0.5"
+      className="group block overflow-hidden p-0 no-underline text-inherit md3-card-hover"
     >
-      <div className="flex min-h-[180px] flex-col sm:flex-row">
-        {image && (
-          <div className="sm:w-40 lg:w-48 shrink-0 overflow-hidden aspect-[16/10] sm:aspect-auto">
-            <img
-              src={image}
-              alt=""
-              className="h-full w-full object-cover transition-transform duration-[var(--motion-standard)] group-hover:scale-[1.03]"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
+      {image && (
+        <div className="overflow-hidden aspect-[16/9]">
+          <img
+            src={image}
+            alt=""
+            className="h-full w-full object-cover transition-transform duration-[var(--motion-standard)] group-hover:scale-[1.03]"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      )}
+
+      <div className="p-3">
+        <div className="flex items-center gap-2 mb-2">
+          {flair && <StatusPill tone={getFlairTone(flair)}>{flair}</StatusPill>}
+          <span className="md3-label-md text-[var(--md-on-surface-variant)] ml-auto">{source || "Source"}</span>
+        </div>
+
+        <h3 className="line-clamp-2 md3-title-md leading-snug">{title}</h3>
+
+        {summary && (
+          <p className="mt-1.5 line-clamp-2 md3-body-md text-[var(--md-on-surface-variant)]">{summary}</p>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col p-4">
-          <div className="flex items-center justify-between gap-2">
-            {flair && <StatusPill tone={getFlairTone(flair)}>{flair}</StatusPill>}
-            <span className="md3-label-md text-[var(--md-on-surface-variant)]">{source || "Source"}</span>
-          </div>
-
-          <h3 className="mt-3 line-clamp-2 md3-title-md">{title}</h3>
-
-          {summary && (
-            <p className="mt-2 line-clamp-2 md3-body-md text-[var(--md-on-surface-variant)]">{summary}</p>
-          )}
-
-          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 md3-label-md text-[var(--md-on-surface-variant)]">
-            {author && <span className="truncate">{author}</span>}
-            {typeof score === "number" && <span>{score} pts</span>}
-            {typeof comments === "number" && <span>{comments} comments</span>}
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {formatTimeAgo(updatedAt || createdAt)}
-            </span>
-            <ExternalLink className="h-3 w-3" />
-          </div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 md3-label-md text-[var(--md-on-surface-variant)] border-t border-[var(--md-outline-variant)]/40 pt-2">
+          {author && <span className="truncate max-w-[120px]">{author}</span>}
+          {typeof score === "number" && <span>{score}↑</span>}
+          {typeof comments === "number" && <span>{comments} cmt</span>}
+          <span className="flex items-center gap-1 ml-auto">
+            <Clock className="h-3 w-3 shrink-0" />
+            {formatTimeAgo(updatedAt || createdAt)}
+          </span>
         </div>
       </div>
     </Surface>
@@ -218,23 +215,14 @@ const News = ({ showHeader = true, layout = "standard" }) => {
 
   return (
     <div className="space-y-4">
-      <Surface tier="container-high" className="p-4 sm:p-5">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2 md3-label-md text-[var(--md-primary)]">
-              <Radio className="h-3.5 w-3.5" />
-              Race Control Feed
-            </div>
-            <h2 className="mt-2 md3-headline-md">Formula 1 Newsroom</h2>
-            <p className="mt-1 md3-body-md text-[var(--md-on-surface-variant)]">
-              Breaking updates, paddock stories, and technical headlines.
-            </p>
-          </div>
-          <div className="md3-label-md text-[var(--md-on-surface-variant)]">
-            {posts.length} active stories
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 md3-label-md text-[var(--md-primary)]">
+          <Radio className="h-3.5 w-3.5" />
+          <span className="uppercase tracking-wider">Race Control Feed</span>
         </div>
-      </Surface>
+        <h2 className="md3-headline-md">Formula 1 Newsroom</h2>
+        <span className="ml-auto md3-label-md text-[var(--md-on-surface-variant)]">{posts.length} stories</span>
+      </div>
 
       <DataStatusBanner meta={dataMeta} />
       {layout === "carousel" && <NewsCarousel posts={posts} />}
@@ -259,7 +247,7 @@ const News = ({ showHeader = true, layout = "standard" }) => {
         </Surface>
       )}
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 md3-content-auto">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 md3-content-auto">
         {displayedPosts.map((post) => (
           <NewsCard key={post.id} post={post} />
         ))}

@@ -117,6 +117,8 @@ textarea {
   border-radius: var(--shape-lg);
   background-color: var(--md-surface-container);
   color: var(--md-on-surface);
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--shadow-sm);
 }
 
 .f1-card {

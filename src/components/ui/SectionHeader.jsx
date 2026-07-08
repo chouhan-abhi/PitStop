@@ -7,7 +7,7 @@ const SectionHeader = ({ title, subtitle, actions, compact = false, className = 
         <h3 className={compact ? "md3-title-lg" : "md3-headline-md"}>{title}</h3>
       )}
       {subtitle && (
-        <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-1">{subtitle}</p>
+        <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-0.5">{subtitle}</p>
       )}
     </div>
     {actions && <div className="flex items-center gap-2">{actions}</div>}

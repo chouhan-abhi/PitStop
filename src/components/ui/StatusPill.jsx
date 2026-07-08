@@ -13,7 +13,7 @@ const StatusPill = ({ tone = "neutral", children, icon: Icon }) => {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-[var(--shape-sm)] px-3 py-1 md3-label-md ${classes}`}
+      className={`inline-flex items-center gap-1 rounded-[var(--shape-xs)] px-2 py-0.5 md3-label-md ${classes}`}
     >
       {Icon && <Icon size={14} aria-hidden />}
       {children}

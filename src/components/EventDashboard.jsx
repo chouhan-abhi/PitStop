@@ -144,21 +144,22 @@ const HomeDashboardContent = ({
   }, [sessionDrivers, positionsData, latestSession]);
 
   return (
-    <div className="app-shell py-4 lg:py-8 space-y-6 lg:space-y-8">
+    <div className="app-shell py-4 lg:py-6 space-y-4 lg:space-y-5">
       <DataStatusBanner meta={eventsBannerMeta} />
       {hasUpcomingEvent && <HomeCountdownHero eventsData={eventsData} />}
       <HomeScheduleSection eventsData={eventsData} />
 
       {hasSeasonStarted && (
-        <section className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5">
+        <section className="grid grid-cols-1 lg:grid-cols-[1fr_1.7fr] gap-4">
           <ChampionshipStrip leaders={leaders} title="Championship Top 3" />
-          <Surface tier="container-high" className={`p-5 sm:p-6 ${podiumReveal.className}`} ref={podiumReveal.ref}>
+          <Surface tier="container-high" className={`p-4 ${podiumReveal.className}`} ref={podiumReveal.ref}>
             <SectionHeader
               title="Latest Race Podium"
               subtitle={latestCompletedEvent?.meeting_name}
+              compact
               actions={
                 <Button
-                  variant="filled"
+                  variant="tonal"
                   size="sm"
                   onClick={() => navigate(`/event/${latestCompletedEvent.meeting_key}`)}
                 >
@@ -166,19 +167,18 @@ const HomeDashboardContent = ({
                 </Button>
               }
             />
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="mt-3 space-y-2">
               {podium.length > 0 ? (
-                podium.map((driver, idx) => (
+                podium.map((driver) => (
                   <DriverCard
                     key={driver.driver_number}
                     driver={driver}
                     position={driver.position}
-                    featured={idx === 0}
-                    compact={idx > 0}
+                    compact
                   />
                 ))
               ) : (
-                <p className="md3-body-md text-[var(--md-on-surface-variant)] col-span-full">
+                <p className="md3-body-md text-[var(--md-on-surface-variant)]">
                   Podium data loading…
                 </p>
               )}
@@ -187,7 +187,7 @@ const HomeDashboardContent = ({
         </section>
       )}
 
-      <Surface tier="container" className={`p-4 sm:p-5 ${newsReveal.className}`} ref={newsReveal.ref}>
+      <Surface tier="container" className={`p-4 ${newsReveal.className}`} ref={newsReveal.ref}>
         <Suspense
           fallback={
             <div className="flex items-center justify-center p-8 md3-body-md text-[var(--md-on-surface-variant)]">

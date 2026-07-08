@@ -7,6 +7,8 @@
 
 .race-header {
   background-color: var(--md-surface-container);
+  border-bottom: 1px solid var(--md-outline-variant);
+  box-shadow: var(--shadow-sm);
 }
 
 .race-tab {
