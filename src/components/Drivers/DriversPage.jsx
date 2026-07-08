@@ -3,14 +3,25 @@ import { Users, Flag, Trophy, LayoutGrid, List } from "lucide-react";
 
 import { useEvents } from "../Events/useEvents";
 import { useDriverRegistry } from "../../common/drivers/useDriverRegistry";
+import { useAnimatedNumber } from "../../hooks/useAnimatedNumber";
 import PageShell from "../ui/PageShell";
-import Panel from "../ui/Panel";
+import Surface from "../ui/Surface";
 import StatusPill from "../ui/StatusPill";
 import DataStatusBanner from "../ui/DataStatusBanner";
 import Button from "../ui/Button";
 import DriversGridView from "./DriversGridView";
 import DriversListView from "./DriversListView";
 import DriverDetailDrawer from "./DriverDetailDrawer";
+
+const StatCard = ({ label, value, iconNode }) => (
+  <Surface tier="container-high" className="p-4">
+    <div className="flex items-center justify-between">
+      <p className="md3-label-md text-[var(--md-on-surface-variant)]">{label}</p>
+      {iconNode}
+    </div>
+    <p className="md3-headline-md mt-2 tabular-nums">{value}</p>
+  </Surface>
+);
 
 const DriversPage = ({ year }) => {
   const [viewMode, setViewMode] = useState("grid");
@@ -56,6 +67,10 @@ const DriversPage = ({ year }) => {
     [roster]
   );
 
+  const animatedDriverCount = useAnimatedNumber(roster.length || 0);
+  const animatedTeamCount = useAnimatedNumber(teamsCount || 0);
+  const animatedLeaderPoints = useAnimatedNumber(championshipLeader?.season?.points ?? 0);
+
   const dataBannerMeta = useMemo(() => ({
     isStale: Boolean(driversMeta?.isStale || eventsMeta?.isStale),
     warning:
@@ -81,7 +96,7 @@ const DriversPage = ({ year }) => {
           )}
           <div className="flex gap-1">
             <Button
-              variant={viewMode === "grid" ? "accent" : "ghost"}
+              variant={viewMode === "grid" ? "tonal" : "text"}
               size="sm"
               onClick={() => setViewMode("grid")}
               aria-label="Grid view"
@@ -89,7 +104,7 @@ const DriversPage = ({ year }) => {
               <LayoutGrid size={14} />
             </Button>
             <Button
-              variant={viewMode === "list" ? "accent" : "ghost"}
+              variant={viewMode === "list" ? "tonal" : "text"}
               size="sm"
               onClick={() => setViewMode("list")}
               aria-label="List view"
@@ -103,35 +118,31 @@ const DriversPage = ({ year }) => {
       <DataStatusBanner meta={dataBannerMeta} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Panel className="p-4">
+        <StatCard
+          label="Active Drivers"
+          value={driversLoading ? "…" : animatedDriverCount}
+          iconNode={<Users size={18} className="text-[var(--md-on-surface-variant)]" />}
+        />
+        <StatCard
+          label="Teams"
+          value={driversLoading ? "…" : animatedTeamCount}
+          iconNode={<Flag size={18} className="text-[var(--md-on-surface-variant)]" />}
+        />
+        <Surface tier="container-high" className="p-4">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Active Drivers</p>
-            <Users size={15} className="text-[var(--text-secondary)]" />
+            <p className="md3-label-md text-[var(--md-on-surface-variant)]">Leader</p>
+            <Trophy size={18} className="text-[var(--md-on-surface-variant)]" />
           </div>
-          <p className="display-title text-3xl font-bold mt-2">{roster.length || (driversLoading ? "…" : 0)}</p>
-        </Panel>
-        <Panel className="p-4">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Teams</p>
-            <Flag size={15} className="text-[var(--text-secondary)]" />
-          </div>
-          <p className="display-title text-3xl font-bold mt-2">{teamsCount || (driversLoading ? "…" : 0)}</p>
-        </Panel>
-        <Panel className="p-4">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">Leader</p>
-            <Trophy size={15} className="text-[var(--text-secondary)]" />
-          </div>
-          <p className="display-title text-xl font-bold mt-2 truncate">
+          <p className="md3-title-lg mt-2 truncate">
             {championshipLeader?.full_name || (driversLoading ? "…" : "N/A")}
           </p>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
-            {championshipLeader ? `${championshipLeader.season?.points || 0} pts` : ""}
+          <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-1 tabular-nums">
+            {championshipLeader ? `${animatedLeaderPoints} pts` : ""}
           </p>
-        </Panel>
+        </Surface>
       </div>
 
-      <Panel className="p-3 sm:p-4">
+      <Surface tier="container" className="p-3 sm:p-4 md3-content-auto">
         {driversIsError && !roster.length ? (
           <p className="text-center py-8 text-[var(--danger)]">{driversError?.message || "Unable to load drivers."}</p>
         ) : viewMode === "grid" ? (
@@ -139,7 +150,7 @@ const DriversPage = ({ year }) => {
         ) : (
           <DriversListView drivers={roster} loading={driversLoading} onSelect={setSelectedDriver} />
         )}
-      </Panel>
+      </Surface>
 
       <DriverDetailDrawer driver={selectedDriver} onClose={() => setSelectedDriver(null)} />
     </PageShell>

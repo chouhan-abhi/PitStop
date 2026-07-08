@@ -108,7 +108,7 @@ const RouteStorageSync = () => {
 
 const PageFallback = () => (
   <div className="app-shell py-10">
-    <div className="panel h-[52vh] flex items-center justify-center">
+    <div className="md3-surface-container h-[52vh] flex items-center justify-center rounded-[var(--shape-xl)]">
       <Loader2 className="animate-spin w-8 h-8 opacity-60" />
     </div>
   </div>
@@ -118,7 +118,7 @@ const ThemeButton = ({ themeMode, cycleTheme }) => (
   <button
     type="button"
     onClick={cycleTheme}
-    className="btn btn-ghost !px-2"
+    className="md3-state-layer inline-flex h-10 w-10 items-center justify-center rounded-[var(--shape-full)] text-[var(--md-on-surface-variant)]"
     aria-label="Switch Theme"
   >
     {themeMode === "system" && <Laptop className="w-4 h-4" />}
@@ -212,21 +212,21 @@ const AppLayout = () => {
       <ScrollToTop />
       <RouteStorageSync />
 
-      <div className="angular-ui app-chrome grid-background flex flex-col relative z-10">
-        <header className="race-header sticky top-0 z-50 relative">
+      <div className="app-chrome flex flex-col relative z-10">
+        <header className="race-header sticky top-0 z-50">
           <div className="app-shell py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="w-full grid grid-cols-[1fr_auto_1fr] items-center sm:w-auto sm:flex sm:items-center sm:gap-5">
+            <div className="w-full grid grid-cols-[1fr_auto_1fr] items-center sm:w-auto sm:flex sm:items-center sm:gap-6">
               <div className="sm:hidden" />
 
               <div className="text-center sm:text-left">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                <p className="md3-label-md text-[var(--md-on-surface-variant)]">
                   {routeMeta?.title || "Home"}
                 </p>
-                <h1 className="display-title text-xl sm:text-2xl font-bold tracking-wider">
-                  <span className="text-[var(--text-primary)]">Pit</span>
-                  <span className="text-[var(--accent-red)]">Stop</span>
+                <h1 className="md3-headline-md mt-0.5">
+                  <span className="text-[var(--md-on-surface)]">Pit</span>
+                  <span className="text-[var(--md-primary)]">Stop</span>
                 </h1>
-                <p className="hidden sm:block text-[11px] text-[var(--text-secondary)] mt-0.5">
+                <p className="hidden sm:block md3-body-md text-[var(--md-on-surface-variant)] mt-0.5">
                   {routeMeta?.subtitle}
                 </p>
               </div>
@@ -235,15 +235,15 @@ const AppLayout = () => {
                 <button
                   type="button"
                   onClick={() => setIsMobileControlsOpen(true)}
-                  className="btn btn-ghost !px-2"
+                  className="md3-state-layer inline-flex h-10 w-10 items-center justify-center rounded-[var(--shape-full)] text-[var(--md-on-surface-variant)]"
                   aria-label="Open controls"
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
+                  <SlidersHorizontal className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em]">
+            <nav className="hidden md:flex items-center gap-1">
               {APP_ROUTES.map((item) => (
                 <NavLink
                   key={item.to}
@@ -258,14 +258,14 @@ const AppLayout = () => {
               ))}
             </nav>
 
-            <div className="hidden sm:flex items-center gap-2">
-              <label className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
+            <div className="hidden sm:flex items-center gap-3">
+              <label className="md3-label-md text-[var(--md-on-surface-variant)] sr-only sm:not-sr-only">
                 Season
               </label>
               <select
                 value={seasonYear}
                 onChange={(event) => setSeasonYear(event.target.value)}
-                className="rounded-[var(--radius-full)] border border-[var(--border-color)] bg-[var(--surface-2)] px-3 py-1.5 text-[11px] font-semibold text-[var(--text-primary)]"
+                className="h-10 rounded-[var(--shape-full)] border border-[var(--md-outline)] bg-[var(--md-surface-container-high)] px-4 md3-label-lg text-[var(--md-on-surface)]"
                 aria-label="Select season year"
               >
                 {YEAR_OPTIONS.map((year) => (
@@ -279,14 +279,14 @@ const AppLayout = () => {
                 type="button"
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="btn btn-ghost !px-2"
+                className="md3-state-layer inline-flex h-10 w-10 items-center justify-center rounded-[var(--shape-full)] text-[var(--md-on-surface-variant)]"
                 aria-label="Refresh Data"
                 title="Refresh data cache"
               >
-                <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`} />
               </button>
 
-              <div className="hidden lg:block text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] min-w-[120px] text-right">
+              <div className="hidden lg:block md3-label-md text-[var(--md-on-surface-variant)] min-w-[120px] text-right">
                 {isRefreshing
                   ? "Syncing..."
                   : lastRefreshAt
@@ -307,21 +307,26 @@ const AppLayout = () => {
               onClick={closeMobileControls}
               aria-label="Close controls"
             />
-            <div className="relative w-full rounded-t-2xl p-4 border-t border-[var(--border-color)] bg-[var(--panel-color)]">
+            <div className="relative w-full rounded-t-[var(--shape-xl)] p-4 bg-[var(--md-surface-container-highest)]">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="display-title text-sm tracking-[0.2em] uppercase">Quick Controls</h2>
-                <button type="button" onClick={closeMobileControls} className="btn btn-ghost !px-2" aria-label="Close">
+                <h2 className="md3-title-md">Quick Controls</h2>
+                <button
+                  type="button"
+                  onClick={closeMobileControls}
+                  className="md3-state-layer inline-flex h-10 w-10 items-center justify-center rounded-[var(--shape-full)] text-[var(--md-on-surface-variant)]"
+                  aria-label="Close"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Season</span>
+                  <span className="md3-label-md text-[var(--md-on-surface-variant)]">Season</span>
                   <select
                     value={seasonYear}
                     onChange={(event) => setSeasonYear(event.target.value)}
-                    className="btn btn-ghost !text-[11px] !normal-case"
+                    className="h-10 rounded-[var(--shape-full)] border border-[var(--md-outline)] bg-[var(--md-surface-container-high)] px-4 md3-label-lg text-[var(--md-on-surface)]"
                   >
                     {YEAR_OPTIONS.map((year) => (
                       <option key={year} value={year}>
@@ -332,12 +337,12 @@ const AppLayout = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Refresh</span>
+                  <span className="md3-label-md text-[var(--md-on-surface-variant)]">Refresh</span>
                   <button
                     type="button"
                     onClick={handleRefresh}
                     disabled={isRefreshing}
-                    className="btn btn-ghost !px-2"
+                    className="md3-state-layer inline-flex h-10 w-10 items-center justify-center rounded-[var(--shape-full)] text-[var(--md-on-surface-variant)]"
                     aria-label="Refresh Data"
                   >
                     <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
@@ -345,8 +350,8 @@ const AppLayout = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Status</span>
-                  <span className="text-[10px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">
+                  <span className="md3-label-md text-[var(--md-on-surface-variant)]">Status</span>
+                  <span className="md3-label-md text-[var(--md-on-surface-variant)]">
                     {isRefreshing
                       ? "Syncing..."
                       : lastRefreshAt
@@ -356,7 +361,7 @@ const AppLayout = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Theme</span>
+                  <span className="md3-label-md text-[var(--md-on-surface-variant)]">Theme</span>
                   <ThemeButton themeMode={themeMode} cycleTheme={cycleTheme} />
                 </div>
               </div>
@@ -377,19 +382,19 @@ const AppLayout = () => {
         </main>
 
         <nav
-          className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t backdrop-blur-md bg-[var(--header-bg)] border-[var(--border-color)]"
+          className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[var(--md-surface-container)]"
           aria-label="Mobile navigation"
         >
-          <div className="app-shell py-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.14em]">
+          <div className="app-shell py-2 flex items-center justify-around">
             {APP_ROUTES.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `px-2 py-1 rounded-[var(--radius-md)] transition-colors ${
+                  `md3-state-layer px-3 py-2 rounded-[var(--shape-md)] md3-label-md transition-colors ${
                     isActive
-                      ? "text-[var(--text-primary)] bg-[var(--accent-red-subtle)] border border-[var(--accent-red-border)]"
-                      : "text-[var(--text-secondary)]"
+                      ? "text-[var(--md-primary)] bg-[var(--md-primary-container)]"
+                      : "text-[var(--md-on-surface-variant)]"
                   }`
                 }
                 end={item.to === "/"}
@@ -400,8 +405,8 @@ const AppLayout = () => {
           </div>
         </nav>
 
-        <footer className="relative z-10 hidden md:block border-t border-[var(--border-color)]">
-          <div className="app-shell py-4 text-xs text-[var(--text-muted)]">
+        <footer className="relative z-10 hidden md:block bg-[var(--md-surface-container)]">
+          <div className="app-shell py-4 md3-label-md text-[var(--md-on-surface-variant)]">
             © 2026 {AppConfig.name} | data partner Jolpica (Ergast mirror)
           </div>
         </footer>

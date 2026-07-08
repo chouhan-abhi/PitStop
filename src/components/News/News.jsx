@@ -13,6 +13,8 @@ import {
 import { useNews } from "./useNews";
 import SectionHeader from "../ui/SectionHeader";
 import StatusPill from "../ui/StatusPill";
+import Surface from "../ui/Surface";
+import Button from "../ui/Button";
 import DataStatusBanner from "../ui/DataStatusBanner";
 
 const DEFAULT_VISIBLE_COUNT = 6;
@@ -59,22 +61,24 @@ const NewsCard = ({ post }) => {
   } = post;
 
   return (
-    <a
+    <Surface
+      tier="container-high"
+      interactive
+      as="a"
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative block overflow-hidden rounded-2xl border border-red-500/20 bg-[linear-gradient(145deg,rgba(10,10,12,0.96),rgba(24,24,28,0.85))] p-0 transition-all duration-300 hover:-translate-y-0.5 hover:border-red-400/40 hover:shadow-[0_16px_32px_rgba(255,30,30,0.18)]"
+      className="group block overflow-hidden p-0 no-underline text-inherit transition-transform hover:-translate-y-0.5"
     >
-      <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-red-600 via-red-400 to-transparent" />
-
       <div className="flex min-h-[180px] flex-col sm:flex-row">
         {image && (
-          <div className="sm:w-40 lg:w-48 shrink-0 overflow-hidden">
+          <div className="sm:w-40 lg:w-48 shrink-0 overflow-hidden aspect-[16/10] sm:aspect-auto">
             <img
               src={image}
               alt=""
-              className="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-105 sm:h-full"
+              className="h-full w-full object-cover transition-transform duration-[var(--motion-standard)] group-hover:scale-[1.03]"
               loading="lazy"
+              decoding="async"
             />
           </div>
         )}
@@ -82,16 +86,16 @@ const NewsCard = ({ post }) => {
         <div className="flex min-w-0 flex-1 flex-col p-4">
           <div className="flex items-center justify-between gap-2">
             {flair && <StatusPill tone={getFlairTone(flair)}>{flair}</StatusPill>}
-            <span className="text-[10px] uppercase tracking-[0.2em] text-red-200/70">{source || "Source"}</span>
+            <span className="md3-label-md text-[var(--md-on-surface-variant)]">{source || "Source"}</span>
           </div>
 
-          <h3 className="mt-3 line-clamp-2 text-sm font-bold sm:text-base">{title}</h3>
+          <h3 className="mt-3 line-clamp-2 md3-title-md">{title}</h3>
 
           {summary && (
-            <p className="mt-2 line-clamp-2 text-xs text-[var(--text-secondary)]">{summary}</p>
+            <p className="mt-2 line-clamp-2 md3-body-md text-[var(--md-on-surface-variant)]">{summary}</p>
           )}
 
-          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 text-[10px] text-[var(--text-secondary)]">
+          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 md3-label-md text-[var(--md-on-surface-variant)]">
             {author && <span className="truncate">{author}</span>}
             {typeof score === "number" && <span>{score} pts</span>}
             {typeof comments === "number" && <span>{comments} comments</span>}
@@ -103,7 +107,7 @@ const NewsCard = ({ post }) => {
           </div>
         </div>
       </div>
-    </a>
+    </Surface>
   );
 };
 
@@ -111,11 +115,14 @@ const FeaturedCard = ({ post }) => {
   const { title, url, image, flair, source } = post;
 
   return (
-    <a
+    <Surface
+      tier="container-highest"
+      interactive
+      as="a"
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="relative flex h-[320px] items-end overflow-hidden rounded-2xl border border-red-500/35"
+      className="relative flex h-[320px] items-end overflow-hidden p-0 no-underline text-inherit"
     >
       {image && (
         <div
@@ -124,18 +131,17 @@ const FeaturedCard = ({ post }) => {
         />
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-black/10" />
-      <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-red-500 via-red-300 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[var(--md-surface-dim)] via-[color-mix(in_srgb,var(--md-surface-dim)_55%,transparent)] to-transparent" />
 
       <div className="relative z-10 w-full p-5">
         <div className="flex items-center justify-between gap-3">
           {flair && <StatusPill tone={getFlairTone(flair)}>{flair}</StatusPill>}
-          <span className="text-[10px] uppercase tracking-[0.3em] text-red-200/80">{source || "Feed"}</span>
+          <span className="md3-label-md text-[var(--md-on-surface-variant)]">{source || "Feed"}</span>
         </div>
-        <div className="mt-3 text-[10px] uppercase tracking-[0.35em] text-red-300">Pole Position</div>
-        <h3 className="mt-2 line-clamp-2 text-xl font-extrabold text-white">{title}</h3>
+        <div className="mt-3 md3-label-md text-[var(--md-primary)]">Featured</div>
+        <h3 className="mt-2 line-clamp-2 md3-headline-md">{title}</h3>
       </div>
-    </a>
+    </Surface>
   );
 };
 
@@ -148,24 +154,24 @@ const NewsCarousel = ({ posts }) => {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="display-title text-sm uppercase tracking-[0.22em]">Top Stories</h3>
+        <h3 className="md3-title-md">Top Stories</h3>
         <div className="flex gap-2">
-          <button
-            type="button"
-            className="btn btn-ghost !px-2"
+          <Button
+            variant="text"
+            size="sm"
             onClick={() => setIndex((i) => (i - 1 + featured.length) % featured.length)}
             aria-label="Previous story"
           >
             ‹
-          </button>
-          <button
-            type="button"
-            className="btn btn-ghost !px-2"
+          </Button>
+          <Button
+            variant="text"
+            size="sm"
             onClick={() => setIndex((i) => (i + 1) % featured.length)}
             aria-label="Next story"
           >
             ›
-          </button>
+          </Button>
         </div>
       </div>
       <FeaturedCard post={featured[index]} />
@@ -200,34 +206,35 @@ const News = ({ showHeader = true, layout = "standard" }) => {
 
   if (isError && posts.length === 0) {
     return (
-      <div className="rounded-2xl border border-red-500/30 bg-red-950/30 p-6 text-center">
-        <p className="text-sm text-red-300">Unable to load news</p>
-        <p className="text-xs opacity-60">{error?.message}</p>
-        <button type="button" onClick={refetch} className="btn mt-3">
+      <Surface tier="container" className="p-6 text-center">
+        <p className="md3-body-md text-[var(--danger)]">Unable to load news</p>
+        <p className="md3-label-md text-[var(--md-on-surface-variant)] mt-1">{error?.message}</p>
+        <Button variant="tonal" className="mt-3" onClick={refetch}>
           Retry
-        </button>
-      </div>
+        </Button>
+      </Surface>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-2xl border border-red-500/25 bg-[radial-gradient(circle_at_85%_10%,rgba(255,40,40,0.28),rgba(12,12,14,0.95)_50%)] p-4">
-        <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:26px_26px]" />
-        <div className="relative flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <Surface tier="container-high" className="p-4 sm:p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.35em] text-red-200/85">
+            <div className="flex items-center gap-2 md3-label-md text-[var(--md-primary)]">
               <Radio className="h-3.5 w-3.5" />
               Race Control Feed
             </div>
-            <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Formula 1 Newsroom</h2>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">Breaking updates, paddock stories, and technical headlines.</p>
+            <h2 className="mt-2 md3-headline-md">Formula 1 Newsroom</h2>
+            <p className="mt-1 md3-body-md text-[var(--md-on-surface-variant)]">
+              Breaking updates, paddock stories, and technical headlines.
+            </p>
           </div>
-          <div className="text-[10px] uppercase tracking-[0.2em] text-red-200/80">
+          <div className="md3-label-md text-[var(--md-on-surface-variant)]">
             {posts.length} active stories
           </div>
         </div>
-      </div>
+      </Surface>
 
       <DataStatusBanner meta={dataMeta} />
       {layout === "carousel" && <NewsCarousel posts={posts} />}
@@ -238,21 +245,21 @@ const News = ({ showHeader = true, layout = "standard" }) => {
           title="Grid Headlines"
           subtitle={typeof data?.total === "number" ? `${data.total} results` : "Latest motorsport headlines"}
           actions={(
-            <button type="button" className="btn btn-ghost !px-2" onClick={refetch} disabled={isFetching}>
+            <Button variant="text" size="sm" onClick={refetch} disabled={isFetching}>
               <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-            </button>
+            </Button>
           )}
         />
       )}
 
       {data?.usedFallback && (
-        <div className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">
-          <TriangleAlert className="h-3.5 w-3.5" />
+        <Surface tier="container" className="flex items-center gap-2 p-3 md3-body-md text-[var(--md-on-surface-variant)]">
+          <TriangleAlert className="h-3.5 w-3.5 shrink-0" />
           Primary feed unavailable. Showing fallback sources.
-        </div>
+        </Surface>
       )}
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 md3-content-auto">
         {displayedPosts.map((post) => (
           <NewsCard key={post.id} post={post} />
         ))}
@@ -260,19 +267,15 @@ const News = ({ showHeader = true, layout = "standard" }) => {
 
       {posts.length > DEFAULT_VISIBLE_COUNT && (
         <div className="text-center">
-          <button
-            type="button"
-            onClick={() => setExpanded((prev) => !prev)}
-            className="btn btn-ghost"
-          >
+          <Button variant="text" onClick={() => setExpanded((prev) => !prev)}>
             {expanded ? "Show Less" : "Show More"}
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
+          </Button>
         </div>
       )}
 
       {dataUpdatedAt && (
-        <div className="text-center text-[10px] text-[var(--text-muted)]">
+        <div className="text-center md3-label-md text-[var(--md-on-surface-variant)]">
           Updated {formatTimeAgo(new Date(dataUpdatedAt).toISOString())}
         </div>
       )}

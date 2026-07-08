@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./styles/tokens.css";
+@import "./styles/md3.css";
 
 @font-face {
   font-family: "Rajdhani";
@@ -36,19 +37,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   transition: background-color 180ms ease, color 180ms ease;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image:
-    linear-gradient(var(--grid-color) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-  background-size: 36px 36px;
-  opacity: 0.2;
 }
 
 a {
@@ -126,56 +114,32 @@ textarea {
 }
 
 .panel {
-  border: 1px solid var(--border-color);
-  border-radius: 0.45rem;
-  background-color: var(--panel-color);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--shape-lg);
+  background-color: var(--md-surface-container);
+  color: var(--md-on-surface);
 }
 
 .f1-card {
   position: relative;
   overflow: hidden;
-  border-radius: 0.45rem;
-  border: 1px solid var(--border-color);
-  background-color: var(--panel-color);
-  transition: border-color 180ms ease, box-shadow 180ms ease;
+  border-radius: var(--shape-lg);
+  background-color: var(--md-surface-container);
+  color: var(--md-on-surface);
+  transition: background-color var(--motion-standard) var(--ease-standard);
 }
 
-.f1-card::after {
-  content: none;
-}
-
+.f1-card::after,
 .f1-card::before {
   content: none;
 }
 
 .f1-card:hover {
-  border-color: color-mix(in srgb, var(--accent-red) 38%, var(--border-color));
-  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.18);
+  background-color: var(--md-surface-container-high);
 }
 
 .display-title {
   font-family: var(--font-display);
   letter-spacing: 0.045em;
-}
-
-.angular-ui .rounded-3xl,
-.angular-ui .rounded-2xl,
-.angular-ui .rounded-xl,
-.angular-ui .rounded-lg,
-.angular-ui .rounded-md,
-.angular-ui .rounded-sm,
-.angular-ui .rounded-full {
-  border-radius: 0.4rem !important;
-}
-
-.angular-ui .rounded-t-2xl,
-.angular-ui .rounded-t-3xl,
-.angular-ui .rounded-t-xl,
-.angular-ui .rounded-t-lg,
-.angular-ui .rounded-t-md {
-  border-top-left-radius: 0.4rem !important;
-  border-top-right-radius: 0.4rem !important;
 }
 
 .scrollbar-thin {

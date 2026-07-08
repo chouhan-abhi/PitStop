@@ -2,46 +2,38 @@ import React from "react";
 import { CalendarDays, Flag, MapPin } from "lucide-react";
 
 import { formatDate } from "../../common/utils/dataProcessing";
-import CircuitPreview from "../ui/CircuitPreview";
+import HeroSurface from "../ui/HeroSurface";
 import DriverCard from "../ui/DriverCard";
+import StatusPill from "../ui/StatusPill";
 
 const EventWeekendHeader = ({ event, winner }) => {
   if (!event) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-color)] bg-[var(--panel-color)] p-4 sm:p-6 lg:p-8 shadow-[var(--shadow-sm)]">
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent-red-subtle)] via-transparent to-transparent pointer-events-none" />
-      <div className="relative flex flex-col lg:flex-row items-start justify-between gap-5">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.35em] text-[var(--text-muted)] mb-2">
-            Weekend
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-red)]" />
-          </div>
-          <h1 className="display-title text-3xl sm:text-4xl font-bold tracking-tight text-[var(--text-primary)] flex items-center gap-3">
-            {event.meeting_name}
-            <Flag size={22} className="opacity-70" />
-          </h1>
-          <p className="text-base text-[var(--text-secondary)] flex items-center gap-2 mt-2">
-            <MapPin size={16} />
-            {event.location}, {event.country_name}
-          </p>
-          <p className="text-sm text-[var(--text-muted)] flex items-center gap-2 mt-1">
-            <CalendarDays size={16} />
-            {formatDate(event.date_start)}
-          </p>
-        </div>
-        <CircuitPreview
-          circuitName={event.circuit_short_name}
-          location={event.location}
-          width={360}
-          height={180}
-          use3D
-          className="hidden md:block"
-        />
-      </div>
+    <div className="space-y-5">
+      <HeroSurface
+        circuitName={event.circuit_short_name}
+        location={event.location}
+        eager3D={false}
+        minHeight="min-h-[300px] sm:min-h-[360px]"
+      >
+        <StatusPill tone="live">Race Weekend</StatusPill>
+        <h1 className="md3-headline-lg mt-3 flex items-center gap-3 max-w-2xl">
+          {event.meeting_name}
+          <Flag size={24} className="opacity-80 shrink-0" />
+        </h1>
+        <p className="md3-body-md text-[var(--md-on-surface-variant)] flex items-center gap-2 mt-2">
+          <MapPin size={16} />
+          {event.location}, {event.country_name}
+        </p>
+        <p className="md3-label-md text-[var(--md-on-surface-variant)] flex items-center gap-2 mt-1">
+          <CalendarDays size={16} />
+          {formatDate(event.date_start)}
+        </p>
+      </HeroSurface>
       {winner && (
-        <div className="relative mt-5 max-w-md">
-          <DriverCard driver={winner} position={1} compact />
+        <div className="max-w-sm">
+          <DriverCard driver={winner} position={1} featured />
         </div>
       )}
     </div>

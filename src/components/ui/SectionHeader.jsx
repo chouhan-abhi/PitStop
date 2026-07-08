@@ -1,19 +1,17 @@
 import React from "react";
 
-const SectionHeader = ({ title, subtitle, actions, compact = false }) => {
-  return (
-    <div className={`flex items-start justify-between gap-3 ${compact ? "mb-2" : "mb-4"}`}>
-      <div>
-        <h3 className="display-title text-base sm:text-lg font-semibold text-[var(--text-primary)]">
-          {title}
-        </h3>
-        {subtitle && (
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">{subtitle}</p>
-        )}
-      </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+const SectionHeader = ({ title, subtitle, actions, compact = false, className = "" }) => (
+  <div className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between ${className}`}>
+    <div>
+      {title && (
+        <h3 className={compact ? "md3-title-lg" : "md3-headline-md"}>{title}</h3>
+      )}
+      {subtitle && (
+        <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-1">{subtitle}</p>
+      )}
     </div>
-  );
-};
+    {actions && <div className="flex items-center gap-2">{actions}</div>}
+  </div>
+);
 
 export default SectionHeader;

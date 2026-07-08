@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import HomeCountdownHero from "./HomeCountdownHero";
 import HomeScheduleSection from "./HomeScheduleSection";
 import SectionHeader from "./ui/SectionHeader";
-import Panel from "./ui/Panel";
+import Surface from "./ui/Surface";
 import DataStatusBanner from "./ui/DataStatusBanner";
 import ChampionshipStrip from "./ui/ChampionshipStrip";
 import DriverCard from "./ui/DriverCard";
 import Button from "./ui/Button";
 import { useDriverRegistry } from "../common/drivers/useDriverRegistry";
 import { usePositions } from "./Drivers/usePositions";
+import { useRevealOnScroll } from "../hooks/useRevealOnScroll";
 import {
   getLatestSessionFromPositions,
   getLatestPositionsForDrivers,
@@ -45,7 +46,9 @@ export const EventDashboard = ({
   if (eventsLoading) {
     return (
       <div className="app-shell py-8">
-        <Panel className="p-8 text-center text-[var(--text-secondary)]">Loading events...</Panel>
+        <Surface className="p-8 text-center md3-body-md text-[var(--md-on-surface-variant)]">
+          Loading events...
+        </Surface>
       </div>
     );
   }
@@ -53,9 +56,9 @@ export const EventDashboard = ({
   if (eventsIsError && (!eventsData || eventsData.length === 0)) {
     return (
       <div className="app-shell py-8">
-        <Panel className="p-8 text-center text-[var(--danger)]">
+        <Surface className="p-8 text-center text-[var(--danger)]">
           {eventsError?.message || "Failed to load events"}
-        </Panel>
+        </Surface>
       </div>
     );
   }
@@ -64,7 +67,9 @@ export const EventDashboard = ({
   if (noEvents) {
     return (
       <div className="app-shell py-8">
-        <Panel className="p-8 text-center text-[var(--text-secondary)]">Awaiting season start</Panel>
+        <Surface className="p-8 text-center md3-body-md text-[var(--md-on-surface-variant)]">
+          Awaiting season start
+        </Surface>
       </div>
     );
   }
@@ -107,6 +112,9 @@ const HomeDashboardContent = ({
   year,
   navigate,
 }) => {
+  const podiumReveal = useRevealOnScroll();
+  const newsReveal = useRevealOnScroll();
+
   const eventYear = latestCompletedEvent?.date_start
     ? new Date(latestCompletedEvent.date_start).getFullYear()
     : year;
@@ -136,21 +144,21 @@ const HomeDashboardContent = ({
   }, [sessionDrivers, positionsData, latestSession]);
 
   return (
-    <div className="app-shell py-4 lg:py-8 space-y-5 lg:space-y-6">
+    <div className="app-shell py-4 lg:py-8 space-y-6 lg:space-y-8">
       <DataStatusBanner meta={eventsBannerMeta} />
       {hasUpcomingEvent && <HomeCountdownHero eventsData={eventsData} />}
       <HomeScheduleSection eventsData={eventsData} />
 
       {hasSeasonStarted && (
-        <section className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-4">
+        <section className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5">
           <ChampionshipStrip leaders={leaders} title="Championship Top 3" />
-          <Panel className="p-4 sm:p-5 border-l-2 border-l-[var(--accent-red)]">
+          <Surface tier="container-high" className={`p-5 sm:p-6 ${podiumReveal.className}`} ref={podiumReveal.ref}>
             <SectionHeader
               title="Latest Race Podium"
               subtitle={latestCompletedEvent?.meeting_name}
               actions={
                 <Button
-                  variant="accent"
+                  variant="filled"
                   size="sm"
                   onClick={() => navigate(`/event/${latestCompletedEvent.meeting_key}`)}
                 >
@@ -158,30 +166,38 @@ const HomeDashboardContent = ({
                 </Button>
               }
             />
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {podium.length > 0 ? (
-                podium.map((driver) => (
-                  <DriverCard key={driver.driver_number} driver={driver} position={driver.position} compact />
+                podium.map((driver, idx) => (
+                  <DriverCard
+                    key={driver.driver_number}
+                    driver={driver}
+                    position={driver.position}
+                    featured={idx === 0}
+                    compact={idx > 0}
+                  />
                 ))
               ) : (
-                <p className="text-sm text-[var(--text-muted)] col-span-3">Podium data loading…</p>
+                <p className="md3-body-md text-[var(--md-on-surface-variant)] col-span-full">
+                  Podium data loading…
+                </p>
               )}
             </div>
-          </Panel>
+          </Surface>
         </section>
       )}
 
-      <Panel className="p-3 sm:p-4">
+      <Surface tier="container" className={`p-4 sm:p-5 ${newsReveal.className}`} ref={newsReveal.ref}>
         <Suspense
           fallback={
-            <div className="flex items-center justify-center p-8 text-[var(--text-secondary)]">
+            <div className="flex items-center justify-center p-8 md3-body-md text-[var(--md-on-surface-variant)]">
               Loading news...
             </div>
           }
         >
           <News layout="carousel" showHeader={false} />
         </Suspense>
-      </Panel>
+      </Surface>
     </div>
   );
 };

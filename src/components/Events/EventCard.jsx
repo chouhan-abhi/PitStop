@@ -12,6 +12,7 @@ import {
 } from "../../common/utils/dataProcessing";
 import StatusPill from "../ui/StatusPill";
 import Button from "../ui/Button";
+import Surface from "../ui/Surface";
 import DriverCard from "../ui/DriverCard";
 import SectionHeader from "../ui/SectionHeader";
 
@@ -46,12 +47,9 @@ const EventCard = ({ event, isLatest = false }) => {
   if (!event) return null;
 
   return (
-    <div
-      className={`relative overflow-hidden rounded-[var(--radius-lg)] border p-4 ${
-        isLatest
-          ? "border-l-2 border-l-[var(--accent-red)] bg-[var(--panel-color)]"
-          : "border-[var(--border-color)] bg-[var(--panel-color)]/80"
-      }`}
+    <Surface
+      tier={isLatest ? "container-high" : "container"}
+      className={`relative overflow-hidden p-4 ${isLatest ? "border-l-4 border-l-[var(--md-primary)]" : ""}`}
     >
       <div className="flex flex-col sm:flex-row gap-4">
         <CircuitPreview
@@ -59,16 +57,16 @@ const EventCard = ({ event, isLatest = false }) => {
           location={event.location}
           width={140}
           height={100}
-          use3D={isLatest}
+          use3D={false}
         />
         <div className="flex-1 min-w-0">
           <StatusPill tone={isLatest ? "live" : "neutral"}>
             {isLatest ? "Latest" : "Archived"}
           </StatusPill>
-          <p className="display-title text-xl font-bold mt-2">{event.meeting_name}</p>
-          <p className="text-sm text-[var(--text-secondary)]">{event.circuit_short_name}</p>
-          <p className="text-xs text-[var(--text-muted)] mt-1">{formatDate(event.date_start)}</p>
-          <Button variant="accent" size="sm" className="mt-3" onClick={() => navigate(`/event/${event.meeting_key}`)}>
+          <p className="md3-headline-md mt-2">{event.meeting_name}</p>
+          <p className="md3-body-md text-[var(--md-on-surface-variant)]">{event.circuit_short_name}</p>
+          <p className="md3-label-md text-[var(--md-on-surface-variant)] mt-1">{formatDate(event.date_start)}</p>
+          <Button variant="tonal" size="sm" className="mt-3" onClick={() => navigate(`/event/${event.meeting_key}`)}>
             View Weekend
           </Button>
         </div>
@@ -78,7 +76,7 @@ const EventCard = ({ event, isLatest = false }) => {
         <div className="mt-4">
           <SectionHeader title="Podium" subtitle="Latest classified order" compact />
           {positionsLoading || driversLoading ? (
-            <p className="text-sm text-[var(--text-muted)] mt-2">Loading podium…</p>
+            <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-2">Loading podium…</p>
           ) : podium.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
               {podium.map((driver) => (
@@ -86,11 +84,11 @@ const EventCard = ({ event, isLatest = false }) => {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[var(--text-muted)] mt-2">No podium data.</p>
+            <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-2">No podium data.</p>
           )}
         </div>
       )}
-    </div>
+    </Surface>
   );
 };
 

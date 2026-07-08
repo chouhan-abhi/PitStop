@@ -2,70 +2,72 @@ import React from "react";
 import { Trophy } from "lucide-react";
 
 import DriverAvatar from "../Common/DriverAvatar";
+import CountryFlag from "./CountryFlag";
 import { getTeamColorBorder } from "../../common/utils/colors";
 
-const PODIUM_STYLES = {
-  1: "border-[var(--accent-red-border)] bg-[var(--accent-red-subtle)]",
-  2: "border-[var(--border-color)] bg-[var(--surface-2)]/60",
-  3: "border-[var(--border-color)] bg-[var(--surface-2)]/40",
+const PODIUM_TIERS = {
+  1: "bg-[var(--md-primary-container)]",
+  2: "bg-[var(--md-surface-container-high)]",
+  3: "bg-[var(--md-surface-container)]",
 };
 
-const DriverCard = ({ driver, position, compact = false, onClick, className = "" }) => {
+const DriverCard = ({
+  driver,
+  position,
+  compact = false,
+  featured = false,
+  onClick,
+  className = "",
+}) => {
   const pos = position ?? driver?.position;
-  const podiumStyle = PODIUM_STYLES[pos] || "border-[var(--border-color)] bg-[var(--panel-color)]";
+  const tierClass = PODIUM_TIERS[pos] || "bg-[var(--md-surface-container)]";
+  const teamColor = getTeamColorBorder(driver?.team_colour);
+
+  const Wrapper = onClick ? "button" : "div";
 
   return (
-    <button
-      type="button"
+    <Wrapper
+      type={onClick ? "button" : undefined}
       onClick={onClick}
-      disabled={!onClick}
-      className={`text-left w-full rounded-[var(--radius-lg)] border p-3 sm:p-4 transition-all ${
-        onClick ? "hover:border-[var(--accent-red-border)] cursor-pointer" : "cursor-default"
-      } ${podiumStyle} ${className}`}
+      className={`md3-state-layer text-left w-full overflow-hidden rounded-[var(--shape-xl)] ${tierClass} ${
+        onClick ? "cursor-pointer" : ""
+      } ${featured ? "sm:col-span-2" : ""} ${className}`}
     >
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <div
-            className="rounded-[var(--radius-full)] p-0.5"
-            style={{ boxShadow: `0 0 0 2px ${getTeamColorBorder(driver?.team_colour)}` }}
-          >
-            <DriverAvatar
-              driver={driver}
-              sizeClass={compact ? "w-12 h-12" : "w-16 h-16"}
-              textClass={compact ? "text-sm" : "text-base"}
-            />
-          </div>
-          {pos === 1 && (
-            <Trophy
-              size={14}
-              className="absolute -top-1 -right-1 text-[var(--accent-amber)]"
-              aria-hidden
-            />
-          )}
-        </div>
+      <div
+        className="h-1 w-full"
+        style={{ backgroundColor: teamColor }}
+        aria-hidden
+      />
+      <div className={`p-4 ${featured ? "sm:flex sm:gap-4 sm:items-end" : ""}`}>
+        <DriverAvatar
+          driver={driver}
+          variant="portrait"
+          size={featured ? "xl" : compact ? "md" : "lg"}
+          className={featured ? "sm:w-40 sm:shrink-0 mb-3 sm:mb-0" : "w-full mb-3"}
+          priority={featured}
+        />
         <div className="flex-1 min-w-0">
-          {pos && (
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
-              P{pos}
-            </p>
-          )}
-          <p className={`display-title font-bold truncate ${compact ? "text-lg" : "text-xl"}`}>
+          <div className="flex items-center gap-2 mb-1">
+            {pos && (
+              <span className="md3-label-md text-[var(--md-on-surface-variant)]">P{pos}</span>
+            )}
+            {pos === 1 && <Trophy size={16} className="text-[var(--warning)]" aria-hidden />}
+            <CountryFlag countryCode={driver?.country_code} size="sm" />
+          </div>
+          <p className={`md3-headline-md truncate ${featured ? "sm:text-2xl" : ""}`}>
             {driver?.full_name || "Driver"}
           </p>
-          <p
-            className="text-xs truncate mt-0.5"
-            style={{ color: getTeamColorBorder(driver?.team_colour) }}
-          >
+          <p className="md3-body-md truncate mt-1" style={{ color: teamColor }}>
             {driver?.team_name}
           </p>
           {driver?.season?.points != null && (
-            <p className="text-xs text-[var(--text-secondary)] mt-1 font-mono">
+            <p className="md3-label-lg text-[var(--md-on-surface-variant)] mt-2 font-mono tabular-nums">
               {driver.season.points} pts
             </p>
           )}
         </div>
       </div>
-    </button>
+    </Wrapper>
   );
 };
 

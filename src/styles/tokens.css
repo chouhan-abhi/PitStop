@@ -1,163 +1,193 @@
 :root {
   color-scheme: dark;
 
-  --surface-0: #05070b;
-  --surface-1: #0b1020;
-  --surface-2: #11182b;
-  --surface-3: #1a233b;
+  /* MD3 surface tiers */
+  --md-surface-dim: #0f1117;
+  --md-surface: #141820;
+  --md-surface-container-low: #1a1f28;
+  --md-surface-container: #202632;
+  --md-surface-container-high: #272e3c;
+  --md-surface-container-highest: #2f3747;
 
-  --text-primary: #f4f7ff;
-  --text-secondary: #a7b0c5;
-  --text-muted: #7e879d;
+  /* MD3 content */
+  --md-on-surface: #e8eaed;
+  --md-on-surface-variant: #b0b8c4;
+  --md-outline: #4a5568;
+  --md-outline-variant: #353d4d;
 
-  --accent-red: #ff2d2d;
+  /* MD3 color roles (red seed) */
+  --md-primary: #ff4444;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #5c1010;
+  --md-on-primary-container: #ffdad6;
+  --md-secondary: #ffb4ab;
+  --md-on-secondary: #690005;
+  --md-secondary-container: #93000a;
+  --md-on-secondary-container: #ffdad6;
+
+  /* State layers */
+  --state-hover: 0.08;
+  --state-focus: 0.12;
+  --state-pressed: 0.12;
+
+  /* Shape scale */
+  --shape-xs: 4px;
+  --shape-sm: 8px;
+  --shape-md: 12px;
+  --shape-lg: 16px;
+  --shape-xl: 28px;
+  --shape-full: 9999px;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-standard: 220ms;
+  --motion-emphasized: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Type scale */
+  --type-display-lg: 3.5rem;
+  --type-display-md: 2.75rem;
+  --type-headline-lg: 2rem;
+  --type-headline-md: 1.75rem;
+  --type-title-lg: 1.375rem;
+  --type-title-md: 1rem;
+  --type-body-lg: 1rem;
+  --type-body-md: 0.875rem;
+  --type-label-lg: 0.875rem;
+  --type-label-md: 0.75rem;
+
+  /* Semantic (legacy aliases) */
+  --surface-0: var(--md-surface-dim);
+  --surface-1: var(--md-surface);
+  --surface-2: var(--md-surface-container);
+  --surface-3: var(--md-surface-container-high);
+
+  --text-primary: var(--md-on-surface);
+  --text-secondary: var(--md-on-surface-variant);
+  --text-muted: color-mix(in srgb, var(--md-on-surface-variant) 70%, transparent);
+
+  --accent-red: var(--md-primary);
   --accent-amber: #ffb347;
-  --success: #29cc7a;
-  --warning: #ffd166;
-  --danger: #ff5f6d;
-  --ring: rgba(255, 45, 45, 0.45);
-  --grid-line: rgba(255, 255, 255, 0.06);
+  --success: #4caf50;
+  --warning: #ffb74d;
+  --danger: #ef5350;
+  --ring: color-mix(in srgb, var(--md-primary) 45%, transparent);
 
-  --panel-glass: rgba(10, 14, 25, 0.72);
-  --panel-solid: #12192b;
-  --border-strong: rgba(255, 255, 255, 0.12);
+  --panel-glass: var(--md-surface-container);
+  --panel-solid: var(--md-surface-container);
+  --border-strong: var(--md-outline-variant);
 
-  --shadow-sm: 0 4px 14px rgba(2, 6, 23, 0.25);
-  --shadow-md: 0 14px 40px rgba(2, 6, 23, 0.42);
+  --shadow-sm: none;
+  --shadow-md: none;
 
-  --accent-red-subtle: rgba(255, 45, 45, 0.12);
-  --accent-red-border: rgba(255, 45, 45, 0.35);
+  --accent-red-subtle: var(--md-primary-container);
+  --accent-red-border: var(--md-outline-variant);
 
-  --chart-grid: rgba(255, 255, 255, 0.08);
-  --chart-tooltip-bg: rgba(10, 14, 25, 0.95);
-  --chart-tooltip-text: #f4f7ff;
+  --chart-grid: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
+  --chart-tooltip-bg: var(--md-surface-container-highest);
+  --chart-tooltip-text: var(--md-on-surface);
 
   --space-section: 1.5rem;
   --space-card: 1rem;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-full: 9999px;
+  --radius-sm: var(--shape-sm);
+  --radius-md: var(--shape-md);
+  --radius-lg: var(--shape-lg);
+  --radius-full: var(--shape-full);
 
   --font-display: "Rajdhani", "Segoe UI", "Helvetica Neue", sans-serif;
   --font-body: "Barlow", "Inter", "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
 
-  /* Legacy compatibility vars */
-  --primary-color: var(--accent-red);
-  --bg-color: var(--surface-0);
-  --text-color: var(--text-primary);
-  --panel-color: var(--panel-solid);
-  --border-color: var(--border-strong);
-  --header-bg: rgba(5, 7, 11, 0.9);
-  --header-text: var(--text-primary);
-  --card-bg: var(--surface-2);
-  --skeleton-color: rgba(255, 255, 255, 0.12);
-  --grid-color: var(--grid-line);
+  --primary-color: var(--md-primary);
+  --bg-color: var(--md-surface-dim);
+  --text-color: var(--md-on-surface);
+  --panel-color: var(--md-surface-container);
+  --border-color: var(--md-outline-variant);
+  --header-bg: var(--md-surface-container);
+  --header-text: var(--md-on-surface);
+  --card-bg: var(--md-surface-container-low);
+  --skeleton-color: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
+  --grid-color: transparent;
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --surface-0: #f4f6fb;
-  --surface-1: #ffffff;
-  --surface-2: #eef2fb;
-  --surface-3: #e5ebfa;
+  --md-surface-dim: #e8eaed;
+  --md-surface: #f1f3f4;
+  --md-surface-container-low: #f8f9fa;
+  --md-surface-container: #ffffff;
+  --md-surface-container-high: #eef0f2;
+  --md-surface-container-highest: #e2e5e9;
 
-  --text-primary: #111827;
-  --text-secondary: #394150;
-  --text-muted: #5e6778;
+  --md-on-surface: #1a1c1e;
+  --md-on-surface-variant: #44474e;
+  --md-outline: #74777f;
+  --md-outline-variant: #c4c7cf;
 
-  --accent-red: #e10600;
-  --accent-amber: #f2994a;
-  --success: #16a34a;
-  --warning: #d97706;
-  --danger: #dc2626;
-  --ring: rgba(225, 6, 0, 0.32);
-  --grid-line: rgba(17, 24, 39, 0.06);
+  --md-primary: #c62828;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #ffdad6;
+  --md-on-primary-container: #410002;
+  --md-secondary: #775652;
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: #ffdad6;
+  --md-on-secondary-container: #2c1512;
 
-  --panel-glass: rgba(255, 255, 255, 0.76);
-  --panel-solid: #ffffff;
-  --border-strong: rgba(17, 24, 39, 0.15);
+  --accent-red-subtle: var(--md-primary-container);
+  --accent-red-border: var(--md-outline-variant);
 
-  --shadow-sm: 0 3px 10px rgba(17, 24, 39, 0.08);
-  --shadow-md: 0 14px 28px rgba(17, 24, 39, 0.15);
+  --chart-grid: color-mix(in srgb, var(--md-on-surface) 10%, transparent);
+  --chart-tooltip-bg: var(--md-surface-container-highest);
+  --chart-tooltip-text: var(--md-on-surface);
 
-  --accent-red-subtle: rgba(225, 6, 0, 0.08);
-  --accent-red-border: rgba(225, 6, 0, 0.25);
-
-  --chart-grid: rgba(17, 24, 39, 0.1);
-  --chart-tooltip-bg: rgba(255, 255, 255, 0.98);
-  --chart-tooltip-text: #111827;
-
-  --space-section: 1.5rem;
-  --space-card: 1rem;
-
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-full: 9999px;
-
-  --primary-color: var(--accent-red);
-  --bg-color: var(--surface-0);
-  --text-color: var(--text-primary);
-  --panel-color: var(--panel-solid);
-  --border-color: var(--border-strong);
-  --header-bg: rgba(255, 255, 255, 0.88);
-  --header-text: var(--text-primary);
-  --card-bg: var(--surface-1);
-  --skeleton-color: rgba(17, 24, 39, 0.1);
-  --grid-color: var(--grid-line);
+  --primary-color: var(--md-primary);
+  --bg-color: var(--md-surface-dim);
+  --text-color: var(--md-on-surface);
+  --panel-color: var(--md-surface-container);
+  --border-color: var(--md-outline-variant);
+  --header-bg: var(--md-surface-container);
+  --header-text: var(--md-on-surface);
+  --card-bg: var(--md-surface-container-low);
+  --skeleton-color: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
 }
 
 :root[data-theme="saint"] {
   color-scheme: dark;
 
-  --surface-0: #0d111b;
-  --surface-1: #171c2b;
-  --surface-2: #1e273b;
-  --surface-3: #2b3550;
+  --md-surface-dim: #0d111b;
+  --md-surface: #141a28;
+  --md-surface-container-low: #1a2235;
+  --md-surface-container: #212b42;
+  --md-surface-container-high: #293350;
+  --md-surface-container-highest: #323c5c;
 
-  --text-primary: #e4ecff;
-  --text-secondary: #b5c0de;
-  --text-muted: #8f9abb;
+  --md-on-surface: #e4ecff;
+  --md-on-surface-variant: #b5c0de;
+  --md-outline: #6b7594;
+  --md-outline-variant: #3d4660;
 
-  --accent-red: #f75b5b;
-  --accent-amber: #f5bd4f;
-  --success: #57d68d;
-  --warning: #f9cf5d;
-  --danger: #ff717c;
-  --ring: rgba(247, 91, 91, 0.38);
-  --grid-line: rgba(228, 236, 255, 0.07);
+  --md-primary: #f75b5b;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #5c1a1a;
+  --md-on-primary-container: #ffdad6;
 
-  --panel-glass: rgba(26, 33, 49, 0.78);
-  --panel-solid: #1e273b;
-  --border-strong: rgba(228, 236, 255, 0.16);
+  --accent-red-subtle: var(--md-primary-container);
+  --accent-red-border: var(--md-outline-variant);
 
-  --accent-red-subtle: rgba(247, 91, 91, 0.12);
-  --accent-red-border: rgba(247, 91, 91, 0.32);
+  --chart-grid: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
+  --chart-tooltip-bg: var(--md-surface-container-highest);
+  --chart-tooltip-text: var(--md-on-surface);
 
-  --chart-grid: rgba(228, 236, 255, 0.08);
-  --chart-tooltip-bg: rgba(30, 39, 59, 0.96);
-  --chart-tooltip-text: #e4ecff;
-
-  --space-section: 1.5rem;
-  --space-card: 1rem;
-
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-full: 9999px;
-
-  --primary-color: var(--accent-red);
-  --bg-color: var(--surface-0);
-  --text-color: var(--text-primary);
-  --panel-color: var(--panel-solid);
-  --border-color: var(--border-strong);
-  --header-bg: rgba(23, 28, 43, 0.9);
-  --header-text: var(--text-primary);
-  --card-bg: var(--surface-2);
-  --skeleton-color: rgba(228, 236, 255, 0.1);
-  --grid-color: var(--grid-line);
+  --primary-color: var(--md-primary);
+  --bg-color: var(--md-surface-dim);
+  --text-color: var(--md-on-surface);
+  --panel-color: var(--md-surface-container);
+  --border-color: var(--md-outline-variant);
+  --header-bg: var(--md-surface-container);
+  --header-text: var(--md-on-surface);
+  --card-bg: var(--md-surface-container-low);
+  --skeleton-color: color-mix(in srgb, var(--md-on-surface) 10%, transparent);
 }

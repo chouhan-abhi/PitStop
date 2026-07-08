@@ -7,10 +7,11 @@ import { useConstructorStandings } from "./useConstructorStandings";
 import { useRaceResults } from "./useRaceResults";
 import { useDriverRegistry } from "../../common/drivers/useDriverRegistry";
 import PageShell from "../ui/PageShell";
-import Panel from "../ui/Panel";
+import Surface from "../ui/Surface";
 import Tabs from "../ui/Tabs";
 import DataTable from "../ui/DataTable";
 import DriverAvatar from "../Common/DriverAvatar";
+import CountryFlag from "../ui/CountryFlag";
 import DataStatusBanner from "../ui/DataStatusBanner";
 import { getTeamColorBorder } from "../../common/utils/colors";
 import { teamNameToColor } from "../../common/drivers/driverRegistry";
@@ -108,7 +109,9 @@ const ScoreCardPage = ({ year }) => {
           id: row.id,
           name: row.driver,
           points,
-          color: idx === 0 ? "var(--accent-red)" : `color-mix(in srgb, var(--text-secondary) ${90 - idx * 8}%, transparent)`,
+          color: idx === 0
+            ? "var(--md-primary)"
+            : `color-mix(in srgb, var(--md-on-surface-variant) ${Math.max(40, 90 - idx * 8)}%, transparent)`,
         };
       }),
     [driverRows, progression.driverMap]
@@ -124,7 +127,9 @@ const ScoreCardPage = ({ year }) => {
           id: row.id,
           name: row.constructor,
           points,
-          color: idx === 0 ? "var(--accent-red)" : `color-mix(in srgb, var(--text-secondary) ${90 - idx * 8}%, transparent)`,
+          color: idx === 0
+            ? "var(--md-primary)"
+            : `color-mix(in srgb, var(--md-on-surface-variant) ${Math.max(40, 90 - idx * 8)}%, transparent)`,
         };
       }),
     [constructorRows, progression.constructorMap]
@@ -152,9 +157,10 @@ const ScoreCardPage = ({ year }) => {
       key: "driver",
       label: "Driver",
       render: (row) => (
-        <div className="flex items-center gap-2">
-          <DriverAvatar driver={row.enriched || { full_name: row.driver }} sizeClass="w-8 h-8" textClass="text-[10px]" />
-          <span>{row.driver}</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <DriverAvatar driver={row.enriched || { full_name: row.driver }} size="md" variant="portrait" />
+          <span className="truncate">{row.driver}</span>
+          <CountryFlag countryCode={row.enriched?.country_code} size="lg" />
         </div>
       ),
     },
@@ -171,7 +177,7 @@ const ScoreCardPage = ({ year }) => {
       label: "Constructor",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: getTeamColorBorder(row.team_colour) }} />
+          <span className="w-3 h-3 rounded-[var(--shape-xs)]" style={{ backgroundColor: getTeamColorBorder(row.team_colour) }} />
           {row.constructor}
         </div>
       ),
@@ -193,20 +199,20 @@ const ScoreCardPage = ({ year }) => {
       />
 
       {isLoading && (
-        <Panel className="p-8 flex items-center justify-center">
+        <Surface tier="container" className="p-8 flex items-center justify-center">
           <Loader2 className="w-6 h-6 animate-spin opacity-60" />
-          <span className="ml-2 text-sm opacity-60">Loading standings…</span>
-        </Panel>
+          <span className="ml-2 md3-body-md text-[var(--md-on-surface-variant)]">Loading standings…</span>
+        </Surface>
       )}
 
       <DataStatusBanner meta={combinedMeta} />
 
       {isError && !hasAnyData && (
-        <Panel className="p-6 text-sm text-[var(--danger)]">{errorMessage}</Panel>
+        <Surface tier="container" className="p-6 md3-body-md text-[var(--danger)]">{errorMessage}</Surface>
       )}
 
       {!isLoading && hasAnyData && (
-        <div className="space-y-4">
+        <div className="space-y-4 md3-content-auto">
           <DataTable
             columns={activeTab === "drivers" ? driverColumns : constructorColumns}
             rows={activeTab === "drivers" ? driverRows : constructorRows}

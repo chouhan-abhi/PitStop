@@ -2,40 +2,39 @@
   min-height: 100vh;
   position: relative;
   color: var(--text-color);
-  background-color: var(--bg-color);
-}
-
-.app-chrome::before {
-  content: none;
+  background-color: var(--md-surface-dim);
 }
 
 .race-header {
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--header-bg);
+  background-color: var(--md-surface-container);
 }
 
 .race-tab {
   position: relative;
-  padding: 0.45rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: 0.4rem;
-  color: var(--text-secondary);
+  padding: 0.6rem 1rem;
+  border-radius: var(--shape-sm);
+  color: var(--md-on-surface-variant);
   background-color: transparent;
-  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+  transition: color var(--motion-fast) var(--ease-standard);
+  font-size: var(--type-label-lg);
+  font-weight: 500;
 }
 
 .race-tab:hover {
-  color: var(--text-color);
-  background-color: var(--panel-color);
-  border-color: var(--border-color);
+  color: var(--md-on-surface);
 }
 
 .race-tab-active {
-  color: var(--text-primary);
-  background-color: var(--panel-color);
-  border-color: var(--border-color);
+  color: var(--md-primary);
 }
 
 .race-tab-active::after {
-  content: none;
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.25rem;
+  height: 3px;
+  border-radius: var(--shape-full);
+  background-color: var(--md-primary);
 }

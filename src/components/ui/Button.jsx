@@ -1,25 +1,28 @@
 import React from "react";
 
 const VARIANTS = {
-  primary:
-    "bg-[var(--accent-red)] text-white border border-[var(--accent-red-border)] hover:opacity-90",
-  ghost:
-    "bg-transparent text-[var(--text-secondary)] border border-[var(--border-color)] hover:text-[var(--text-primary)] hover:border-[var(--accent-red-border)]",
-  accent:
-    "bg-[var(--accent-red-subtle)] text-[var(--text-primary)] border border-[var(--accent-red-border)] hover:bg-[color-mix(in_srgb,var(--accent-red)_18%,transparent)]",
-  danger:
-    "bg-[color-mix(in_srgb,var(--danger)_15%,transparent)] text-[var(--danger)] border border-[color-mix(in_srgb,var(--danger)_35%,transparent)]",
+  filled:
+    "bg-[var(--md-primary)] text-[var(--md-on-primary)] hover:opacity-92",
+  tonal:
+    "bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)]",
+  outlined:
+    "border border-[var(--md-outline)] text-[var(--md-primary)] bg-transparent",
+  text: "text-[var(--md-primary)] bg-transparent",
+  ghost: "text-[var(--md-on-surface-variant)] bg-transparent",
+  primary: "bg-[var(--md-primary)] text-[var(--md-on-primary)]",
+  accent: "bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)]",
+  danger: "bg-[color-mix(in_srgb,var(--danger)_15%,transparent)] text-[var(--danger)]",
 };
 
 const SIZES = {
-  sm: "px-2.5 py-1.5 text-[11px]",
-  md: "px-4 py-2 text-xs",
-  lg: "px-5 py-2.5 text-sm",
+  sm: "h-8 px-4 text-[var(--type-label-md)]",
+  md: "h-10 px-6 text-[var(--type-label-lg)]",
+  lg: "h-12 px-8 text-[var(--type-body-md)]",
 };
 
 const Button = ({
   children,
-  variant = "ghost",
+  variant = "tonal",
   size = "md",
   className = "",
   type = "button",
@@ -27,7 +30,7 @@ const Button = ({
 }) => (
   <button
     type={type}
-    className={`inline-flex items-center justify-center gap-2 font-semibold uppercase tracking-[0.1em] rounded-[var(--radius-md)] transition-all disabled:opacity-50 disabled:cursor-not-allowed ${VARIANTS[variant] || VARIANTS.ghost} ${SIZES[size] || SIZES.md} ${className}`}
+    className={`md3-state-layer inline-flex items-center justify-center gap-2 font-medium rounded-[var(--shape-full)] transition-opacity disabled:opacity-50 disabled:cursor-not-allowed ${VARIANTS[variant] || VARIANTS.tonal} ${SIZES[size] || SIZES.md} ${className}`}
     {...props}
   >
     {children}

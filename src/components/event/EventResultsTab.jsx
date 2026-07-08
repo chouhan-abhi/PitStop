@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { getF1Points, SESSION_TITLE_MAP } from "../../common/utils/constants";
 import DataTable from "../ui/DataTable";
 import DriverRow from "../ui/DriverRow";
-import Panel from "../ui/Panel";
+import Surface from "../ui/Surface";
 
 const getSessionTitle = (index, totalSessions) => {
   const raceIndex = totalSessions - 1 - index;
@@ -52,9 +52,9 @@ const SessionResultsTable = ({ session, sessionIndex, totalSessions, driversByNu
   ];
 
   return (
-    <Panel className="p-0 overflow-hidden">
-      <div className="px-4 py-3 border-b border-[var(--border-color)]">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+    <Surface tier="container" className="p-0 overflow-hidden md3-content-auto">
+      <div className="px-4 py-3 border-b border-[var(--md-outline-variant)]/40">
+        <h3 className="md3-title-md text-[var(--md-on-surface)]">
           {title} — {session.session_name}
         </h3>
       </div>
@@ -65,7 +65,7 @@ const SessionResultsTable = ({ session, sessionIndex, totalSessions, driversByNu
         emptyMessage="No results for this session"
         className="border-0 rounded-none"
       />
-    </Panel>
+    </Surface>
   );
 };
 
@@ -73,11 +73,11 @@ const EventResultsTab = ({ sortedSessions, driversByNumber }) => {
   const [openKey, setOpenKey] = useState(sortedSessions[0]?.session_key || null);
 
   if (!sortedSessions.length) {
-    return <p className="text-sm text-[var(--text-muted)]">No session data available.</p>;
+    return <p className="md3-body-md text-[var(--md-on-surface-variant)]">No session data available.</p>;
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 md3-content-auto">
       {sortedSessions.map((session, index) => {
         const isOpen = openKey === session.session_key || index === 0;
         const isFirst = index === 0;
@@ -95,19 +95,19 @@ const EventResultsTab = ({ sortedSessions, driversByNumber }) => {
         }
 
         return (
-          <Panel key={session.session_key} className="overflow-hidden p-0">
+          <Surface key={session.session_key} tier="container" className="overflow-hidden p-0">
             <button
               type="button"
               onClick={() => setOpenKey(isOpen ? null : session.session_key)}
-              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[var(--surface-2)]/40 transition-colors"
+              className="md3-state-layer w-full flex items-center justify-between px-4 py-3 text-left"
             >
-              <span className="text-sm font-semibold text-[var(--text-primary)]">
+              <span className="md3-title-md text-[var(--md-on-surface)]">
                 {getSessionTitle(index, sortedSessions.length)} — {session.session_name}
               </span>
               <svg
                 width="18"
                 height="18"
-                className={`transition-transform text-[var(--text-muted)] ${isOpen ? "rotate-180" : ""}`}
+                className={`transition-transform text-[var(--md-on-surface-variant)] ${isOpen ? "rotate-180" : ""}`}
               >
                 <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" />
               </svg>
@@ -120,7 +120,7 @@ const EventResultsTab = ({ sortedSessions, driversByNumber }) => {
                 driversByNumber={driversByNumber}
               />
             )}
-          </Panel>
+          </Surface>
         );
       })}
     </div>

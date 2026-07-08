@@ -8,7 +8,7 @@ import { useDriverRegistry } from "../common/drivers/useDriverRegistry";
 import { getLatestSessionFromPositions, getLatestPositionsForDrivers } from "../common/utils/dataProcessing";
 import HomeCountdownHero from "./HomeCountdownHero";
 import PageShell from "./ui/PageShell";
-import Panel from "./ui/Panel";
+import Surface from "./ui/Surface";
 import StatusPill from "./ui/StatusPill";
 import DataStatusBanner from "./ui/DataStatusBanner";
 import DriverAvatar from "./Common/DriverAvatar";
@@ -66,7 +66,7 @@ const ArchivesPage = ({ year }) => {
   if (isLoading) {
     return (
       <PageShell title="Archives" subtitle="Loading season timeline...">
-        <Panel className="p-8 text-center text-[var(--text-secondary)]">Loading archives...</Panel>
+        <Surface tier="container" className="p-8 text-center md3-body-md text-[var(--md-on-surface-variant)]">Loading archives...</Surface>
       </PageShell>
     );
   }
@@ -74,7 +74,7 @@ const ArchivesPage = ({ year }) => {
   if (isError) {
     return (
       <PageShell title="Archives" subtitle="Archive feed unavailable">
-        <Panel className="p-8 text-center text-[var(--danger)]">{error?.message || "Failed to load events"}</Panel>
+        <Surface tier="container" className="p-8 text-center md3-body-md text-[var(--danger)]">{error?.message || "Failed to load events"}</Surface>
       </PageShell>
     );
   }
@@ -90,23 +90,23 @@ const ArchivesPage = ({ year }) => {
       {!eventsWithStatus.some((e) => e.status === "complete") && nextEvent && (
         <div className="space-y-4 mb-6">
           <HomeCountdownHero eventsData={eventsData} />
-          <Panel className="p-4 text-[var(--text-secondary)]">
+          <Surface tier="container" className="p-4 md3-body-md text-[var(--md-on-surface-variant)]">
             Season hasn't started. Next race:{" "}
-            <span className="text-[var(--text-primary)] font-semibold">{nextEvent.meeting_name}</span>
-          </Panel>
+            <span className="text-[var(--md-on-surface)] md3-title-md">{nextEvent.meeting_name}</span>
+          </Surface>
         </div>
       )}
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-5">
         {FILTERS.map((f) => (
           <button
             key={f.key}
             type="button"
             onClick={() => setFilter(f.key)}
-            className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-[var(--radius-md)] border transition-colors ${
+            className={`md3-state-layer h-8 px-4 rounded-[var(--shape-sm)] md3-label-lg transition-colors ${
               filter === f.key
-                ? "bg-[var(--accent-red-subtle)] border-[var(--accent-red-border)] text-[var(--text-primary)]"
-                : "border-[var(--border-color)] text-[var(--text-secondary)]"
+                ? "bg-[var(--md-secondary-container)] text-[var(--md-on-secondary-container)]"
+                : "bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)]"
             }`}
           >
             {f.label}
@@ -117,7 +117,7 @@ const ArchivesPage = ({ year }) => {
       {filteredEvents.length === 0 ? (
         <EmptyState title="No events" message={`No ${filter} events for ${year}.`} />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3 md3-content-auto">
           {filteredEvents.map((event) => (
             <TimelineRow
               key={event.meeting_key}
@@ -165,42 +165,40 @@ const TimelineRow = ({ event, year, expanded, onToggle, onOpen }) => {
   const statusTone = event.status === "complete" ? "neutral" : event.status === "upcoming" ? "warn" : "live";
 
   return (
-    <Panel className="overflow-hidden p-0">
-      <div className="flex items-center gap-3 p-3 sm:p-4 hover:bg-[var(--surface-2)]/30 transition-colors">
-        <span className="display-title text-lg font-bold w-8 text-[var(--text-muted)] tabular-nums">
+    <Surface tier="container" interactive className="overflow-hidden p-0 md3-content-auto">
+      <div className="flex items-center gap-4 p-4 sm:p-5 hover:bg-[color-mix(in_srgb,var(--md-on-surface)_4%,transparent)] transition-colors">
+        <span className="md3-title-lg font-bold w-10 text-[var(--md-on-surface-variant)] tabular-nums">
           R{event.round}
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-[var(--text-primary)] truncate">{event.meeting_name}</p>
+            <p className="md3-title-md text-[var(--md-on-surface)] truncate">{event.meeting_name}</p>
             <StatusPill tone={statusTone}>{event.status}</StatusPill>
           </div>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5">
+          <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-0.5">
             {event.circuit_short_name} · {formatDate(event.date_start)}
           </p>
         </div>
         {winner && (
           <div className="hidden sm:flex items-center gap-2">
-            <DriverAvatar driver={winner} sizeClass="w-8 h-8" textClass="text-[10px]" />
-            <span className="text-xs text-[var(--text-secondary)] truncate max-w-[100px]">
-              {winner.full_name}
-            </span>
+            <DriverAvatar driver={winner} size="lg" variant="portrait" />
+            <span className="md3-body-md truncate max-w-[120px]">{winner.full_name}</span>
           </div>
         )}
-        <button type="button" onClick={onToggle} className="p-1 text-[var(--text-muted)]" aria-label="Expand">
+        <button type="button" onClick={onToggle} className="md3-state-layer p-2 rounded-[var(--shape-full)] text-[var(--md-on-surface-variant)]" aria-label="Expand">
           {expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
         </button>
-        <Button variant="accent" size="sm" onClick={onOpen}>
+        <Button variant="tonal" size="sm" onClick={onOpen}>
           Open
         </Button>
       </div>
       {expanded && (
-        <div className="px-4 pb-4 border-t border-[var(--border-color)] pt-3 text-sm text-[var(--text-secondary)]">
+        <div className="px-5 pb-5 border-t border-[var(--md-outline-variant)]/40 pt-4 md3-body-md text-[var(--md-on-surface-variant)]">
           <p>{event.location}, {event.country_name}</p>
           {winner && <p className="mt-1">Winner: {winner.full_name}</p>}
         </div>
       )}
-    </Panel>
+    </Surface>
   );
 };
 

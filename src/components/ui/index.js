@@ -1,5 +1,7 @@
 export { default as PageShell } from "./PageShell";
 export { default as Panel } from "./Panel";
+export { default as Surface } from "./Surface";
+export { default as HeroSurface } from "./HeroSurface";
 export { default as SectionHeader } from "./SectionHeader";
 export { default as StatusPill } from "./StatusPill";
 export { default as StatChip } from "./StatChip";
@@ -13,3 +15,4 @@ export { default as ChampionshipStrip } from "./ChampionshipStrip";
 export { default as EmptyState } from "./EmptyState";
 export { default as LoadingState } from "./LoadingState";
 export { default as CircuitPreview } from "./CircuitPreview";
+export { default as CountryFlag } from "./CountryFlag";

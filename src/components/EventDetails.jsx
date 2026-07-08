@@ -158,7 +158,7 @@ export const EventDetails = ({ year }) => {
     return (
       <div className="app-shell py-10 text-center space-y-4">
         <p className="text-[var(--text-primary)]">Invalid event identifier.</p>
-        <Button variant="primary" onClick={() => navigate("/")}>Back to Home</Button>
+        <Button variant="filled" onClick={() => navigate("/")}>Back to Home</Button>
       </div>
     );
   }
@@ -167,7 +167,7 @@ export const EventDetails = ({ year }) => {
     return (
       <div className="app-shell py-10 text-center space-y-4">
         <p className="text-[var(--text-primary)]">Event not found.</p>
-        <Button variant="primary" onClick={() => navigate("/")}>Back to Home</Button>
+        <Button variant="filled" onClick={() => navigate("/")}>Back to Home</Button>
       </div>
     );
   }
@@ -176,7 +176,7 @@ export const EventDetails = ({ year }) => {
     <div className="app-shell py-4 lg:py-8 space-y-5">
       <DataStatusBanner meta={combinedMeta} />
 
-      <Button variant="ghost" onClick={() => navigate("/")}>
+      <Button variant="text" onClick={() => navigate("/")}>
         <ArrowLeft size={16} />
         Back to Home
       </Button>

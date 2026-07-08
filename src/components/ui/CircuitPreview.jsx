@@ -10,15 +10,17 @@ const CircuitPreview = ({
   width = 200,
   height = 120,
   use3D = true,
+  defer = true,
   className = "",
 }) => (
   <div
-    className={`rounded-[var(--radius-lg)] border border-[var(--border-color)] bg-[var(--surface-2)]/40 overflow-hidden ${className}`}
+    className={`rounded-[var(--shape-lg)] bg-[var(--md-surface-container-high)] overflow-hidden ${className}`}
+    style={{ width, height }}
   >
     {use3D ? (
       <Suspense
         fallback={
-          <div className="flex items-center justify-center" style={{ width, height }}>
+          <div className="flex h-full w-full items-center justify-center">
             <CircuitSVG circuitName={circuitName} location={location} size={Math.min(width, height) - 20} />
           </div>
         }
@@ -29,11 +31,11 @@ const CircuitPreview = ({
           width={width}
           height={height}
           enabled
-          defer={false}
+          defer={defer}
         />
       </Suspense>
     ) : (
-      <div className="flex items-center justify-center p-2" style={{ width, height }}>
+      <div className="flex h-full w-full items-center justify-center p-2">
         <CircuitSVG circuitName={circuitName} location={location} size={Math.min(width, height) - 24} />
       </div>
     )}

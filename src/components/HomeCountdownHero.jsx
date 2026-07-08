@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import calendarText from "../assets/calendar.ics?raw";
-import CircuitModel from "./Common/CircuitModel";
+import HeroSurface from "./ui/HeroSurface";
 import StatusPill from "./ui/StatusPill";
 import StatChip from "./ui/StatChip";
 
@@ -62,6 +62,7 @@ const normalizeScheduleEvents = (eventsData = []) =>
       return {
         summary: event.meeting_name || "Next Session",
         location: parts.join(", "),
+        circuitName: event.circuit_short_name || event.meeting_name,
         date,
       };
     })
@@ -84,51 +85,39 @@ const HomeCountdownHero = ({ eventsData = [] }) => {
 
   if (!nextEvent) {
     return (
-      <div className="panel p-6">
-        <p className="text-lg text-[var(--text-secondary)]">No upcoming events in this schedule.</p>
+      <div className="md3-surface-container p-6 rounded-[var(--shape-xl)]">
+        <p className="md3-body-md text-[var(--md-on-surface-variant)]">
+          No upcoming events in this schedule.
+        </p>
       </div>
     );
   }
 
   return (
-    <section className="f1-card relative overflow-hidden rounded-xl border border-red-500/25 bg-gradient-to-r from-red-900/30 via-[var(--panel-color)] to-black/25 p-5 sm:p-7 shadow-[var(--shadow-md)]">
-      <div className="absolute -right-6 -top-8 text-[120px] sm:text-[160px] display-title font-black tracking-tight text-white/5 select-none">
-        NEXT
+    <HeroSurface
+      circuitName={nextEvent.circuitName || nextEvent.summary}
+      location={nextEvent.location}
+      eager3D
+      minHeight="min-h-[320px] sm:min-h-[380px]"
+    >
+      <StatusPill tone="live">Next Session</StatusPill>
+      <h2 className="md3-headline-lg mt-3 max-w-xl">
+        {(nextEvent.summary || "Next Session").replace("RN365 ", "")}
+      </h2>
+      {nextEvent.location && (
+        <p className="md3-body-md text-[var(--md-on-surface-variant)] mt-2">{nextEvent.location}</p>
+      )}
+      <p className="md3-label-md text-[var(--md-on-surface-variant)] mt-1">
+        {nextEvent.date.toLocaleString()}
+      </p>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 max-w-lg">
+        <StatChip label="Days" value={String(countdown.days).padStart(2, "0")} />
+        <StatChip label="Hours" value={String(countdown.hours).padStart(2, "0")} />
+        <StatChip label="Minutes" value={String(countdown.minutes).padStart(2, "0")} />
+        <StatChip label="Seconds" value={String(countdown.seconds).padStart(2, "0")} />
       </div>
-
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-center">
-        <div className="space-y-4">
-          <div>
-            <StatusPill tone="live">Next Session</StatusPill>
-            <h2 className="display-title text-2xl sm:text-3xl font-bold mt-2">
-              {(nextEvent.summary || "Next Session").replace("RN365 ", "")}
-            </h2>
-            {nextEvent.location && <p className="text-sm text-[var(--text-secondary)] mt-1">{nextEvent.location}</p>}
-            <p className="text-sm text-[var(--text-muted)] mt-1">{nextEvent.date.toLocaleString()}</p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <StatChip label="Days" value={String(countdown.days).padStart(2, "0")} />
-            <StatChip label="Hours" value={String(countdown.hours).padStart(2, "0")} />
-            <StatChip label="Minutes" value={String(countdown.minutes).padStart(2, "0")} />
-            <StatChip label="Seconds" value={String(countdown.seconds).padStart(2, "0")} />
-          </div>
-        </div>
-
-        {nextEvent.location && (
-          <div className="flex justify-center lg:justify-end">
-            <CircuitModel
-              circuitName={nextEvent.summary}
-              location={nextEvent.location}
-              width={460}
-              height={280}
-              enabled
-              defer
-            />
-          </div>
-        )}
-      </div>
-    </section>
+    </HeroSurface>
   );
 };
 

@@ -1,12 +1,16 @@
 import React from "react";
 
-const Panel = ({ className = "", children, accent = false }) => {
+import Surface from "./Surface";
+
+const Panel = ({ className = "", children, accent = false, tier = "container", ...props }) => {
   return (
-    <section
-      className={`panel f1-card ${accent ? "border-red-500/35" : ""} ${className}`.trim()}
+    <Surface
+      tier={tier}
+      className={`${accent ? "ring-1 ring-[var(--md-primary)]/30" : ""} ${className}`.trim()}
+      {...props}
     >
       {children}
-    </section>
+    </Surface>
   );
 };
 

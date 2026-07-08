@@ -12,6 +12,7 @@ import {
 import { Line } from "react-chartjs-2";
 
 import { getChartTheme } from "../../common/utils/chartTheme";
+import Surface from "../ui/Surface";
 
 ChartJS.register(
   CategoryScale,
@@ -116,18 +117,18 @@ const ProgressionChart = ({ title, rounds, series, collapsible = false }) => {
   }, []);
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-color)] bg-[var(--panel-color)]/90 p-4 shadow-[var(--shadow-sm)]">
+    <Surface tier="container" className="p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)]">{title}</h3>
+        <h3 className="md3-title-md text-[var(--md-on-surface)]">{title}</h3>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+          <span className="md3-label-md text-[var(--md-on-surface-variant)]">
             Progression
           </span>
           {collapsible && (
             <button
               type="button"
               onClick={() => setCollapsed((v) => !v)}
-              className="text-[10px] uppercase tracking-wider text-[var(--accent-red)]"
+              className="md3-state-layer md3-label-md text-[var(--md-primary)] px-2 py-1 rounded-[var(--shape-sm)]"
             >
               {collapsed ? "Show" : "Hide"}
             </button>
@@ -150,20 +151,20 @@ const ProgressionChart = ({ title, rounds, series, collapsible = false }) => {
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+          <div className="mt-3 flex flex-wrap gap-2 md3-label-md">
             {normalizedSeries.map((line) => (
               <div
                 key={line.id}
-                className="flex items-center gap-2 px-2 py-1 rounded-[var(--radius-full)] border border-[var(--border-color)] bg-[var(--surface-2)]/40"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-[var(--shape-full)] bg-[var(--md-surface-container-high)]"
               >
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: line.color }} />
-                <span className="text-[var(--text-secondary)]">{line.name}</span>
+                <span className="text-[var(--md-on-surface-variant)]">{line.name}</span>
               </div>
             ))}
           </div>
         </>
       )}
-    </div>
+    </Surface>
   );
 };
 

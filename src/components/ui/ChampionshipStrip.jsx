@@ -1,34 +1,43 @@
 import React from "react";
 
 import DriverAvatar from "../Common/DriverAvatar";
-import Panel from "./Panel";
+import CountryFlag from "./CountryFlag";
+import { useAnimatedNumber } from "../../hooks/useAnimatedNumber";
+import Surface from "./Surface";
 
 const ChampionshipStrip = ({ leaders = [], title = "Championship", className = "" }) => {
   if (!leaders.length) return null;
 
   return (
-    <Panel className={`p-4 ${className}`}>
-      <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3">
-        {title}
-      </p>
-      <div className="space-y-2">
+    <Surface tier="container-high" className={`p-5 ${className}`}>
+      <p className="md3-label-md text-[var(--md-on-surface-variant)] mb-4">{title}</p>
+      <div className="space-y-4">
         {leaders.slice(0, 3).map((driver) => (
-          <div key={driver.driverId || driver.driver_number} className="flex items-center gap-3">
-            <span className="display-title text-lg font-bold w-6 text-[var(--text-muted)] tabular-nums">
-              {driver.season?.position || "—"}
-            </span>
-            <DriverAvatar driver={driver} sizeClass="w-8 h-8" textClass="text-[10px]" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">{driver.full_name}</p>
-              <p className="text-xs text-[var(--text-muted)] truncate">{driver.team_name}</p>
-            </div>
-            <span className="text-sm font-mono font-semibold text-[var(--text-primary)]">
-              {driver.season?.points ?? 0}
-            </span>
-          </div>
+          <LeaderRow key={driver.driverId || driver.driver_number} driver={driver} />
         ))}
       </div>
-    </Panel>
+    </Surface>
+  );
+};
+
+const LeaderRow = ({ driver }) => {
+  const animatedPoints = useAnimatedNumber(driver.season?.points ?? 0);
+
+  return (
+    <div className="flex items-center gap-4">
+      <span className="md3-headline-md w-8 tabular-nums text-[var(--md-on-surface-variant)]">
+        {driver.season?.position || "—"}
+      </span>
+      <DriverAvatar driver={driver} size="lg" variant="portrait" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="md3-title-md truncate">{driver.full_name}</p>
+          <CountryFlag countryCode={driver.country_code} size="sm" />
+        </div>
+        <p className="md3-body-md text-[var(--md-on-surface-variant)] truncate">{driver.team_name}</p>
+      </div>
+      <span className="md3-title-md font-mono tabular-nums">{animatedPoints}</span>
+    </div>
   );
 };
 

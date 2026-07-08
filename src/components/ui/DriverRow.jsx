@@ -1,6 +1,7 @@
 import React from "react";
 
 import DriverAvatar from "../Common/DriverAvatar";
+import CountryFlag from "./CountryFlag";
 import { getTeamColorBorder } from "../../common/utils/colors";
 
 const DriverRow = ({
@@ -9,6 +10,7 @@ const DriverRow = ({
   startPosition,
   points,
   showPoints = false,
+  large = false,
   className = "",
 }) => {
   const final = position ?? driver?.position;
@@ -16,36 +18,33 @@ const DriverRow = ({
   const delta = final && start ? start - final : null;
 
   return (
-    <div className={`flex items-center gap-3 min-w-0 ${className}`}>
-      <span className="display-title text-lg font-bold w-8 text-center text-[var(--text-primary)] tabular-nums">
+    <div className={`flex items-center gap-4 min-w-0 ${className}`}>
+      <span className="md3-headline-md w-10 text-center tabular-nums text-[var(--md-on-surface-variant)]">
         {final ?? "—"}
       </span>
-      <div
-        className="rounded-[var(--radius-full)] p-0.5"
-        style={{ boxShadow: `0 0 0 2px ${getTeamColorBorder(driver?.team_colour)}` }}
-      >
-        <DriverAvatar driver={driver} sizeClass="w-9 h-9" textClass="text-xs" />
-      </div>
+      <DriverAvatar
+        driver={driver}
+        size={large ? "lg" : "md"}
+        variant={large ? "portrait" : "circle"}
+      />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
-          {driver?.full_name || "Unknown"}
-        </p>
-        <p
-          className="text-xs truncate"
-          style={{ color: getTeamColorBorder(driver?.team_colour) }}
-        >
+        <div className="flex items-center gap-2">
+          <p className="md3-title-md truncate">{driver?.full_name || "Unknown"}</p>
+          <CountryFlag countryCode={driver?.country_code} size="sm" />
+        </div>
+        <p className="md3-body-md truncate" style={{ color: getTeamColorBorder(driver?.team_colour) }}>
           {driver?.team_name || "—"}
         </p>
       </div>
       {start != null && (
         <div className="text-right hidden sm:block">
-          <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Grid</p>
-          <p className="text-sm font-mono text-[var(--text-secondary)]">{start}</p>
+          <p className="md3-label-md text-[var(--md-on-surface-variant)]">Grid</p>
+          <p className="md3-title-md font-mono tabular-nums">{start}</p>
         </div>
       )}
       {delta != null && delta !== 0 && (
         <span
-          className={`text-xs font-mono px-1.5 py-0.5 rounded ${
+          className={`md3-label-md font-mono px-2 py-1 rounded-[var(--shape-sm)] ${
             delta > 0 ? "text-[var(--success)]" : "text-[var(--danger)]"
           }`}
         >
@@ -53,9 +52,7 @@ const DriverRow = ({
         </span>
       )}
       {showPoints && points != null && (
-        <span className="text-sm font-mono font-semibold text-[var(--text-primary)] w-8 text-right">
-          {points}
-        </span>
+        <span className="md3-title-md font-mono tabular-nums w-10 text-right">{points}</span>
       )}
     </div>
   );
