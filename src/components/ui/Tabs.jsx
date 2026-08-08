@@ -21,7 +21,14 @@ const Tabs = ({ tabs, activeKey, onChange, className = "" }) => {
   return (
     <div
       ref={containerRef}
-      className={`relative flex border-b border-[var(--md-outline-variant)] ${className}`}
+      className={className}
+      style={{
+        position: "relative",
+        display: "flex",
+        borderBottom: "1px solid var(--md-outline-variant)",
+        background: "var(--md-surface-container)",
+        overflow: "hidden",
+      }}
       role="tablist"
     >
       {tabs.map((tab) => {
@@ -36,19 +43,38 @@ const Tabs = ({ tabs, activeKey, onChange, className = "" }) => {
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(tab.key)}
-            className={`md3-state-layer flex-1 px-4 py-3 md3-label-lg transition-colors ${
-              isActive
-                ? "text-[var(--md-primary)]"
-                : "text-[var(--md-on-surface-variant)]"
-            }`}
+            style={{
+              flex: 1,
+              padding: "0.625rem 1rem",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: isActive ? "var(--md-primary)" : "var(--md-on-surface-variant)",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.68rem",
+              fontWeight: isActive ? 700 : 500,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              transition: "color 120ms ease",
+            }}
           >
             {tab.label}
           </button>
         );
       })}
+      {/* Sliding underline indicator */}
       <span
-        className="absolute bottom-0 h-[3px] bg-[var(--md-primary)] rounded-t-full transition-all duration-[var(--motion-standard)] ease-[var(--ease-standard)]"
-        style={{ left: indicator.left, width: indicator.width }}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          height: "2px",
+          background: "var(--md-primary)",
+          boxShadow: "0 0 6px var(--md-primary)",
+          borderRadius: "2px 2px 0 0",
+          transition: `left ${200}ms var(--ease-standard), width ${200}ms var(--ease-standard)`,
+          left: indicator.left,
+          width: indicator.width,
+        }}
         aria-hidden="true"
       />
     </div>

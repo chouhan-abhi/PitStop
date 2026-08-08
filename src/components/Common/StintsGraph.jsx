@@ -76,21 +76,31 @@ const StintsGraph = ({ stintsByDriver = {}, allDrivers = [], totalLaps = 71 }) =
   }, [stintsByDriver, allDrivers]);
 
   return (
-    <div>
-      <div className="relative mb-0">
-        <h3
-          className="text-sm font-semibold text-[var(--text-color)] opacity-90 tracking-tight inline-block px-4 py-2 rounded-t-lg border-t border-l border-r border-b-0"
-          style={{
-            backgroundColor: 'var(--card-bg)',
-            borderColor: 'var(--border-color)',
-            marginBottom: '-1px',
-          }}
-        >
-          Stints
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[var(--md-surface-container-high)] p-3 border border-[var(--md-outline-variant)]" style={{ borderRadius: "var(--shape-md)" }}>
+        <h3 className="font-display font-bold text-sm text-white uppercase tracking-wider flex items-center gap-2">
+          🏎️ TYRE STRATEGY & STINT PROGRESSION
         </h3>
+        <div className="flex items-center gap-3 text-[11px] font-mono font-bold">
+          <span className="flex items-center gap-1.5 text-red-400">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#ff4d4d]" /> SOFT
+          </span>
+          <span className="flex items-center gap-1.5 text-amber-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#ffdb4d]" /> MEDIUM
+          </span>
+          <span className="flex items-center gap-1.5 text-slate-200">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#ffffff]" /> HARD
+          </span>
+          <span className="flex items-center gap-1.5 text-sky-400">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#4bb2ff]" /> INTER
+          </span>
+          <span className="flex items-center gap-1.5 text-blue-600">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#003b88]" /> WET
+          </span>
+        </div>
       </div>
-      <div className="space-y-4 w-full p-2 border border-[var(--border-color)] rounded-md rounded-tl-none"
-        >
+
+      <div className="space-y-2.5 w-full p-4 border border-[var(--md-outline-variant)] bg-[var(--md-surface-container)]" style={{ borderRadius: "var(--shape-md)" }}>
       {sortedDrivers.map(({ driverNumber, driver, stints }) => (
         <div key={driverNumber} className="flex items-center pb-1 w-full">
           <div className="flex items-center min-w-[120px]">

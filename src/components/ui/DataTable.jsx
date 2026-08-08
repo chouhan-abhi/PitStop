@@ -1,6 +1,6 @@
 import React from "react";
 
-import { getTeamColorWithOpacity } from "../../common/utils/colors";
+import { getTeamColorWithOpacity, getTeamColorBorder } from "../../common/utils/colors";
 
 const DataTable = ({
   columns = [],
@@ -11,23 +11,42 @@ const DataTable = ({
 }) => {
   if (!rows.length) {
     return (
-      <p className="md3-body-md text-[var(--md-on-surface-variant)] py-6 text-center">
+      <div
+        style={{
+          padding: "2.5rem",
+          textAlign: "center",
+          fontFamily: "var(--font-mono)",
+          fontSize: "0.7rem",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: "var(--md-on-surface-variant)",
+          background: "var(--md-surface-container)",
+          border: "1px solid var(--md-outline-variant)",
+          borderRadius: "var(--shape-md)",
+        }}
+      >
         {emptyMessage}
-      </p>
+      </div>
     );
   }
 
   return (
     <div
-      className={`overflow-x-auto rounded-[var(--shape-lg)] border border-[var(--md-outline-variant)] bg-[var(--md-surface-container)] ${className}`}
+      className={`overflow-x-auto ${className}`}
+      style={{
+        borderRadius: "var(--shape-md)",
+        border: "1px solid var(--md-outline-variant)",
+        background: "var(--md-surface-container)",
+      }}
     >
-      <table className="min-w-full">
+      <table className="data-grid">
         <thead>
-          <tr className="border-b border-[var(--md-outline-variant)]">
+          <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`py-2 px-3 text-left md3-label-md text-[var(--md-on-surface-variant)] bg-[var(--md-surface-container-high)] first:rounded-tl-[var(--shape-lg)] last:rounded-tr-[var(--shape-lg)] ${col.align || ""}`}
+                className={col.align || ""}
+                style={{ textAlign: col.align === "text-right" ? "right" : "left" }}
               >
                 {col.label}
               </th>
@@ -38,22 +57,22 @@ const DataTable = ({
           {rows.map((row, idx) => {
             const key = getRowKey ? getRowKey(row, idx) : row.id || idx;
             const teamColor = row.team_colour || row.teamColor;
-            const bg = teamColor
-              ? getTeamColorWithOpacity(teamColor, "08")
-              : "transparent";
 
             return (
-              <tr
-                key={key}
-                className={`md3-state-layer transition-colors hover:bg-[color-mix(in_srgb,var(--md-on-surface)_5%,transparent)] ${
-                  idx < rows.length - 1 ? "border-b border-[var(--md-outline-variant)]/40" : ""
-                }`}
-                style={{ backgroundColor: bg }}
-              >
-                {columns.map((col) => (
+              <tr key={key}>
+                {/* Team color accent stripe on first cell */}
+                {columns.map((col, colIdx) => (
                   <td
                     key={col.key}
-                    className={`py-2.5 px-3 md3-body-md text-[var(--md-on-surface)] ${col.align || ""}`}
+                    style={{
+                      textAlign: col.align === "text-right" ? "right" : "left",
+                      ...(colIdx === 0 && teamColor
+                        ? {
+                            borderLeft: `3px solid ${getTeamColorBorder(teamColor)}`,
+                            paddingLeft: "0.875rem",
+                          }
+                        : {}),
+                    }}
                   >
                     {col.render ? col.render(row) : row[col.key]}
                   </td>

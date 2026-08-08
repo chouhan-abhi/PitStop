@@ -1,159 +1,209 @@
 :root {
   color-scheme: dark;
 
-  /* MD3 surface tiers */
-  --md-surface-dim: #0f1117;
-  --md-surface: #141820;
-  --md-surface-container-low: #1a1f28;
-  --md-surface-container: #202632;
-  --md-surface-container-high: #272e3c;
-  --md-surface-container-highest: #2f3747;
+  /* ─── Core Surface Tiers ──────────────────────────────── */
+  --md-surface-dim:               #050508;
+  --md-surface:                   #09090f;
+  --md-surface-container-low:     #0d0f18;
+  --md-surface-container:         #111420;
+  --md-surface-container-high:    #171b2c;
+  --md-surface-container-highest: #1d2237;
 
-  /* MD3 content */
-  --md-on-surface: #e8eaed;
-  --md-on-surface-variant: #b0b8c4;
-  --md-outline: #4a5568;
-  --md-outline-variant: #353d4d;
+  /* ─── Text & Borders ─────────────────────────────────── */
+  --md-on-surface:         #e8eaf0;
+  --md-on-surface-variant: #6b7590;
+  --md-outline:            #252c40;
+  --md-outline-variant:    rgba(255, 255, 255, 0.07);
 
-  /* MD3 color roles (red seed) */
-  --md-primary: #ff4444;
-  --md-on-primary: #ffffff;
-  --md-primary-container: #5c1010;
-  --md-on-primary-container: #ffdad6;
-  --md-secondary: #ffb4ab;
-  --md-on-secondary: #690005;
-  --md-secondary-container: #93000a;
-  --md-on-secondary-container: #ffdad6;
+  /* ─── Primary = Cyan Telemetry ───────────────────────── */
+  --md-primary:            #00e5c8;
+  --md-on-primary:         #000d0b;
+  --md-primary-container:  #003d35;
+  --md-on-primary-container: #80fff0;
+  --md-secondary:          #7ecdc3;
+  --md-on-secondary:       #00201d;
+  --md-secondary-container: #003d35;
+  --md-on-secondary-container: #80fff0;
 
-  /* State layers */
-  --state-hover: 0.08;
-  --state-focus: 0.12;
+  /* ─── State Layers ───────────────────────────────────── */
+  --state-hover:   0.08;
+  --state-focus:   0.12;
   --state-pressed: 0.12;
 
-  /* Shape scale */
-  --shape-xs: 4px;
-  --shape-sm: 8px;
-  --shape-md: 12px;
-  --shape-lg: 16px;
-  --shape-xl: 28px;
+  /* ─── Shape Scale ────────────────────────────────────── */
+  --shape-xs:   2px;
+  --shape-sm:   4px;
+  --shape-md:   6px;
+  --shape-lg:   8px;
+  --shape-xl:   12px;
   --shape-full: 9999px;
 
-  /* Motion */
-  --motion-fast: 120ms;
-  --motion-standard: 220ms;
-  --motion-emphasized: 320ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  /* ─── Motion ─────────────────────────────────────────── */
+  --motion-fast:       100ms;
+  --motion-standard:   200ms;
+  --motion-emphasized: 300ms;
+  --ease-standard:     cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized:   cubic-bezier(0.2, 0, 0, 1);
 
-  /* Type scale — tighter for information density */
-  --type-display-lg: 2.75rem;
-  --type-display-md: 2rem;
-  --type-headline-lg: 1.5rem;
-  --type-headline-md: 1.25rem;
-  --type-title-lg: 1.0625rem;
-  --type-title-md: 0.9375rem;
-  --type-body-lg: 0.9375rem;
-  --type-body-md: 0.8125rem;
-  --type-label-lg: 0.8125rem;
-  --type-label-md: 0.6875rem;
+  /* ─── Type Scale ─────────────────────────────────────── */
+  --type-display-lg:  2.5rem;
+  --type-display-md:  1.875rem;
+  --type-headline-lg: 1.375rem;
+  --type-headline-md: 1.125rem;
+  --type-title-lg:    1rem;
+  --type-title-md:    0.875rem;
+  --type-body-lg:     0.875rem;
+  --type-body-md:     0.8125rem;
+  --type-label-lg:    0.8125rem;
+  --type-label-md:    0.6875rem;
 
-  /* Semantic (legacy aliases) */
+  /* ─── Semantic Aliases ───────────────────────────────── */
   --surface-0: var(--md-surface-dim);
   --surface-1: var(--md-surface);
   --surface-2: var(--md-surface-container);
   --surface-3: var(--md-surface-container-high);
 
-  --text-primary: var(--md-on-surface);
+  --text-primary:   var(--md-on-surface);
   --text-secondary: var(--md-on-surface-variant);
-  --text-muted: color-mix(in srgb, var(--md-on-surface-variant) 70%, transparent);
+  --text-muted:     color-mix(in srgb, var(--md-on-surface-variant) 60%, transparent);
 
-  --accent-red: var(--md-primary);
-  --accent-amber: #ffb347;
-  --success: #4caf50;
-  --warning: #ffb74d;
-  --danger: #ef5350;
-  --ring: color-mix(in srgb, var(--md-primary) 45%, transparent);
+  --accent-cyan:  var(--md-primary);
+  --accent-red:   #ff3b3b;
+  --accent-amber: #f59e0b;
+  --success:      #22c55e;
+  --warning:      #f59e0b;
+  --danger:       #ef4444;
+  --ring:         color-mix(in srgb, var(--md-primary) 40%, transparent);
 
   --panel-glass: var(--md-surface-container);
   --panel-solid: var(--md-surface-container);
   --border-strong: var(--md-outline-variant);
 
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
-  --shadow-md: 0 3px 8px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.4);
-  --shadow-raised: 0 6px 16px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.4);
+  --shadow-sm:     0 1px 2px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+  --shadow-md:     0 4px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-raised: 0 8px 24px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5);
 
-  --accent-red-subtle: var(--md-primary-container);
-  --accent-red-border: var(--md-outline-variant);
-
-  --chart-grid: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
-  --chart-tooltip-bg: var(--md-surface-container-highest);
+  --chart-grid:         color-mix(in srgb, var(--md-on-surface) 7%, transparent);
+  --chart-tooltip-bg:   var(--md-surface-container-highest);
   --chart-tooltip-text: var(--md-on-surface);
 
-  --space-section: 1.5rem;
-  --space-card: 1rem;
+  --space-section: 1.25rem;
+  --space-card:    0.875rem;
 
-  --radius-sm: var(--shape-sm);
-  --radius-md: var(--shape-md);
-  --radius-lg: var(--shape-lg);
+  --radius-sm:   var(--shape-sm);
+  --radius-md:   var(--shape-md);
+  --radius-lg:   var(--shape-lg);
   --radius-full: var(--shape-full);
 
-  --font-display: "Rajdhani", "Segoe UI", "Helvetica Neue", sans-serif;
-  --font-body: "Barlow", "Inter", "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  /* ─── Typography ─────────────────────────────────────── */
+  --font-display: "Space Grotesk", "Rajdhani", "Segoe UI", sans-serif;
+  --font-body:    "Inter", "Barlow", "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 
-  --primary-color: var(--md-primary);
-  --bg-color: var(--md-surface-dim);
-  --text-color: var(--md-on-surface);
-  --panel-color: var(--md-surface-container);
-  --border-color: var(--md-outline-variant);
-  --header-bg: var(--md-surface-container);
-  --header-text: var(--md-on-surface);
-  --card-bg: var(--md-surface-container-low);
-  --skeleton-color: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
-  --grid-color: transparent;
+  /* ─── F1 Team Colors ─────────────────────────────────── */
+  --glow-ferrari:  #e80020;
+  --glow-mclaren:  #ff8000;
+  --glow-redbull:  #3671c6;
+  --glow-mercedes: #27f4d2;
+  --glow-aston:    #229971;
+  --glow-alpine:   #0093cc;
+  --glow-williams: #64c4ff;
+  --glow-rb:       #6692ff;
+  --glow-haas:     #b6babd;
+  --glow-sauber:   #52e252;
+
+  /* ─── Track Status ───────────────────────────────────── */
+  --status-green:  #22c55e;
+  --status-yellow: #f59e0b;
+  --status-sc:     #f97316;
+  --status-red:    #ef4444;
+  --status-drs:    #00e5c8;
+  --status-purple: #a855f7;
+
+  /* ─── Glass ──────────────────────────────────────────── */
+  --glass-bg:       rgba(9, 11, 20, 0.8);
+  --glass-border:   rgba(255, 255, 255, 0.06);
+  --glass-backdrop: blur(16px) saturate(120%);
+  --glow-subtle:    0 0 20px rgba(0, 229, 200, 0.08);
+
+  /* ─── Sidebar ────────────────────────────────────────── */
+  --sidebar-width:          210px;
+  --sidebar-collapsed-width: 52px;
+  --sidebar-bg:             #07080f;
+  --sidebar-border:         rgba(255, 255, 255, 0.05);
+  --sidebar-item-active-bg: rgba(0, 229, 200, 0.08);
+  --sidebar-item-active:    var(--md-primary);
+
+  /* ─── Legacy Aliases ─────────────────────────────────── */
+  --primary-color:   var(--md-primary);
+  --bg-color:        var(--md-surface-dim);
+  --text-color:      var(--md-on-surface);
+  --panel-color:     var(--md-surface-container);
+  --border-color:    var(--md-outline-variant);
+  --header-bg:       var(--sidebar-bg);
+  --header-text:     var(--md-on-surface);
+  --card-bg:         var(--md-surface-container-low);
+  --skeleton-color:  color-mix(in srgb, var(--md-on-surface) 10%, transparent);
+  --grid-color:      rgba(255, 255, 255, 0.025);
+
+  /* ─── Accent Red Aliases (legacy compat) ─────────────── */
+  --accent-red-subtle: var(--md-primary-container);
+  --accent-red-border: var(--md-outline-variant);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --md-surface-dim: #f0f2f5;
-  --md-surface: #f4f5f7;
-  --md-surface-container-low: #f8f9fa;
-  --md-surface-container: #ffffff;
-  --md-surface-container-high: #f1f3f5;
-  --md-surface-container-highest: #e9ebef;
+  --md-surface-dim:               #eef0f5;
+  --md-surface:                   #f4f5f8;
+  --md-surface-container-low:     #f8f9fb;
+  --md-surface-container:         #ffffff;
+  --md-surface-container-high:    #f1f3f7;
+  --md-surface-container-highest: #e9ecf2;
 
-  --shadow-sm: 0 1px 2px rgba(9,30,66,0.2), 0 0 0 1px rgba(9,30,66,0.08);
-  --shadow-md: 0 3px 8px rgba(9,30,66,0.16), 0 1px 2px rgba(9,30,66,0.12);
-  --shadow-raised: 0 6px 16px rgba(9,30,66,0.14), 0 2px 4px rgba(9,30,66,0.1);
+  --shadow-sm:     0 1px 2px rgba(9,30,66,0.16), 0 0 0 1px rgba(9,30,66,0.06);
+  --shadow-md:     0 4px 12px rgba(9,30,66,0.12), 0 1px 3px rgba(9,30,66,0.10);
+  --shadow-raised: 0 8px 20px rgba(9,30,66,0.10), 0 2px 5px rgba(9,30,66,0.08);
 
-  --md-on-surface: #1a1c1e;
-  --md-on-surface-variant: #44474e;
-  --md-outline: #74777f;
-  --md-outline-variant: #c4c7cf;
+  --md-on-surface:         #1a1d25;
+  --md-on-surface-variant: #505570;
+  --md-outline:            #c0c5d8;
+  --md-outline-variant:    #dde0ea;
 
-  --md-primary: #c62828;
-  --md-on-primary: #ffffff;
-  --md-primary-container: #ffdad6;
-  --md-on-primary-container: #410002;
-  --md-secondary: #775652;
-  --md-on-secondary: #ffffff;
-  --md-secondary-container: #ffdad6;
-  --md-on-secondary-container: #2c1512;
+  --md-primary:            #007b6a;
+  --md-on-primary:         #ffffff;
+  --md-primary-container:  #b2f0e8;
+  --md-on-primary-container: #003d35;
+  --md-secondary:          #3d6b65;
+  --md-on-secondary:       #ffffff;
+  --md-secondary-container: #b2f0e8;
+  --md-on-secondary-container: #003d35;
+
+  --sidebar-bg: #f0f2f8;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-item-active-bg: rgba(0, 123, 106, 0.1);
+  --sidebar-item-active: var(--md-primary);
+
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-backdrop: blur(16px);
+  --glow-subtle: 0 0 20px rgba(0, 123, 106, 0.06);
+
+  --status-drs: #007b6a;
+  --status-green: #16a34a;
+  --accent-cyan: var(--md-primary);
 
   --accent-red-subtle: var(--md-primary-container);
   --accent-red-border: var(--md-outline-variant);
-
   --chart-grid: color-mix(in srgb, var(--md-on-surface) 10%, transparent);
   --chart-tooltip-bg: var(--md-surface-container-highest);
   --chart-tooltip-text: var(--md-on-surface);
-
   --primary-color: var(--md-primary);
   --bg-color: var(--md-surface-dim);
   --text-color: var(--md-on-surface);
   --panel-color: var(--md-surface-container);
   --border-color: var(--md-outline-variant);
-  --header-bg: var(--md-surface-container);
+  --header-bg: var(--sidebar-bg);
   --header-text: var(--md-on-surface);
   --card-bg: var(--md-surface-container-low);
   --skeleton-color: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
@@ -162,36 +212,43 @@
 :root[data-theme="saint"] {
   color-scheme: dark;
 
-  --md-surface-dim: #0d111b;
-  --md-surface: #141a28;
-  --md-surface-container-low: #1a2235;
-  --md-surface-container: #212b42;
-  --md-surface-container-high: #293350;
-  --md-surface-container-highest: #323c5c;
+  --md-surface-dim:               #070c16;
+  --md-surface:                   #0c1220;
+  --md-surface-container-low:     #111828;
+  --md-surface-container:         #172035;
+  --md-surface-container-high:    #1e2842;
+  --md-surface-container-highest: #273050;
 
-  --md-on-surface: #e4ecff;
-  --md-on-surface-variant: #b5c0de;
-  --md-outline: #6b7594;
-  --md-outline-variant: #3d4660;
+  --md-on-surface:         #dce6ff;
+  --md-on-surface-variant: #8898c0;
+  --md-outline:            #2e3a58;
+  --md-outline-variant:    rgba(255, 255, 255, 0.07);
 
-  --md-primary: #f75b5b;
-  --md-on-primary: #ffffff;
-  --md-primary-container: #5c1a1a;
-  --md-on-primary-container: #ffdad6;
+  --md-primary:            #60a5fa;
+  --md-on-primary:         #001d3d;
+  --md-primary-container:  #003266;
+  --md-on-primary-container: #a0c4ff;
+  --accent-cyan: var(--md-primary);
+  --status-drs: var(--md-primary);
+
+  --sidebar-bg: #060a14;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-item-active-bg: rgba(96, 165, 250, 0.08);
+  --sidebar-item-active: var(--md-primary);
+
+  --glow-subtle: 0 0 20px rgba(96, 165, 250, 0.08);
 
   --accent-red-subtle: var(--md-primary-container);
   --accent-red-border: var(--md-outline-variant);
-
   --chart-grid: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
   --chart-tooltip-bg: var(--md-surface-container-highest);
   --chart-tooltip-text: var(--md-on-surface);
-
   --primary-color: var(--md-primary);
   --bg-color: var(--md-surface-dim);
   --text-color: var(--md-on-surface);
   --panel-color: var(--md-surface-container);
   --border-color: var(--md-outline-variant);
-  --header-bg: var(--md-surface-container);
+  --header-bg: var(--sidebar-bg);
   --header-text: var(--md-on-surface);
   --card-bg: var(--md-surface-container-low);
   --skeleton-color: color-mix(in srgb, var(--md-on-surface) 10%, transparent);

@@ -13,10 +13,16 @@ const HeroSurface = ({
   minHeight = "min-h-[280px] sm:min-h-[320px]",
 }) => (
   <section
-    className={`relative overflow-hidden rounded-[var(--shape-xl)] bg-[var(--md-surface-container-high)] ${minHeight} ${className}`}
+    className={`relative overflow-hidden ${minHeight} ${className}`}
+    style={{
+      borderRadius: "var(--shape-lg)",
+      background: "var(--md-surface-container-high)",
+      border: "1px solid var(--md-outline-variant)",
+    }}
   >
+    {/* Circuit model background */}
     <div
-      className="absolute inset-0 opacity-[0.35] pointer-events-none"
+      className="absolute inset-0 opacity-[0.25] pointer-events-none"
       aria-hidden="true"
     >
       <Suspense
@@ -38,8 +44,34 @@ const HeroSurface = ({
         </div>
       </Suspense>
     </div>
-    <div className="absolute inset-0 bg-gradient-to-t from-[var(--md-surface-container-high)] via-[var(--md-surface-container-high)]/80 to-transparent pointer-events-none" />
-    <div className="relative z-10 p-5 sm:p-8 h-full flex flex-col justify-end">{children}</div>
+
+    {/* Cyan radial glow overlay */}
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          "radial-gradient(ellipse at 80% 50%, rgba(0, 229, 200, 0.06), transparent 60%)",
+      }}
+      aria-hidden="true"
+    />
+
+    {/* Bottom gradient fade */}
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background:
+          "linear-gradient(to top, var(--md-surface-container-high) 10%, rgba(0,0,0,0) 60%)",
+      }}
+      aria-hidden="true"
+    />
+
+    {/* Content */}
+    <div
+      className="relative z-10 h-full flex flex-col justify-end"
+      style={{ padding: "clamp(1.25rem, 4vw, 2rem)" }}
+    >
+      {children}
+    </div>
   </section>
 );
 

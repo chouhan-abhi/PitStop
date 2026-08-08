@@ -12,7 +12,7 @@ function WinnerDriverCard({ driver }) {
       };
 
   return (
-    <div className="relative flex items-center gap-3 p-3 rounded-2xl border border-[var(--border-color)] bg-[var(--panel-color)] w-full sm:w-[52%]">
+    <div className="relative flex items-center gap-3 p-3 border border-[var(--border-color)] bg-[var(--panel-color)] w-full sm:w-[52%]" style={{ borderRadius: "var(--shape-md)" }}>
       <div
         className="absolute -right-2 -top-5 text-[90px] sm:text-[130px] display-title font-black tracking-tight text-white/10 select-none"
         aria-hidden="true"
@@ -21,10 +21,8 @@ function WinnerDriverCard({ driver }) {
       </div>
 
       <div
-        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl"
-        style={{
-          backgroundColor: teamColor,
-        }}
+        className="absolute left-0 top-0 bottom-0 w-1"
+        style={{ backgroundColor: teamColor, borderRadius: "var(--shape-md) 0 0 var(--shape-md)" }}
       />
 
       <DriverAvatar
@@ -49,8 +47,8 @@ function WinnerDriverCard({ driver }) {
         <span className="text-sm opacity-70 -mt-1">{driver.broadcast_name}</span>
 
         <span
-          className="text-xs font-bold px-2.5 py-1 rounded-full w-fit"
-          style={badgeStyle}
+          className="text-xs font-bold px-2 py-0.5 w-fit"
+          style={{ ...badgeStyle, borderRadius: "var(--shape-xs)" }}
         >
           P1 #{driver.driver_number}
         </span>

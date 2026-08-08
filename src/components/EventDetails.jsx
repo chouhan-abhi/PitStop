@@ -16,6 +16,7 @@ import Tabs from "./ui/Tabs";
 import LoadingState from "./ui/LoadingState";
 
 import EventWeekendHeader from "./event/EventWeekendHeader";
+import WeekendSummary from "./Common/WeekendSummary";
 import EventResultsTab from "./event/EventResultsTab";
 import EventPaceTab from "./event/EventPaceTab";
 import EventStintsTab from "./event/EventStintsTab";
@@ -56,7 +57,7 @@ export const EventDetails = ({ year }) => {
 
   const currentEvent = useMemo(() => {
     if (!eventList.length || !hasValidMeetingKey) return null;
-    return eventList.find((ev) => ev.meeting_key === meetingKeyNumber) || null;
+    return eventList.find((ev) => Number(ev.meeting_key) === Number(meetingKeyNumber)) || null;
   }, [eventList, hasValidMeetingKey, meetingKeyNumber]);
 
   const currentEventYear = currentEvent?.date_start
@@ -182,6 +183,8 @@ export const EventDetails = ({ year }) => {
       </Button>
 
       <EventWeekendHeader event={currentEvent} winner={raceWinner} />
+
+      <WeekendSummary event={currentEvent} positions={driversWithPositions} />
 
       <Tabs tabs={EVENT_TABS} activeKey={activeTab} onChange={setActiveTab} />
 

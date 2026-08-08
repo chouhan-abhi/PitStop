@@ -27,7 +27,7 @@
 .md3-surface-container {
   background-color: var(--md-surface-container);
   color: var(--md-on-surface);
-  border-radius: var(--shape-lg);
+  border-radius: var(--shape-md);
   border: 1px solid var(--md-outline-variant);
   box-shadow: var(--shadow-sm);
 }
@@ -35,7 +35,7 @@
 .md3-surface-container-high {
   background-color: var(--md-surface-container-high);
   color: var(--md-on-surface);
-  border-radius: var(--shape-lg);
+  border-radius: var(--shape-md);
   border: 1px solid var(--md-outline-variant);
   box-shadow: var(--shadow-sm);
 }
@@ -43,7 +43,7 @@
 .md3-surface-container-highest {
   background-color: var(--md-surface-container-highest);
   color: var(--md-on-surface);
-  border-radius: var(--shape-lg);
+  border-radius: var(--shape-md);
   border: 1px solid color-mix(in srgb, var(--md-outline-variant) 80%, var(--md-outline));
   box-shadow: var(--shadow-md);
 }

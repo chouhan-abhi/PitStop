@@ -2,22 +2,22 @@ import React from "react";
 
 const VARIANTS = {
   filled:
-    "bg-[var(--md-primary)] text-[var(--md-on-primary)] hover:opacity-92",
+    "bg-[var(--md-primary)] text-[var(--md-on-primary)] hover:opacity-90",
   tonal:
-    "bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)]",
+    "bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)] hover:opacity-90",
   outlined:
-    "border border-[var(--md-outline)] text-[var(--md-primary)] bg-transparent",
-  text: "text-[var(--md-primary)] bg-transparent",
-  ghost: "text-[var(--md-on-surface-variant)] bg-transparent",
-  primary: "bg-[var(--md-primary)] text-[var(--md-on-primary)]",
-  accent: "bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)]",
-  danger: "bg-[color-mix(in_srgb,var(--danger)_15%,transparent)] text-[var(--danger)]",
+    "border border-[var(--md-outline)] text-[var(--md-primary)] bg-transparent hover:bg-[var(--md-primary-container)]/20",
+  text: "text-[var(--md-primary)] bg-transparent hover:bg-[var(--md-primary-container)]/15",
+  ghost: "text-[var(--md-on-surface-variant)] bg-transparent hover:bg-[var(--md-surface-container-high)]",
+  primary: "bg-[var(--md-primary)] text-[var(--md-on-primary)] hover:opacity-90",
+  accent: "bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)] hover:opacity-90",
+  danger: "bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] text-[var(--danger)] border border-[color-mix(in_srgb,var(--danger)_35%,transparent)] hover:bg-[color-mix(in_srgb,var(--danger)_20%,transparent)]",
 };
 
 const SIZES = {
-  sm: "h-8 px-4 text-[var(--type-label-md)]",
-  md: "h-10 px-6 text-[var(--type-label-lg)]",
-  lg: "h-12 px-8 text-[var(--type-body-md)]",
+  sm: "h-7 px-3 gap-1.5",
+  md: "h-9 px-4 gap-2",
+  lg: "h-10 px-5 gap-2",
 };
 
 const Button = ({
@@ -30,7 +30,16 @@ const Button = ({
 }) => (
   <button
     type={type}
-    className={`md3-state-layer inline-flex items-center justify-center gap-2 font-medium rounded-[var(--shape-full)] transition-opacity disabled:opacity-50 disabled:cursor-not-allowed ${VARIANTS[variant] || VARIANTS.tonal} ${SIZES[size] || SIZES.md} ${className}`}
+    className={`inline-flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed ${VARIANTS[variant] || VARIANTS.tonal} ${SIZES[size] || SIZES.md} ${className}`}
+    style={{
+      fontFamily: "var(--font-mono)",
+      fontSize: "0.65rem",
+      fontWeight: 600,
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+      borderRadius: "var(--shape-sm)",  /* sharp: 4px */
+      cursor: "pointer",
+    }}
     {...props}
   >
     {children}

@@ -1,14 +1,15 @@
+/* App chrome — uses sidebar layout now */
 .app-chrome {
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   color: var(--text-color);
   background-color: var(--md-surface-dim);
 }
 
+/* Legacy race header classes (kept for backward compat) */
 .race-header {
   background-color: var(--md-surface-container);
   border-bottom: 1px solid var(--md-outline-variant);
-  box-shadow: var(--shadow-sm);
 }
 
 .race-tab {
@@ -18,8 +19,11 @@
   color: var(--md-on-surface-variant);
   background-color: transparent;
   transition: color var(--motion-fast) var(--ease-standard);
-  font-size: var(--type-label-lg);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .race-tab:hover {
@@ -33,10 +37,11 @@
 .race-tab-active::after {
   content: "";
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.25rem;
-  height: 3px;
-  border-radius: var(--shape-full);
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
   background-color: var(--md-primary);
+  box-shadow: 0 0 6px var(--md-primary);
 }
