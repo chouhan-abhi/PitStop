@@ -94,25 +94,33 @@ const EventWeekendHeader = ({ event, winner }) => {
             const latest = weather[weather.length - 1];
             const isRain = latest.rainfall === 1 || latest.rainfall === "1" || String(latest.rainfall).toLowerCase() === "true";
             return (
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 font-mono text-[10px] text-[var(--md-on-surface-variant)] bg-black/35 border border-white/5 p-2" style={{ borderRadius: "var(--shape-xs)" }}>
-                <span className="flex items-center gap-1">
+              <div
+                className="flex items-center gap-x-5 mt-2.5 overflow-x-auto font-mono text-[10px] text-[var(--md-on-surface-variant)] bg-black/35 border border-white/5 p-2.5 w-full"
+                style={{
+                  borderRadius: "var(--shape-sm)",
+                  scrollbarWidth: "none",
+                  WebkitOverflowScrolling: "touch",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span className="flex items-center gap-1.5 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--md-primary)]" />
                   TRACK TEMP: <strong className="text-white">{latest.track_temperature}°C</strong>
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--md-primary)]" />
                   AIR TEMP: <strong className="text-white">{latest.air_temperature}°C</strong>
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--md-primary)]" />
                   HUMIDITY: <strong className="text-white">{latest.humidity}%</strong>
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--md-primary)]" />
                   WIND: <strong className="text-white">{latest.wind_speed} m/s ({latest.wind_direction}°)</strong>
                 </span>
-                <span className={`flex items-center gap-1 px-1.5 py-0.5 ${isRain ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"}`} style={{ borderRadius: "1px" }}>
-                  {isRain ? "⚠️ RAIN DETECTED" : "☀️ DRY TRACK"}
+                <span className={`flex items-center gap-1 px-2 py-0.5 shrink-0 ${isRain ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"}`} style={{ borderRadius: "var(--shape-xs)" }}>
+                  {isRain ? "⚠️ RAIN" : "☀️ DRY TRACK"}
                 </span>
               </div>
             );

@@ -357,36 +357,10 @@ const Footer = () => (
       color: "var(--md-on-surface-variant)",
     }}
   >
-    {/* Mobile Navigation Links inside Footer */}
-    <div 
-      className="flex md:hidden justify-around border-b border-[var(--sidebar-border)] pb-3 mb-1"
-      style={{ gap: "0.5rem" }}
-    >
-      {APP_ROUTES.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.end}
-          className={({ isActive }) => isActive ? "text-[var(--md-primary)] font-bold" : "text-[var(--md-on-surface-variant)] hover:text-white"}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.3rem",
-            fontSize: "0.6rem",
-            textDecoration: "none",
-            transition: "color 100ms ease",
-          }}
-        >
-          <item.icon size={12} />
-          {item.label}
-        </NavLink>
-      ))}
-    </div>
-
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
-      <span>© 2025 {AppConfig.name} — F1 TELEMETRY COMMAND CENTER</span>
+      <span>© 2026 {AppConfig.name} — F1 TELEMETRY COMMAND CENTER</span>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem 1.25rem" }}>
-        <span>DATA: JOLPICA / ERGAST</span>
+        <span>DATA: JOLPICA / ERGAST / OPENF1</span>
       </div>
     </div>
   </footer>
@@ -451,6 +425,33 @@ const AppLayout = () => {
       <ScrollToTop />
       <RouteStorageSync />
 
+      {/* Mobile Sticky Top Bar */}
+      <div className="mobile-top-bar md:hidden">
+        <span className="font-display font-black text-sm tracking-wider text-white">
+          PIT<span style={{ color: "var(--md-primary)" }}>STOP</span>
+        </span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className={`text-[var(--md-on-surface-variant)] p-1 hover:text-white transition-colors ${
+              isRefreshing ? "animate-spin text-[var(--md-primary)]" : ""
+            }`}
+            aria-label="Refresh telemetry cache"
+          >
+            <RefreshCw size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={cycleTheme}
+            className="text-[var(--md-on-surface-variant)] p-1 hover:text-white transition-colors"
+            aria-label="Cycle theme"
+          >
+            <ThemeIcon themeMode={themeMode} />
+          </button>
+        </div>
+      </div>
 
       {/* Sidebar + content */}
       <div className="app-layout">
@@ -480,6 +481,21 @@ const AppLayout = () => {
           <Footer />
         </div>
       </div>
+
+      {/* Bottom Nav Tab Bar for Mobile */}
+      <nav className="ios-tab-bar md:hidden">
+        {APP_ROUTES.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) => `ios-tab-item ${isActive ? "active" : ""}`}
+          >
+            <item.icon size={18} strokeWidth={isActive ? 2.25 : 1.75} />
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
     </>
   );
 };

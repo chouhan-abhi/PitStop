@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft } from "lucide-react";
 
 import { usePositions } from "./Drivers/usePositions";
 import { useEvents } from "./Events/useEvents";
@@ -183,10 +183,14 @@ export const EventDetails = ({ year }) => {
     <div className="app-shell py-4 lg:py-8 space-y-5">
       <DataStatusBanner meta={combinedMeta} />
 
-      <Button variant="text" onClick={() => navigate("/")}>
-        <ArrowLeft size={16} />
-        Back to Home
-      </Button>
+      <button
+        onClick={() => navigate("/")}
+        className="flex items-center gap-1 font-sans text-sm font-semibold text-[var(--md-primary)] hover:text-white transition-colors cursor-pointer py-1.5 self-start"
+        style={{ background: "none", border: "none", outline: "none", minHeight: "44px" }}
+      >
+        <ChevronLeft size={18} />
+        Back
+      </button>
 
       <EventWeekendHeader event={currentEvent} winner={raceWinner} />
 

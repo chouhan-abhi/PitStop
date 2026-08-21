@@ -1,43 +1,46 @@
 import React from "react";
 
-// Reduced rounding — sharp, technical shape scale
 const TIER_STYLES = {
   container: {
     background: "var(--md-surface-container)",
     border: "1px solid var(--md-outline-variant)",
     boxShadow: "var(--shadow-sm)",
+    borderRadius: "var(--shape-md)",
   },
   "container-high": {
     background: "var(--md-surface-container-high)",
     border: "1px solid var(--md-outline-variant)",
-    boxShadow: "var(--shadow-sm)",
+    boxShadow: "var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+    borderRadius: "var(--shape-md)",
   },
   "container-highest": {
     background: "var(--md-surface-container-highest)",
     border: "1px solid var(--md-outline)",
-    boxShadow: "var(--shadow-md)",
+    boxShadow: "var(--shadow-raised), inset 0 1px 0 rgba(255, 255, 255, 0.08)",
+    borderRadius: "var(--shape-lg)",
   },
   dim: {
     background: "var(--md-surface-dim)",
     border: "1px solid var(--md-outline-variant)",
+    borderRadius: "var(--shape-md)",
   },
   glass: {
     background: "var(--glass-bg)",
     backdropFilter: "var(--glass-backdrop)",
     WebkitBackdropFilter: "var(--glass-backdrop)",
     border: "1px solid var(--glass-border)",
-    boxShadow: "var(--shadow-md)",
+    boxShadow: "var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.06)",
+    borderRadius: "var(--shape-lg)",
   },
   pitwall: {
     background: "var(--md-surface-container)",
     border: "1px solid var(--md-outline-variant)",
+    boxShadow: "var(--shadow-sm)",
     position: "relative",
     overflow: "hidden",
+    borderRadius: "var(--shape-md)",
   },
 };
-
-// Sharp radius — var(--shape-md) = 10px globally
-const RADIUS = "var(--shape-md)";
 
 const Surface = React.forwardRef(({
   children,
@@ -50,16 +53,18 @@ const Surface = React.forwardRef(({
 }, ref) => {
   const tierStyle = TIER_STYLES[tier] || TIER_STYLES.container;
   const interactiveStyle = interactive
-    ? { cursor: "pointer", transition: "border-color var(--motion-fast) ease, background-color var(--motion-fast) ease" }
+    ? {
+        cursor: "pointer",
+        transition: "transform var(--motion-standard) var(--ease-spring), border-color var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-standard) var(--ease-standard)",
+      }
     : {};
 
   return React.createElement(
     as,
     {
       ref,
-      className: `${className}`.trim(),
+      className: `${className} ${interactive ? "hover:scale-[1.006] hover:shadow-md hover:border-white/10 active:scale-[0.99] active:shadow-sm" : ""}`.trim(),
       style: {
-        borderRadius: RADIUS,
         color: "var(--md-on-surface)",
         ...tierStyle,
         ...interactiveStyle,

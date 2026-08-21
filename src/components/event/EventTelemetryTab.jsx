@@ -331,8 +331,8 @@ const EventTelemetryTab = ({ sessionKey, allDrivers = [], year }) => {
             <select
               value={selectedLapNum ?? ""}
               onChange={handleLapChange}
-              className="bg-[var(--md-surface-container-high)] border border-[var(--md-outline-variant)] text-white font-mono text-[11px] px-2.5 py-1.5 outline-none focus:border-[var(--md-primary)]/50 cursor-pointer"
-              style={{ borderRadius: "var(--shape-xs)" }}
+              className="bg-[var(--md-surface-container-high)] border border-[var(--md-outline-variant)] text-white font-mono text-[11px] px-3 py-2 outline-none focus:border-[var(--md-primary)]/50 cursor-pointer transition-all hover:bg-white/[0.04]"
+              style={{ borderRadius: "var(--shape-sm)", minHeight: "44px" }}
             >
               {driverALaps.map((lap) => {
                 const n = Number(lap.lap_number);

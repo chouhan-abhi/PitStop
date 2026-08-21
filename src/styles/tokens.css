@@ -30,20 +30,22 @@
   --state-focus:   0.12;
   --state-pressed: 0.12;
 
-  /* ─── Shape Scale ────────────────────────────────────── */
-  --shape-xs:   2px;
-  --shape-sm:   4px;
-  --shape-md:   6px;
-  --shape-lg:   8px;
-  --shape-xl:   12px;
+  /* ─── Shape Scale — Apple-proportioned ───────────────────── */
+  --shape-xs:   4px;    /* sharp data elements, small badges */
+  --shape-sm:   8px;    /* buttons, chips */
+  --shape-md:   12px;   /* cards, panels */
+  --shape-lg:   16px;   /* large panels, sheets */
+  --shape-xl:   24px;   /* hero surfaces, modal sheets */
   --shape-full: 9999px;
 
-  /* ─── Motion ─────────────────────────────────────────── */
-  --motion-fast:       100ms;
-  --motion-standard:   200ms;
-  --motion-emphasized: 300ms;
-  --ease-standard:     cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized:   cubic-bezier(0.2, 0, 0, 1);
+  /* ─── Motion — Apple-paced ───────────────────────────────── */
+  --motion-fast:       150ms;
+  --motion-standard:   280ms;
+  --motion-emphasized: 380ms;
+  --ease-standard:     cubic-bezier(0.25, 0.46, 0.45, 0.94);  /* Apple ease */
+  --ease-emphasized:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring:       cubic-bezier(0.34, 1.56, 0.64, 1);     /* Bouncy spring */
+  --ease-decelerate:   cubic-bezier(0.0, 0.0, 0.2, 1.0);      /* Decelerate in */
 
   /* ─── Type Scale ─────────────────────────────────────── */
   --type-display-lg:  2.5rem;
@@ -79,9 +81,22 @@
   --panel-solid: var(--md-surface-container);
   --border-strong: var(--md-outline-variant);
 
-  --shadow-sm:     0 1px 2px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
-  --shadow-md:     0 4px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5);
-  --shadow-raised: 0 8px 24px rgba(0,0,0,0.7), 0 2px 6px rgba(0,0,0,0.5);
+  --shadow-sm:     0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-md:     0 4px 16px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-raised: 0 8px 32px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-float:  0 16px 48px rgba(0,0,0,0.8), 0 4px 16px rgba(0,0,0,0.5);
+
+  /* ─── Safe Area ──────────────────────────────────────────── */
+  --safe-area-top:    env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* ─── Glass ──────────────────────────────────────────────── */
+  --glass-bg:              rgba(9, 11, 20, 0.75);
+  --glass-bg-strong:       rgba(9, 11, 20, 0.88);
+  --glass-border:          rgba(255, 255, 255, 0.07);
+  --glass-backdrop:        blur(20px) saturate(150%);
+  --glass-backdrop-strong: blur(32px) saturate(180%);
+  --glow-subtle:           0 0 20px rgba(0, 229, 200, 0.08);
 
   --chart-grid:         color-mix(in srgb, var(--md-on-surface) 7%, transparent);
   --chart-tooltip-bg:   var(--md-surface-container-highest);
@@ -120,11 +135,6 @@
   --status-drs:    #00e5c8;
   --status-purple: #a855f7;
 
-  /* ─── Glass ──────────────────────────────────────────── */
-  --glass-bg:       rgba(9, 11, 20, 0.8);
-  --glass-border:   rgba(255, 255, 255, 0.06);
-  --glass-backdrop: blur(16px) saturate(120%);
-  --glow-subtle:    0 0 20px rgba(0, 229, 200, 0.08);
 
   /* ─── Sidebar ────────────────────────────────────────── */
   --sidebar-width:          210px;
@@ -185,8 +195,10 @@
   --sidebar-item-active: var(--md-primary);
 
   --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-bg-strong: rgba(255, 255, 255, 0.94);
   --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-backdrop: blur(16px);
+  --glass-backdrop: blur(20px);
+  --glass-backdrop-strong: blur(32px);
   --glow-subtle: 0 0 20px rgba(0, 123, 106, 0.06);
 
   --status-drs: #007b6a;
@@ -237,6 +249,12 @@
   --sidebar-item-active: var(--md-primary);
 
   --glow-subtle: 0 0 20px rgba(96, 165, 250, 0.08);
+
+  --glass-bg: rgba(7, 12, 22, 0.75);
+  --glass-bg-strong: rgba(7, 12, 22, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-backdrop: blur(20px) saturate(140%);
+  --glass-backdrop-strong: blur(32px) saturate(165%);
 
   --accent-red-subtle: var(--md-primary-container);
   --accent-red-border: var(--md-outline-variant);

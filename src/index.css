@@ -72,8 +72,10 @@ button, input, select, textarea {
 .app-sidebar {
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-backdrop-strong);
+  -webkit-backdrop-filter: var(--glass-backdrop-strong);
+  border-right: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -188,11 +190,11 @@ button, input, select, textarea {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  border-radius: var(--shape-xs);   /* sharp: 2px */
+  border-radius: var(--shape-sm);   /* iOS rounded: 8px */
   border: 1px solid var(--md-outline);
   background-color: var(--md-surface-container-high);
   color: var(--md-on-surface-variant);
-  padding: 0.35rem 0.7rem;
+  padding: 0.45rem 0.9rem;
   line-height: 1;
   font-size: 0.65rem;
   font-weight: 600;
@@ -200,9 +202,7 @@ button, input, select, textarea {
   text-transform: uppercase;
   font-family: var(--font-mono);
   cursor: pointer;
-  transition: border-color var(--motion-fast) ease,
-              background-color var(--motion-fast) ease,
-              color var(--motion-fast) ease;
+  transition: all var(--motion-standard) var(--ease-spring);
 }
 
 .btn:hover {
@@ -210,9 +210,14 @@ button, input, select, textarea {
   color: var(--md-on-surface);
 }
 
+.btn:active {
+  transform: scale(0.97);
+}
+
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 .btn-ghost {
@@ -460,8 +465,108 @@ button, input, select, textarea {
 }
 
 /* ─── Mobile Nav ─────────────────────────────────────────── */
+/* ─── Mobile UX Redesign ─────────────────────────────────── */
 @media (max-width: 767px) {
   .app-sidebar {
     display: none;
   }
+
+  /* Safe-area adjusted layout for content */
+  .app-content {
+    padding-bottom: calc(76px + var(--safe-area-bottom));
+  }
+
+  .app-shell {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Sticky Top Bar on Mobile */
+  .mobile-top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 45;
+    background: var(--glass-bg-strong);
+    backdrop-filter: var(--glass-backdrop-strong);
+    -webkit-backdrop-filter: var(--glass-backdrop-strong);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+  }
+
+  /* iOS Bottom Tab Bar */
+  .ios-tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--glass-bg-strong);
+    backdrop-filter: var(--glass-backdrop-strong);
+    -webkit-backdrop-filter: var(--glass-backdrop-strong);
+    border-top: 1px solid var(--glass-border);
+    padding-bottom: var(--safe-area-bottom);
+    height: calc(62px + var(--safe-area-bottom));
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+  }
+
+  .ios-tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 62px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--md-on-surface-variant);
+    text-decoration: none;
+    transition: all var(--motion-fast) var(--ease-standard);
+  }
+
+  .ios-tab-item.active {
+    color: var(--md-primary);
+  }
+
+  .ios-tab-item span {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Ensure minimum tap target sizes on interactive items */
+  button, select, input, .sidebar-nav-item, .ios-tab-item {
+    min-height: 44px;
+  }
+
+  /* Segmented pill layout tweaks for sub-tabs on mobile */
+  .segmented-tabs-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  .segmented-tabs-container::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+
+  /* Typography adjustments for mobile */
+  h1, .text-3xl {
+    font-size: 1.65rem !important;
+    letter-spacing: -0.02em;
+  }
+  h2, .text-2xl {
+    font-size: 1.35rem !important;
+    letter-spacing: -0.01em;
+  }
 }
+
