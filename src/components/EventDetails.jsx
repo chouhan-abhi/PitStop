@@ -21,11 +21,15 @@ import EventResultsTab from "./event/EventResultsTab";
 import EventPaceTab from "./event/EventPaceTab";
 import EventStintsTab from "./event/EventStintsTab";
 import EventCompareTab from "./event/EventCompareTab";
+import EventPitStrategyTab from "./event/EventPitStrategyTab";
+import EventRadioTab from "./event/EventRadioTab";
 
 const EVENT_TABS = [
   { key: "results", label: "Results" },
   { key: "pace", label: "Pace" },
   { key: "stints", label: "Stints" },
+  { key: "pit-strategy", label: "Strategy" },
+  { key: "team-radio", label: "Team Radio" },
   { key: "compare", label: "Compare" },
 ];
 
@@ -203,6 +207,19 @@ export const EventDetails = ({ year }) => {
       )}
       {activeTab === "compare" && (
         <EventCompareTab sessionKey={latestSessionKey} meetingKey={meetingKey} year={year} />
+      )}
+      {activeTab === "pit-strategy" && (
+        <EventPitStrategyTab
+          sessionKey={latestSessionKey}
+          allDrivers={driversWithPositions}
+          stintsByDriver={stintsByDriver}
+        />
+      )}
+      {activeTab === "team-radio" && (
+        <EventRadioTab
+          meetingKey={meetingKey}
+          allDrivers={driversWithPositions}
+        />
       )}
     </div>
   );
