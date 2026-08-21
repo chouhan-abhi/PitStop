@@ -23,6 +23,7 @@ import EventStintsTab from "./event/EventStintsTab";
 import EventCompareTab from "./event/EventCompareTab";
 import EventPitStrategyTab from "./event/EventPitStrategyTab";
 import EventRadioTab from "./event/EventRadioTab";
+const EventTelemetryTab = React.lazy(() => import("./event/EventTelemetryTab"));
 
 const EVENT_TABS = [
   { key: "results", label: "Results" },
@@ -30,6 +31,7 @@ const EVENT_TABS = [
   { key: "stints", label: "Stints" },
   { key: "pit-strategy", label: "Strategy" },
   { key: "team-radio", label: "Team Radio" },
+  { key: "telemetry", label: "Telemetry" },
   { key: "compare", label: "Compare" },
 ];
 
@@ -220,6 +222,15 @@ export const EventDetails = ({ year }) => {
           meetingKey={meetingKey}
           allDrivers={driversWithPositions}
         />
+      )}
+      {activeTab === "telemetry" && (
+        <React.Suspense fallback={<LoadingState message="Loading telemetry view…" />}>
+          <EventTelemetryTab
+            sessionKey={latestSessionKey}
+            allDrivers={driversWithPositions}
+            year={year}
+          />
+        </React.Suspense>
       )}
     </div>
   );
