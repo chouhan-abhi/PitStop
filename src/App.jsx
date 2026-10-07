@@ -543,8 +543,12 @@ const AppLayout = () => {
             end={item.end}
             className={({ isActive }) => `ios-tab-item ${isActive ? "active" : ""}`}
           >
-            <item.icon size={18} strokeWidth={isActive ? 2.25 : 1.75} />
-            <span>{item.label}</span>
+            {({ isActive }) => (
+              <>
+                <item.icon size={18} strokeWidth={isActive ? 2.25 : 1.75} />
+                <span>{item.label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
