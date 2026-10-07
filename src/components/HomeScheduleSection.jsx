@@ -178,8 +178,11 @@ const HomeScheduleSection = ({ eventsData }) => {
           paddingBottom: "0.5rem",
           paddingTop: "0.5rem",
           scrollSnapType: "x mandatory",
-          scrollbarWidth: "thin",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehaviorX: "contain",
+          scrollbarWidth: "none",
         }}
+        className="scrollbar-none"
       >
         {rows.map((event, idx) => {
           const isLive = event.timeline.isLive;
@@ -190,10 +193,11 @@ const HomeScheduleSection = ({ eventsData }) => {
           return (
             <div
               key={`${event.meeting_key}-${event.meeting_name}`}
+              className="apple-interactive"
               style={{
                 flexShrink: 0,
                 scrollSnapAlign: "start",
-                width: "clamp(230px, 30vw, 290px)",
+                width: "min(82vw, 290px)",
                 background: isLive ? "rgba(239, 68, 68, 0.05)" : "var(--md-surface-container-high)",
                 border: isLive ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid var(--md-outline-variant)",
                 borderRadius: "var(--shape-md)",
@@ -201,7 +205,7 @@ const HomeScheduleSection = ({ eventsData }) => {
                 padding: "0.85rem 1rem",
                 position: "relative",
                 overflow: "hidden",
-                boxShadow: isLive ? "0 4px 20px rgba(239, 68, 68, 0.12)" : "none",
+                boxShadow: isLive ? "0 4px 20px rgba(239, 68, 68, 0.15)" : "none",
               }}
             >
               {/* Header row */}

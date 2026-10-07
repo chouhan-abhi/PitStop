@@ -374,7 +374,7 @@ const HomeDashboardContent = ({
   }, [driversWithPositions]);
 
   return (
-    <div className="app-shell py-4 lg:py-6" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <div className="app-shell py-3 sm:py-5 lg:py-6 flex flex-col gap-3.5 sm:gap-4 animate-apple-fade-in">
       <DataStatusBanner meta={eventsBannerMeta} />
       <MyTeamHeroCard />
       <LiveSessionBanner currentMeetingKey={targetEvent?.meeting_key} />
@@ -385,11 +385,10 @@ const HomeDashboardContent = ({
         <WeekendSummary event={targetEvent} positions={driversWithPositions} />
       )}
 
-      {/* Technical panels row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.75fr", gap: "1rem" }}
-           className="grid-cols-1 lg:grid-cols-[1fr_1.75fr]">
+      {/* Technical panels row - 1 column on mobile, 2 columns on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.75fr] gap-3.5 sm:gap-4">
         {/* Circuit Specs */}
-        <Surface tier="container-high" style={{ padding: "1rem" }}>
+        <Surface tier="container-high" className="p-3.5 sm:p-4 apple-interactive">
           <PanelHeader title="CIRCUIT SPECS" />
           <div>
             <StatRow label="CIRCUIT NAME" value={targetEvent?.circuit_short_name || "—"} />
@@ -400,7 +399,7 @@ const HomeDashboardContent = ({
         </Surface>
 
         {/* Race Control Feed */}
-        <Surface tier="container-high" style={{ padding: "1rem" }}>
+        <Surface tier="container-high" className="p-3.5 sm:p-4 apple-interactive">
           <PanelHeader
             title="EVENT ACTIVITY FEED"
           />
@@ -410,10 +409,9 @@ const HomeDashboardContent = ({
         </Surface>
       </div>
 
-      {/* Championship + Podium row */}
+      {/* Championship + Podium row - 1 column on mobile, 2 columns on desktop */}
       {hasSeasonStarted && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.7fr", gap: "1rem" }}
-             className="grid-cols-1 lg:grid-cols-[1fr_1.7fr]">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.7fr] gap-3.5 sm:gap-4">
           <ChampionshipStrip leaders={leaders} title="Championship Top 3" />
           <Surface
             tier="container-high"

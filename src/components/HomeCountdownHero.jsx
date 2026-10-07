@@ -128,16 +128,16 @@ const normalizeScheduleEvents = (eventsData = []) =>
 /* Countdown digit card */
 const DigitCard = ({ label, value }) => (
   <div
+    className="flex-1 sm:flex-none min-w-[58px] sm:min-w-[74px] p-2 sm:p-3 apple-interactive"
     style={{
-      background: "rgba(0, 0, 0, 0.6)",
-      border: "1px solid rgba(0, 229, 200, 0.15)",
+      background: "rgba(0, 0, 0, 0.65)",
+      border: "1px solid rgba(0, 229, 200, 0.18)",
       borderRadius: "var(--shape-md)",
-      padding: "0.75rem 0.5rem",
       textAlign: "center",
-      backdropFilter: "blur(12px)",
+      backdropFilter: "blur(14px)",
+      WebkitBackdropFilter: "blur(14px)",
       position: "relative",
       overflow: "hidden",
-      minWidth: "3.5rem",
     }}
   >
     {/* Corner marks */}
@@ -146,10 +146,10 @@ const DigitCard = ({ label, value }) => (
         position: "absolute",
         top: 3,
         left: 3,
-        width: 6,
-        height: 6,
-        borderTop: "1px solid rgba(0, 229, 200, 0.4)",
-        borderLeft: "1px solid rgba(0, 229, 200, 0.4)",
+        width: 5,
+        height: 5,
+        borderTop: "1px solid rgba(0, 229, 200, 0.5)",
+        borderLeft: "1px solid rgba(0, 229, 200, 0.5)",
       }}
     />
     <span
@@ -157,17 +157,17 @@ const DigitCard = ({ label, value }) => (
         position: "absolute",
         bottom: 3,
         right: 3,
-        width: 6,
-        height: 6,
-        borderBottom: "1px solid rgba(0, 229, 200, 0.4)",
-        borderRight: "1px solid rgba(0, 229, 200, 0.4)",
+        width: 5,
+        height: 5,
+        borderBottom: "1px solid rgba(0, 229, 200, 0.5)",
+        borderRight: "1px solid rgba(0, 229, 200, 0.5)",
       }}
     />
     <div
       style={{
         fontFamily: "var(--font-mono)",
-        fontWeight: 700,
-        fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+        fontWeight: 800,
+        fontSize: "clamp(1.35rem, 5.5vw, 2.25rem)",
         color: "#fff",
         lineHeight: 1,
         letterSpacing: "-0.02em",
@@ -178,12 +178,12 @@ const DigitCard = ({ label, value }) => (
     <div
       style={{
         fontFamily: "var(--font-mono)",
-        fontSize: "0.55rem",
-        fontWeight: 600,
+        fontSize: "0.52rem",
+        fontWeight: 700,
         letterSpacing: "0.14em",
         textTransform: "uppercase",
         color: "var(--md-primary)",
-        marginTop: "0.3rem",
+        marginTop: "0.25rem",
       }}
     >
       {label}
@@ -388,7 +388,7 @@ const HomeCountdownHero = ({ eventsData = [] }) => {
           </div>
         </div>
       ) : countdown ? (
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        <div className="flex gap-1.5 sm:gap-2.5 w-full max-w-sm sm:max-w-md">
           <DigitCard label="DAYS" value={String(countdown.days).padStart(2, "0")} />
           <DigitCard label="HOURS" value={String(countdown.hours).padStart(2, "0")} />
           <DigitCard label="MINS" value={String(countdown.minutes).padStart(2, "0")} />

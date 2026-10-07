@@ -11,7 +11,7 @@ export const MyTeamHeroCard = ({ className = "" }) => {
     return (
       <>
         <div
-          className={`relative overflow-hidden p-4 sm:p-5 rounded-[var(--shape-lg)] bg-[var(--md-surface-container)] border border-[var(--md-outline-variant)] shadow-sm ${className}`}
+          className={`relative overflow-hidden p-4 sm:p-5 rounded-[var(--shape-lg)] bg-[var(--md-surface-container)] border border-[var(--md-outline-variant)] shadow-sm apple-interactive ${className}`}
           style={{
             background:
               "linear-gradient(135deg, var(--md-surface-container) 0%, color-mix(in srgb, var(--md-primary) 8%, var(--md-surface-container)) 100%)",
@@ -52,7 +52,7 @@ export const MyTeamHeroCard = ({ className = "" }) => {
   return (
     <>
       <div
-        className={`relative overflow-hidden p-4 sm:p-5 rounded-[var(--shape-lg)] border transition-all duration-300 shadow-md ${className}`}
+        className={`relative overflow-hidden p-4 sm:p-5 rounded-[var(--shape-lg)] border transition-all duration-300 shadow-md apple-interactive ${className}`}
         style={{
           background: `linear-gradient(135deg, var(--md-surface-container) 40%, ${team.color}15 100%)`,
           borderColor: `${team.color}40`,
