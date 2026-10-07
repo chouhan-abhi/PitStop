@@ -5,9 +5,12 @@ import { MapPin, Calendar, CheckCircle2, Clock3 } from "lucide-react";
 import { useEvents } from "./Events/useEvents";
 import { usePositions } from "./Drivers/usePositions";
 import { useDriverRegistry } from "../common/drivers/useDriverRegistry";
-import { getLatestSessionFromPositions, getLatestPositionsForDrivers } from "../common/utils/dataProcessing";
-import { getTeamColorBorder } from "../common/utils/colors";
-import { formatDate } from "../common/utils/dataProcessing";
+import {
+  getLatestSessionFromPositions,
+  getLatestPositionsForDrivers,
+  formatDate,
+  getEventTimelineStatus,
+} from "../common/utils/dataProcessing";
 import HomeCountdownHero from "./HomeCountdownHero";
 import PageShell from "./ui/PageShell";
 import DataStatusBanner from "./ui/DataStatusBanner";
@@ -203,11 +206,12 @@ const SeasonStats = ({ total, completed, upcoming, year }) => {
 const GrandPrixCard = ({ event, year, navigate }) => {
   const [hovered, setHovered] = useState(false);
   const eventYear = event?.date_start ? new Date(event.date_start).getFullYear() : year;
+  const isLive = event.status === "live";
   const isComplete = event.status === "complete";
   const isUpcoming = event.status === "upcoming";
 
   const { data: positions } = usePositions(event.meeting_key, null, null, {
-    enabled: isComplete,
+    enabled: hovered && isComplete,
     year: eventYear,
   });
 
@@ -240,9 +244,9 @@ const GrandPrixCard = ({ event, year, navigate }) => {
     <div
       onClick={() => navigate(`/event/${event.meeting_key}`)}
       style={{
-        background: "var(--md-surface-container)",
-        border: `1px solid ${hovered ? (isComplete ? teamColor : "var(--md-primary)") : "rgba(255, 255, 255, 0.08)"}`,
-        borderTop: `3.5px solid ${isComplete ? teamColor : "rgba(255, 255, 255, 0.15)"}`,
+        background: isLive ? "rgba(239, 68, 68, 0.04)" : "var(--md-surface-container)",
+        border: `1px solid ${isLive ? "rgba(239, 68, 68, 0.4)" : hovered ? (isComplete ? teamColor : "var(--md-primary)") : "rgba(255, 255, 255, 0.08)"}`,
+        borderTop: `3.5px solid ${isLive ? "#ef4444" : isComplete ? teamColor : "rgba(255, 255, 255, 0.15)"}`,
         borderRadius: "var(--shape-md)",
         padding: "1.25rem",
         position: "relative",
@@ -332,11 +336,26 @@ const GrandPrixCard = ({ event, year, navigate }) => {
           textTransform: "uppercase",
           padding: "0.2rem 0.45rem",
           borderRadius: "var(--shape-xs)",
-          ...(isComplete
-            ? { background: "rgba(34, 197, 94, 0.08)", color: "var(--status-green)", border: "1px solid rgba(34, 197, 94, 0.2)" }
-            : { background: "rgba(245, 158, 11, 0.08)", color: "var(--warning)", border: "1px solid rgba(245, 158, 11, 0.2)" }),
+          ...(isLive
+            ? { background: "rgba(239, 68, 68, 0.12)", color: "#ef4444", border: "1px solid rgba(239, 68, 68, 0.3)" }
+            : isComplete
+              ? { background: "rgba(34, 197, 94, 0.08)", color: "var(--status-green)", border: "1px solid rgba(34, 197, 94, 0.2)" }
+              : { background: "rgba(245, 158, 11, 0.08)", color: "var(--warning)", border: "1px solid rgba(245, 158, 11, 0.2)" }),
         }}>
-          {isComplete ? (
+          {isLive ? (
+            <>
+              <span
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  backgroundColor: "#ef4444",
+                  animation: "ping 1.5s infinite",
+                }}
+              />
+              LIVE
+            </>
+          ) : isComplete ? (
             <><CheckCircle2 size={10} style={{ color: "var(--status-green)" }} /> DONE</>
           ) : (
             <><Clock3 size={10} style={{ color: "var(--warning)" }} /> UPCOMING</>
@@ -480,22 +499,22 @@ const ArchivesPage = ({ year }) => {
   const eventsWithStatus = useMemo(
     () =>
       sortedEvents.map((event, index) => {
-        const start = event?.date_start ? new Date(event.date_start) : null;
-        const status = start && start <= now ? "complete" : "upcoming";
-        return { ...event, status, round: index + 1 };
+        const { isCompleted, isLive } = getEventTimelineStatus(event, now);
+        const status = isLive ? "live" : isCompleted ? "complete" : "upcoming";
+        return { ...event, status, isLive, round: index + 1 };
       }),
     [sortedEvents, now]
   );
 
   const filteredEvents = useMemo(() => {
     if (filter === "completed") return eventsWithStatus.filter((e) => e.status === "complete");
-    if (filter === "upcoming")  return eventsWithStatus.filter((e) => e.status === "upcoming");
+    if (filter === "upcoming") return eventsWithStatus.filter((e) => e.status === "upcoming" || e.status === "live");
     return eventsWithStatus;
   }, [eventsWithStatus, filter]);
 
   const completedCount = eventsWithStatus.filter((e) => e.status === "complete").length;
-  const upcomingCount  = eventsWithStatus.filter((e) => e.status === "upcoming").length;
-  const nextEvent      = eventsWithStatus.find((e) => e.status === "upcoming") || null;
+  const upcomingCount = eventsWithStatus.filter((e) => e.status === "upcoming" || e.status === "live").length;
+  const nextEvent = eventsWithStatus.find((e) => e.status === "live" || e.status === "upcoming") || null;
 
   // Infinite Scroll logic: select top visibleCount events
   const visibleEvents = useMemo(() => {

@@ -202,8 +202,21 @@ const HomeCountdownHero = ({ eventsData = [] }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const nextEvent = events.find((event) => event.date >= now) || null;
-  const countdown = nextEvent ? formatCountdown(nextEvent.date - now) : null;
+  const nextEvent =
+    events.find((event) => {
+      const end = event.date_end
+        ? new Date(event.date_end)
+        : new Date(event.date.getTime() + 3 * 24 * 60 * 60 * 1000);
+      return now <= end;
+    }) || null;
+
+  const eventEnd = nextEvent?.date_end
+    ? new Date(nextEvent.date_end)
+    : nextEvent?.date
+      ? new Date(nextEvent.date.getTime() + 3 * 24 * 60 * 60 * 1000)
+      : null;
+  const isLive = Boolean(nextEvent && now >= nextEvent.date && now <= eventEnd);
+  const countdown = nextEvent && !isLive ? formatCountdown(nextEvent.date - now) : null;
 
   if (!nextEvent) {
     return (
@@ -244,18 +257,26 @@ const HomeCountdownHero = ({ eventsData = [] }) => {
             gap: "0.375rem",
             fontFamily: "var(--font-mono)",
             fontSize: "0.6rem",
-            fontWeight: 700,
+            fontWeight: 800,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
-            color: "var(--status-green)",
-            background: "rgba(34, 197, 94, 0.08)",
-            border: "1px solid rgba(34, 197, 94, 0.25)",
+            color: isLive ? "#ef4444" : "var(--status-green)",
+            background: isLive ? "rgba(239, 68, 68, 0.12)" : "rgba(34, 197, 94, 0.08)",
+            border: isLive ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(34, 197, 94, 0.25)",
             borderRadius: "var(--shape-sm)",
             padding: "0.25rem 0.625rem",
           }}
         >
-          <span className="status-dot-live" />
-          NEXT RACE WEEKEND
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              backgroundColor: isLive ? "#ef4444" : "var(--status-green)",
+              animation: isLive ? "ping 1.5s infinite" : "none",
+            }}
+          />
+          {isLive ? "LIVE RACE WEEKEND" : "NEXT RACE WEEKEND"}
         </span>
         <span
           style={{
@@ -343,15 +364,37 @@ const HomeCountdownHero = ({ eventsData = [] }) => {
         </span>
       </div>
 
-      {/* Countdown cards */}
-      {countdown && (
+      {/* Live status banner or countdown cards */}
+      {isLive ? (
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+          <div
+            style={{
+              padding: "0.6rem 1rem",
+              background: "rgba(239, 68, 68, 0.15)",
+              border: "1px solid rgba(239, 68, 68, 0.4)",
+              borderRadius: "var(--shape-md)",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.75rem",
+              fontWeight: 800,
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              letterSpacing: "0.08em",
+            }}
+          >
+            <Activity size={15} style={{ color: "#ef4444" }} />
+            GRAND PRIX 3-DAY WEEKEND IN PROGRESS
+          </div>
+        </div>
+      ) : countdown ? (
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           <DigitCard label="DAYS" value={String(countdown.days).padStart(2, "0")} />
           <DigitCard label="HOURS" value={String(countdown.hours).padStart(2, "0")} />
           <DigitCard label="MINS" value={String(countdown.minutes).padStart(2, "0")} />
           <DigitCard label="SECS" value={String(countdown.seconds).padStart(2, "0")} />
         </div>
-      )}
+      ) : null}
     </HeroSurface>
   );
 };

@@ -21,8 +21,10 @@ export const useAdaptiveLiveState = (currentMeetingKey) => {
       }
     },
     enabled: Boolean(currentMeetingKey),
-    staleTime: 60 * 1000, // 1 min check
-    refetchInterval: 30 * 1000, // Check every 30s for session transitions
+    staleTime: 5 * 60 * 1000, // 5 min cache
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const liveInfo = useMemo(() => {

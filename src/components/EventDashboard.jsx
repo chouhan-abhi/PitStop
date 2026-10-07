@@ -20,6 +20,7 @@ import {
   getLatestSessionFromPositions,
   getLatestPositionsForDrivers,
   mergeDriversWithPositions,
+  getEventTimelineStatus,
 } from "../common/utils/dataProcessing";
 
 const News = React.lazy(() => import("./News/News"));
@@ -298,12 +299,14 @@ export const EventDashboard = ({
   const sortedEvents = Array.isArray(eventsData)
     ? [...eventsData].sort((a, b) => new Date(a?.date_start || 0) - new Date(b?.date_start || 0))
     : [];
-  const completedEvents = sortedEvents.filter(
-    (event) => event?.date_start && new Date(event.date_start) <= now
-  );
-  const upcomingEvents = sortedEvents.filter(
-    (event) => event?.date_start && new Date(event.date_start) > now
-  );
+  const completedEvents = sortedEvents.filter((event) => {
+    const { isCompleted } = getEventTimelineStatus(event, now);
+    return isCompleted;
+  });
+  const upcomingEvents = sortedEvents.filter((event) => {
+    const { isUpcoming, isLive } = getEventTimelineStatus(event, now);
+    return isUpcoming || isLive;
+  });
   const latestCompletedEvent = completedEvents[completedEvents.length - 1] || null;
   const hasSeasonStarted = completedEvents.length > 0;
   const hasUpcomingEvent = upcomingEvents.length > 0;

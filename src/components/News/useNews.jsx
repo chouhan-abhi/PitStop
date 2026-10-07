@@ -29,10 +29,10 @@ export function useNews(options = {}) {
     queryFn: fetchNews,
     enabled,
     ...APP_LIVE_CACHE_CONFIG,
-    staleTime: 1000 * 60,
-    refetchOnMount: "always",
-    refetchOnReconnect: "always",
-    refetchOnWindowFocus: true,
+    staleTime: 1000 * 60 * 15, // 15 minutes
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
     ...queryOptions,
   });
 

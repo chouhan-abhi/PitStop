@@ -185,3 +185,54 @@ export const formatDate = (dateString, options = {}) => {
   return new Date(dateString).toLocaleDateString('en-US', { ...defaultOptions, ...options });
 };
 
+/**
+ * Calculate the timeline status of an F1 event.
+ * An F1 Grand Prix is a 3-day weekend event (e.g. Friday practice through Sunday race).
+ * - LIVE: if now is between date_start and date_end (or 3 days from date_start)
+ * - UPCOMING: if now is before date_start
+ * - COMPLETED: if now is after the 3-day window
+ */
+export const getEventTimelineStatus = (event, now = new Date()) => {
+  if (!event?.date_start) {
+    return {
+      isLive: false,
+      isUpcoming: false,
+      isCompleted: false,
+      start: null,
+      end: null,
+      statusLabel: "TBD",
+    };
+  }
+
+  const start = new Date(event.date_start);
+  if (Number.isNaN(start.getTime())) {
+    return {
+      isLive: false,
+      isUpcoming: false,
+      isCompleted: false,
+      start: null,
+      end: null,
+      statusLabel: "TBD",
+    };
+  }
+
+  // 3-day event window: from start of event to 3 full days later (or date_end)
+  const end = event.date_end
+    ? new Date(event.date_end)
+    : new Date(start.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+  const isCompleted = now > end;
+  const isLive = now >= start && now <= end;
+  const isUpcoming = now < start;
+
+  return {
+    isLive,
+    isUpcoming,
+    isCompleted,
+    start,
+    end,
+    statusLabel: isLive ? "LIVE" : isUpcoming ? "UPCOMING" : "DONE",
+  };
+};
+
+
