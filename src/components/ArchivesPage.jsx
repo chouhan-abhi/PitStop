@@ -11,6 +11,7 @@ import {
   formatDate,
   getEventTimelineStatus,
 } from "../common/utils/dataProcessing";
+import { getTeamColorBorder } from "../common/utils/colors";
 import HomeCountdownHero from "./HomeCountdownHero";
 import PageShell from "./ui/PageShell";
 import DataStatusBanner from "./ui/DataStatusBanner";

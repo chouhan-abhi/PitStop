@@ -64,11 +64,11 @@ const getSpecs = (eventName = "", circuitName = "") => {
 };
 
 const EventWeekendHeader = ({ event, winner }) => {
+  // Fetch weather data dynamically
+  const { data: weather = [], isLoading: weatherLoading } = useWeather(event?.meeting_key);
+
   if (!event) return null;
   const specs = getSpecs(event.meeting_name, event.circuit_short_name);
-
-  // Fetch weather data dynamically
-  const { data: weather = [], isLoading: weatherLoading } = useWeather(event.meeting_key);
 
   return (
     <div className="space-y-5">

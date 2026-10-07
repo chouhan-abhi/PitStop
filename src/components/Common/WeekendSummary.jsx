@@ -61,6 +61,11 @@ const getSpecs = (eventName = "", circuitName = "") => {
 export const generateWeekendSummary = async (event, positions = []) => {
   if (!event) return "";
 
+  const pList = Array.isArray(positions) ? positions : [];
+  const p1 = pList.find((p) => (p.finalPosition ?? p.position) === 1);
+  const p2 = pList.find((p) => (p.finalPosition ?? p.position) === 2);
+  const p3 = pList.find((p) => (p.finalPosition ?? p.position) === 3);
+
   const getPName = (p) => p ? (p.full_name || p.driver || p.name || p.driver_name || "Driver") : "";
   const getPTeam = (p) => p ? (p.team_name || p.constructor || p.constructor_name || "Team") : "";
 
