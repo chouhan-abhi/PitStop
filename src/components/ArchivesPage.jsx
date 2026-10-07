@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, CheckCircle2, Clock3 } from "lucide-react";
+import { MapPin, Calendar, CheckCircle2, Clock3, ChevronDown, ChevronUp, Plus } from "lucide-react";
 
 import { useEvents } from "./Events/useEvents";
 import { usePositions } from "./Drivers/usePositions";
@@ -476,9 +476,8 @@ const GrandPrixCard = ({ event, year, navigate }) => {
 const ArchivesPage = ({ year }) => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
-  const [visibleCount, setVisibleCount] = useState(CHUNK_SIZE);
-
-  const sentinelRef = useRef(null);
+  const [showEarlier, setShowEarlier] = useState(false);
+  const [extraNextCount, setExtraNextCount] = useState(0);
 
   const {
     data: eventsData,
@@ -517,31 +516,44 @@ const ArchivesPage = ({ year }) => {
   const upcomingCount = eventsWithStatus.filter((e) => e.status === "upcoming" || e.status === "live").length;
   const nextEvent = eventsWithStatus.find((e) => e.status === "live" || e.status === "upcoming") || null;
 
-  // Infinite Scroll logic: select top visibleCount events
-  const visibleEvents = useMemo(() => {
-    return filteredEvents.slice(0, visibleCount);
-  }, [filteredEvents, visibleCount]);
-
-  // IntersectionObserver for autoloading more events on scroll to bottom
+  // Reset window expansions when year or filter changes
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && filteredEvents.length > visibleCount) {
-        setVisibleCount((prev) => Math.min(prev + CHUNK_SIZE, filteredEvents.length));
-      }
-    }, {
-      rootMargin: "150px", // Trigger loading slightly before reaching the bottom
-    });
+    setShowEarlier(false);
+    setExtraNextCount(0);
+  }, [year, filter]);
 
-    if (sentinelRef.current) {
-      observer.observe(sentinelRef.current);
-    }
+  // Index of latest upcoming or live race in filtered list (or final race if all completed)
+  const upcomingIdx = useMemo(() => {
+    const idx = filteredEvents.findIndex((e) => e.status === "live" || e.status === "upcoming");
+    return idx !== -1 ? idx : Math.max(0, filteredEvents.length - 1);
+  }, [filteredEvents]);
 
-    return () => observer.disconnect();
-  }, [filteredEvents.length, visibleCount]);
+  // Initial window: 8 races ending with the latest upcoming race
+  const defaultStartIdx = useMemo(() => {
+    return Math.max(0, upcomingIdx - (CHUNK_SIZE - 1));
+  }, [upcomingIdx]);
+
+  const defaultEndIdx = useMemo(() => {
+    return upcomingIdx;
+  }, [upcomingIdx]);
+
+  const startIndex = showEarlier ? 0 : defaultStartIdx;
+  const endIndex = Math.min(filteredEvents.length - 1, defaultEndIdx + extraNextCount);
+
+  // Visible subset of races
+  const visibleEvents = useMemo(() => {
+    if (filteredEvents.length === 0) return [];
+    return filteredEvents.slice(startIndex, endIndex + 1);
+  }, [filteredEvents, startIndex, endIndex]);
+
+  const remainingNextCount = Math.max(0, filteredEvents.length - 1 - endIndex);
+  const nextUpcomingRace = remainingNextCount > 0 ? filteredEvents[endIndex + 1] : null;
+  const earlierCount = defaultStartIdx;
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
-    setVisibleCount(CHUNK_SIZE);
+    setShowEarlier(false);
+    setExtraNextCount(0);
   };
 
   if (isLoading) {
@@ -669,6 +681,20 @@ const ArchivesPage = ({ year }) => {
         upcoming={upcomingCount}
       />
 
+      {/* Earlier races affordance */}
+      {!showEarlier && earlierCount > 0 && (
+        <div className="flex justify-center mb-5 animate-apple-fade-in">
+          <button
+            type="button"
+            onClick={() => setShowEarlier(true)}
+            className="apple-interactive inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--shape-md)] bg-[var(--md-surface-container)] hover:bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)] hover:text-white border border-[var(--md-outline-variant)] font-mono text-xs font-semibold uppercase tracking-wider transition-all shadow-sm"
+          >
+            <ChevronUp size={14} className="text-[var(--md-primary)]" />
+            <span>Show Earlier Races (Rounds 1–{earlierCount})</span>
+          </button>
+        </div>
+      )}
+
       {/* Grid of Grand Prix cards */}
       {filteredEvents.length === 0 ? (
         <div style={{
@@ -698,21 +724,31 @@ const ArchivesPage = ({ year }) => {
         </div>
       )}
 
-      {/* Sentinel indicator at list end for autoloading */}
-      {filteredEvents.length > visibleCount && (
-        <div
-          ref={sentinelRef}
-          style={{
-            padding: "1.5rem",
-            textAlign: "center",
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.65rem",
-            color: "var(--md-primary)",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-          }}
-        >
-          LOADING TELEMETRY CHUNK...
+      {/* Show Next Race Button Controls */}
+      {remainingNextCount > 0 && nextUpcomingRace && (
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 animate-apple-fade-in">
+          <button
+            type="button"
+            onClick={() => setExtraNextCount((prev) => prev + 1)}
+            className="apple-interactive flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--shape-md)] bg-[var(--md-primary)] hover:brightness-110 text-black font-mono font-bold text-xs uppercase tracking-wider shadow-lg transition-all"
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            <span>Show Next Race</span>
+            <span className="opacity-75 font-normal">
+              · Round {nextUpcomingRace.round || endIndex + 2}: {nextUpcomingRace.meeting_name || nextUpcomingRace.circuit_short_name}
+            </span>
+            <ChevronDown size={15} />
+          </button>
+
+          {remainingNextCount > 1 && (
+            <button
+              type="button"
+              onClick={() => setExtraNextCount((prev) => prev + remainingNextCount)}
+              className="apple-interactive px-4 py-3.5 rounded-[var(--shape-md)] bg-[var(--md-surface-container)] hover:bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)] hover:text-white border border-[var(--md-outline-variant)] font-mono text-xs font-semibold uppercase tracking-wider transition-all"
+            >
+              Show All Remaining ({remainingNextCount})
+            </button>
+          )}
         </div>
       )}
 
@@ -735,7 +771,11 @@ const ArchivesPage = ({ year }) => {
             DISPLAYING {visibleEvents.length} OF {filteredEvents.length} EVENTS
           </div>
           <div style={{ fontSize: "0.55rem", opacity: 0.6 }}>
-            {visibleEvents.length === filteredEvents.length ? "TIMELINE COMPLETED" : "SCROLL FOR DETAILED FEED"}
+            {remainingNextCount === 0 && (showEarlier || earlierCount === 0)
+              ? "ALL RACES DISPLAYED"
+              : remainingNextCount > 0
+              ? `${remainingNextCount} NEXT RACE${remainingNextCount > 1 ? "S" : ""} AVAILABLE`
+              : "TIMELINE COMPLETED"}
           </div>
         </div>
       )}
