@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, CheckCircle2, Clock3, ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { MapPin, Calendar, CheckCircle2, Clock3, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 import { useEvents } from "./Events/useEvents";
 import { usePositions } from "./Drivers/usePositions";
@@ -476,8 +476,6 @@ const GrandPrixCard = ({ event, year, navigate }) => {
 const ArchivesPage = ({ year }) => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
-  const [showEarlier, setShowEarlier] = useState(false);
-  const [extraNextCount, setExtraNextCount] = useState(0);
 
   const {
     data: eventsData,
@@ -516,44 +514,40 @@ const ArchivesPage = ({ year }) => {
   const upcomingCount = eventsWithStatus.filter((e) => e.status === "upcoming" || e.status === "live").length;
   const nextEvent = eventsWithStatus.find((e) => e.status === "live" || e.status === "upcoming") || null;
 
-  // Reset window expansions when year or filter changes
-  useEffect(() => {
-    setShowEarlier(false);
-    setExtraNextCount(0);
-  }, [year, filter]);
-
-  // Index of latest upcoming or live race in filtered list (or final race if all completed)
-  const upcomingIdx = useMemo(() => {
+  // Default end index: latest upcoming/live race (or final race if all completed)
+  const defaultEndIndex = useMemo(() => {
+    if (filteredEvents.length === 0) return 0;
     const idx = filteredEvents.findIndex((e) => e.status === "live" || e.status === "upcoming");
-    return idx !== -1 ? idx : Math.max(0, filteredEvents.length - 1);
+    return idx !== -1 ? idx : filteredEvents.length - 1;
   }, [filteredEvents]);
 
-  // Initial window: 8 races ending with the latest upcoming race
-  const defaultStartIdx = useMemo(() => {
-    return Math.max(0, upcomingIdx - (CHUNK_SIZE - 1));
-  }, [upcomingIdx]);
+  // Active end index of the sliding window of 8 races
+  const [endIndex, setEndIndex] = useState(defaultEndIndex);
 
-  const defaultEndIdx = useMemo(() => {
-    return upcomingIdx;
-  }, [upcomingIdx]);
+  // Sync window when year or filter changes
+  useEffect(() => {
+    setEndIndex(defaultEndIndex);
+  }, [defaultEndIndex]);
 
-  const startIndex = showEarlier ? 0 : defaultStartIdx;
-  const endIndex = Math.min(filteredEvents.length - 1, defaultEndIdx + extraNextCount);
+  // Initial/active window of up to 8 races ending at endIndex
+  const startIndex = useMemo(() => {
+    return Math.max(0, endIndex - (CHUNK_SIZE - 1));
+  }, [endIndex]);
 
-  // Visible subset of races
   const visibleEvents = useMemo(() => {
     if (filteredEvents.length === 0) return [];
     return filteredEvents.slice(startIndex, endIndex + 1);
   }, [filteredEvents, startIndex, endIndex]);
 
-  const remainingNextCount = Math.max(0, filteredEvents.length - 1 - endIndex);
-  const nextUpcomingRace = remainingNextCount > 0 ? filteredEvents[endIndex + 1] : null;
-  const earlierCount = defaultStartIdx;
+  const totalRounds = filteredEvents.length;
+  const visibleStartRound = startIndex + 1;
+  const visibleEndRound = Math.min(totalRounds, endIndex + 1);
+  const hasPrev = startIndex > 0;
+  const hasNext = endIndex < totalRounds - 1;
+  const isAnchoredUpcoming = endIndex === defaultEndIndex && defaultEndIndex < totalRounds - 1;
 
   const handleFilterChange = (newFilter) => {
     setFilter(newFilter);
-    setShowEarlier(false);
-    setExtraNextCount(0);
   };
 
   if (isLoading) {
@@ -681,20 +675,6 @@ const ArchivesPage = ({ year }) => {
         upcoming={upcomingCount}
       />
 
-      {/* Earlier races affordance */}
-      {!showEarlier && earlierCount > 0 && (
-        <div className="flex justify-center mb-5 animate-apple-fade-in">
-          <button
-            type="button"
-            onClick={() => setShowEarlier(true)}
-            className="apple-interactive inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--shape-md)] bg-[var(--md-surface-container)] hover:bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)] hover:text-white border border-[var(--md-outline-variant)] font-mono text-xs font-semibold uppercase tracking-wider transition-all shadow-sm"
-          >
-            <ChevronUp size={14} className="text-[var(--md-primary)]" />
-            <span>Show Earlier Races (Rounds 1–{earlierCount})</span>
-          </button>
-        </div>
-      )}
-
       {/* Grid of Grand Prix cards */}
       {filteredEvents.length === 0 ? (
         <div style={{
@@ -724,31 +704,87 @@ const ArchivesPage = ({ year }) => {
         </div>
       )}
 
-      {/* Show Next Race Button Controls */}
-      {remainingNextCount > 0 && nextUpcomingRace && (
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 animate-apple-fade-in">
+      {/* Pagination Controls with Left & Right Buttons */}
+      {totalRounds > 0 && (
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 my-7 animate-apple-fade-in">
+          {/* Jump to Season Start («) */}
           <button
             type="button"
-            onClick={() => setExtraNextCount((prev) => prev + 1)}
-            className="apple-interactive flex items-center justify-center gap-2 px-6 py-3.5 rounded-[var(--shape-md)] bg-[var(--md-primary)] hover:brightness-110 text-black font-mono font-bold text-xs uppercase tracking-wider shadow-lg transition-all"
+            onClick={() => setEndIndex(Math.min(totalRounds - 1, CHUNK_SIZE - 1))}
+            disabled={!hasPrev}
+            title="Jump to Season Opener"
+            className={`apple-interactive flex items-center justify-center w-8 h-8 rounded-full border transition-all ${
+              !hasPrev
+                ? "opacity-25 cursor-not-allowed bg-[var(--md-surface-container)] border-transparent text-[var(--md-on-surface-variant)]"
+                : "bg-[var(--md-surface-container)] hover:bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)] hover:text-white border-[var(--md-outline-variant)] shadow-sm cursor-pointer"
+            }`}
           >
-            <Plus size={15} strokeWidth={2.5} />
-            <span>Show Next Race</span>
-            <span className="opacity-75 font-normal">
-              · Round {nextUpcomingRace.round || endIndex + 2}: {nextUpcomingRace.meeting_name || nextUpcomingRace.circuit_short_name}
-            </span>
-            <ChevronDown size={15} />
+            <ChevronsLeft size={15} />
           </button>
 
-          {remainingNextCount > 1 && (
-            <button
-              type="button"
-              onClick={() => setExtraNextCount((prev) => prev + remainingNextCount)}
-              className="apple-interactive px-4 py-3.5 rounded-[var(--shape-md)] bg-[var(--md-surface-container)] hover:bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)] hover:text-white border border-[var(--md-outline-variant)] font-mono text-xs font-semibold uppercase tracking-wider transition-all"
-            >
-              Show All Remaining ({remainingNextCount})
-            </button>
-          )}
+          {/* Previous Race Button (<) */}
+          <button
+            type="button"
+            onClick={() => setEndIndex((prev) => Math.max(CHUNK_SIZE - 1, prev - 1))}
+            disabled={!hasPrev}
+            title={hasPrev ? `Previous Race (Round ${startIndex})` : "At Season Opener"}
+            className={`apple-interactive flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-all ${
+              !hasPrev
+                ? "opacity-25 cursor-not-allowed bg-[var(--md-surface-container)] border-transparent text-[var(--md-on-surface-variant)]"
+                : "bg-[var(--md-surface-container)] hover:bg-[var(--md-surface-container-high)] text-white border-[var(--md-outline-variant)] shadow-sm cursor-pointer"
+            }`}
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          {/* Center Indicator Pill */}
+          <div className="flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[var(--md-surface-container)] border border-[var(--md-outline-variant)] shadow-sm">
+            <span className="font-mono text-xs font-bold text-white tracking-wider">
+              ROUNDS {visibleStartRound}–{visibleEndRound}
+            </span>
+            <span className="font-mono text-xs text-[var(--md-on-surface-variant)]">
+              OF {totalRounds}
+            </span>
+            {isAnchoredUpcoming && (
+              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 uppercase ml-0.5">
+                UPCOMING: R{visibleEndRound}
+              </span>
+            )}
+          </div>
+
+          {/* Next Race Button (>) */}
+          <button
+            type="button"
+            onClick={() => setEndIndex((prev) => Math.min(totalRounds - 1, prev + 1))}
+            disabled={!hasNext}
+            title={
+              hasNext
+                ? `Next Race: Round ${endIndex + 2} (${filteredEvents[endIndex + 1]?.meeting_name || "Next"})`
+                : "At Season Finale"
+            }
+            className={`apple-interactive flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-all ${
+              !hasNext
+                ? "opacity-25 cursor-not-allowed bg-[var(--md-surface-container)] border-transparent text-[var(--md-on-surface-variant)]"
+                : "bg-[var(--md-primary)] hover:brightness-110 text-black border-transparent shadow-md cursor-pointer font-bold"
+            }`}
+          >
+            <ChevronRight size={18} strokeWidth={2.5} />
+          </button>
+
+          {/* Jump to Season Finale (») */}
+          <button
+            type="button"
+            onClick={() => setEndIndex(totalRounds - 1)}
+            disabled={!hasNext}
+            title="Jump to Season Finale"
+            className={`apple-interactive flex items-center justify-center w-8 h-8 rounded-full border transition-all ${
+              !hasNext
+                ? "opacity-25 cursor-not-allowed bg-[var(--md-surface-container)] border-transparent text-[var(--md-on-surface-variant)]"
+                : "bg-[var(--md-surface-container)] hover:bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)] hover:text-white border-[var(--md-outline-variant)] shadow-sm cursor-pointer"
+            }`}
+          >
+            <ChevronsRight size={15} />
+          </button>
         </div>
       )}
 
@@ -758,9 +794,9 @@ const ArchivesPage = ({ year }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "2rem",
+          marginTop: "1.5rem",
           borderTop: "1px solid rgba(255, 255, 255, 0.05)",
-          paddingTop: "1.25rem",
+          paddingTop: "1rem",
           fontFamily: "var(--font-mono)",
           fontSize: "0.65rem",
           color: "var(--md-on-surface-variant)",
@@ -768,14 +804,12 @@ const ArchivesPage = ({ year }) => {
           letterSpacing: "0.08em",
         }}>
           <div>
-            DISPLAYING {visibleEvents.length} OF {filteredEvents.length} EVENTS
+            SHOWING ROUNDS {visibleStartRound}–{visibleEndRound} OF {totalRounds}
           </div>
           <div style={{ fontSize: "0.55rem", opacity: 0.6 }}>
-            {remainingNextCount === 0 && (showEarlier || earlierCount === 0)
-              ? "ALL RACES DISPLAYED"
-              : remainingNextCount > 0
-              ? `${remainingNextCount} NEXT RACE${remainingNextCount > 1 ? "S" : ""} AVAILABLE`
-              : "TIMELINE COMPLETED"}
+            {endIndex >= totalRounds - 1
+              ? "SEASON FINALE REACHED"
+              : `${totalRounds - 1 - endIndex} LATER RACE${totalRounds - 1 - endIndex > 1 ? "S" : ""} ON CALENDAR`}
           </div>
         </div>
       )}
