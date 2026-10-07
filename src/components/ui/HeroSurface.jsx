@@ -1,15 +1,11 @@
-import React, { Suspense } from "react";
-
+import React from "react";
 import CircuitSVG from "../Common/CircuitSVG";
-
-const CircuitModel = React.lazy(() => import("../Common/CircuitModel"));
 
 const HeroSurface = ({
   circuitName,
   location,
   children,
   className = "",
-  eager3D = true,
   minHeight = "min-h-[280px] sm:min-h-[320px]",
 }) => (
   <section
@@ -20,37 +16,32 @@ const HeroSurface = ({
       border: "1px solid var(--md-outline-variant)",
     }}
   >
-    {/* Circuit model background */}
+    {/* High-performance Vector Track Outline Background */}
     <div
-      className="absolute inset-0 opacity-[0.25] pointer-events-none"
+      className="absolute right-2 -bottom-6 sm:right-6 sm:bottom-0 opacity-[0.22] pointer-events-none flex items-center justify-center transition-all duration-500"
       aria-hidden="true"
     >
-      <Suspense
-        fallback={
-          <div className="flex h-full w-full items-center justify-center">
-            <CircuitSVG circuitName={circuitName} location={location} size={200} />
-          </div>
-        }
-      >
-        <div className="h-full w-full flex items-center justify-center scale-110">
-          <CircuitModel
-            circuitName={circuitName}
-            location={location}
-            width={520}
-            height={320}
-            enabled={Boolean(circuitName)}
-            defer={!eager3D}
-          />
-        </div>
-      </Suspense>
+      <div className="scale-125 sm:scale-150 drop-shadow-[0_0_24px_var(--md-primary)]">
+        <CircuitSVG circuitName={circuitName} location={location} size={280} />
+      </div>
     </div>
 
-    {/* Cyan radial glow overlay */}
+    {/* Cyan / Accent radial glow overlay */}
     <div
       className="absolute inset-0 pointer-events-none"
       style={{
         background:
-          "radial-gradient(ellipse at 80% 50%, rgba(0, 229, 200, 0.06), transparent 60%)",
+          "radial-gradient(ellipse at 85% 45%, color-mix(in srgb, var(--md-primary) 12%, transparent), transparent 65%)",
+      }}
+      aria-hidden="true"
+    />
+
+    {/* Subtle grid pattern for tech aesthetic */}
+    <div
+      className="absolute inset-0 pointer-events-none opacity-[0.03]"
+      style={{
+        backgroundImage: "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
+        backgroundSize: "32px 32px",
       }}
       aria-hidden="true"
     />
@@ -60,7 +51,7 @@ const HeroSurface = ({
       className="absolute inset-0 pointer-events-none"
       style={{
         background:
-          "linear-gradient(to top, var(--md-surface-container-high) 10%, rgba(0,0,0,0) 60%)",
+          "linear-gradient(to top, var(--md-surface-container-high) 15%, transparent 65%)",
       }}
       aria-hidden="true"
     />

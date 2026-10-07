@@ -11,6 +11,8 @@ import ChampionshipStrip from "./ui/ChampionshipStrip";
 import DriverCard from "./ui/DriverCard";
 import Button from "./ui/Button";
 import WeekendSummary from "./Common/WeekendSummary";
+import MyTeamHeroCard from "./ui/MyTeamHeroCard";
+import LiveSessionBanner from "./ui/LiveSessionBanner";
 import { useDriverRegistry } from "../common/drivers/useDriverRegistry";
 import { usePositions } from "./Drivers/usePositions";
 import { useRevealOnScroll } from "../hooks/useRevealOnScroll";
@@ -371,6 +373,8 @@ const HomeDashboardContent = ({
   return (
     <div className="app-shell py-4 lg:py-6" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       <DataStatusBanner meta={eventsBannerMeta} />
+      <MyTeamHeroCard />
+      <LiveSessionBanner currentMeetingKey={targetEvent?.meeting_key} />
       {hasUpcomingEvent && <HomeCountdownHero eventsData={eventsData} />}
       <HomeScheduleSection eventsData={eventsData} />
 

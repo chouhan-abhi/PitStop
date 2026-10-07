@@ -24,6 +24,8 @@ import {
   Clock,
   ChevronRight,
   Radio,
+  Newspaper,
+  Sliders,
 } from "lucide-react";
 
 import "./App.css";
@@ -40,6 +42,8 @@ const EventDetails = lazy(() =>
 const ArchivesPage = lazy(() => import("./components/ArchivesPage"));
 const DriversPage = lazy(() => import("./components/Drivers/DriversPage"));
 const ScoreCardPage = lazy(() => import("./components/ScoreCard/ScoreCardPage"));
+const FeedPage = lazy(() => import("./components/Feed/FeedPage"));
+const ProfilePage = lazy(() => import("./components/Profile/ProfilePage"));
 
 const prefsBucket = getBucket("app", "prefs", "prefs");
 const THEME_ORDER = ["system", "dark", "light", "saint"];
@@ -54,10 +58,10 @@ const getSystemTheme = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
 const APP_ROUTES = [
-  { to: "/", label: "Overview", icon: Home, end: true },
-  { to: "/archives", label: "Archives", icon: Archive, end: false },
-  { to: "/drivers", label: "Drivers", icon: Users, end: false },
+  { to: "/", label: "Home", icon: Home, end: true },
   { to: "/score-card", label: "Standings", icon: Trophy, end: false },
+  { to: "/feed", label: "Feed", icon: Newspaper, end: false },
+  { to: "/profile", label: "Profile", icon: Sliders, end: false },
 ];
 
 const ROUTE_META = {
@@ -97,7 +101,9 @@ const RouteStorageSync = () => {
   useEffect(() => {
     if (pathname.startsWith("/drivers")) setActiveSubApp("drivers");
     else if (pathname.startsWith("/archives")) setActiveSubApp("archives");
-    else if (pathname.startsWith("/score-card")) setActiveSubApp("score-card");
+    else if (pathname.startsWith("/score-card") || pathname.startsWith("/standings")) setActiveSubApp("score-card");
+    else if (pathname.startsWith("/feed")) setActiveSubApp("feed");
+    else if (pathname.startsWith("/profile")) setActiveSubApp("profile");
     else if (pathname.startsWith("/event")) setActiveSubApp("event-details");
     else if (pathname.startsWith("/")) setActiveSubApp("dashboard");
   }, [pathname]);
@@ -229,6 +235,37 @@ const Sidebar = ({ seasonYear, setSeasonYear, themeMode, cycleTheme, isRefreshin
             />
           </NavLink>
         ))}
+
+        <div
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.55rem",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--md-on-surface-variant)",
+            padding: "0 0.375rem",
+            marginTop: "1rem",
+            marginBottom: "0.375rem",
+          }}
+        >
+          EXPLORE
+        </div>
+        <NavLink
+          to="/drivers"
+          className={({ isActive }) => `sidebar-nav-item ${isActive ? "active" : ""}`}
+        >
+          <Users size={15} strokeWidth={1.75} />
+          <span style={{ flex: 1 }}>Drivers</span>
+          <ChevronRight size={11} style={{ opacity: 0.3, flexShrink: 0 }} />
+        </NavLink>
+        <NavLink
+          to="/archives"
+          className={({ isActive }) => `sidebar-nav-item ${isActive ? "active" : ""}`}
+        >
+          <Archive size={15} strokeWidth={1.75} />
+          <span style={{ flex: 1 }}>Archives</span>
+          <ChevronRight size={11} style={{ opacity: 0.3, flexShrink: 0 }} />
+        </NavLink>
       </nav>
 
       {/* ── Controls ── */}
@@ -473,6 +510,21 @@ const AppLayout = () => {
                 <Route path="/archives" element={<ArchivesPage year={seasonYear} />} />
                 <Route path="/drivers" element={<DriversPage year={seasonYear} />} />
                 <Route path="/score-card" element={<ScoreCardPage year={seasonYear} />} />
+                <Route path="/standings" element={<ScoreCardPage year={seasonYear} />} />
+                <Route path="/feed" element={<FeedPage />} />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProfilePage
+                      seasonYear={seasonYear}
+                      setSeasonYear={setSeasonYear}
+                      themeMode={themeMode}
+                      setThemeMode={setThemeMode}
+                      isRefreshing={isRefreshing}
+                      handleRefresh={handleRefresh}
+                    />
+                  }
+                />
                 <Route path="/event/:meetingKey" element={<EventDetails year={seasonYear} />} />
               </Routes>
             </Suspense>

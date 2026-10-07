@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { Loader2, SlidersHorizontal, Trophy, Award, TrendingUp } from "lucide-react";
+import { Loader2, SlidersHorizontal, Trophy, Award, TrendingUp, Eye, EyeOff } from "lucide-react";
 
 import ProgressionChart from "./ProgressionChart";
 import { useDriverStandings } from "./useDriverStandings";
 import { useConstructorStandings } from "./useConstructorStandings";
 import { useRaceResults } from "./useRaceResults";
 import { useDriverRegistry } from "../../common/drivers/useDriverRegistry";
+import { usePersonalization } from "../../common/storage/personalizationStore";
 import PageShell from "../ui/PageShell";
 import Surface from "../ui/Surface";
 import DataTable from "../ui/DataTable";
@@ -68,6 +69,9 @@ const ScoreCardPage = ({ year }) => {
   const [h2hDriver2, setH2hDriver2] = useState(null);
   const [simAdded1, setSimAdded1] = useState(25); // Default P1 simulated
   const [simAdded2, setSimAdded2] = useState(18); // Default P2 simulated
+
+  const { favoriteTeamObj, favoriteDrivers, spoilerMode } = usePersonalization();
+  const [spoilerRevealed, setSpoilerRevealed] = useState(false);
 
   const driversById = useMemo(() => {
     const map = new Map();
@@ -209,13 +213,29 @@ const ScoreCardPage = ({ year }) => {
     {
       key: "driver",
       label: "Driver",
-      render: (row) => (
-        <div className="flex items-center gap-2.5 min-w-0">
-          <DriverAvatar driver={row.enriched || { full_name: row.driver }} size="sm" variant="circle" />
-          <span className="font-display font-semibold text-white truncate">{row.driver}</span>
-          <CountryFlag countryCode={row.enriched?.country_code} size="sm" />
-        </div>
-      ),
+      render: (row) => {
+        const isFav =
+          favoriteDrivers.includes(row.enriched?.driver_number) ||
+          favoriteTeamObj?.drivers.some((d) => d.name === row.driver);
+        return (
+          <div className="flex items-center gap-2.5 min-w-0">
+            <DriverAvatar driver={row.enriched || { full_name: row.driver }} size="sm" variant="circle" />
+            <span
+              className={`font-display font-semibold truncate ${
+                isFav ? "text-[var(--md-primary)] font-bold" : "text-white"
+              }`}
+            >
+              {row.driver}
+            </span>
+            {isFav && (
+              <span className="text-[10px] text-amber-400 font-mono font-bold" title="Favorite Driver">
+                ★
+              </span>
+            )}
+            <CountryFlag countryCode={row.enriched?.country_code} size="sm" />
+          </div>
+        );
+      },
     },
     {
       key: "constructor",
@@ -271,12 +291,31 @@ const ScoreCardPage = ({ year }) => {
     {
       key: "constructor",
       label: "Constructor",
-      render: (row) => (
-        <div className="flex items-center gap-2.5">
-          <span className="w-2 h-2" style={{ backgroundColor: getTeamColorBorder(row.team_colour), borderRadius: "1px" }} />
-          <span className="font-display font-bold text-white">{row.constructor}</span>
-        </div>
-      ),
+      render: (row) => {
+        const isFav =
+          favoriteTeamObj &&
+          (row.constructor || "").toLowerCase().includes(favoriteTeamObj.shortName.toLowerCase());
+        return (
+          <div className="flex items-center gap-2.5">
+            <span
+              className="w-2 h-2"
+              style={{ backgroundColor: getTeamColorBorder(row.team_colour), borderRadius: "1px" }}
+            />
+            <span
+              className={`font-display font-bold ${
+                isFav ? "text-[var(--md-primary)] font-black" : "text-white"
+              }`}
+            >
+              {row.constructor}
+            </span>
+            {isFav && (
+              <span className="text-[9px] font-mono font-bold text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
+                ★ MY TEAM
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "points",
@@ -517,20 +556,41 @@ const ScoreCardPage = ({ year }) => {
             </Surface>
           )}
 
-          {/* Standings Table */}
-          <DataTable
-            columns={activeTab === "drivers" ? driverColumns : constructorColumns}
-            rows={activeTab === "drivers" ? driverRows : constructorRows}
-            getRowKey={(row) => row.id}
-          />
+          {/* Spoiler Protection Overlay */}
+          {spoilerMode && !spoilerRevealed ? (
+            <Surface tier="container-high" className="p-8 text-center space-y-3 my-2">
+              <EyeOff size={24} className="mx-auto text-[var(--md-primary)] opacity-80" />
+              <h3 className="font-mono text-xs font-bold text-white uppercase tracking-wider">
+                Spoiler Protection Active
+              </h3>
+              <p className="font-mono text-[11px] text-[var(--md-on-surface-variant)] max-w-md mx-auto">
+                Championship standings and point rankings are hidden to protect race results.
+              </p>
+              <button
+                onClick={() => setSpoilerRevealed(true)}
+                className="mt-2 px-5 py-2.5 rounded-[var(--shape-sm)] bg-[var(--md-primary)] text-black font-mono font-bold text-xs uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer"
+              >
+                Reveal Standings
+              </button>
+            </Surface>
+          ) : (
+            <>
+              {/* Standings Table */}
+              <DataTable
+                columns={activeTab === "drivers" ? driverColumns : constructorColumns}
+                rows={activeTab === "drivers" ? driverRows : constructorRows}
+                getRowKey={(row) => row.id}
+              />
 
-          {/* Season Progression Chart */}
-          <ProgressionChart
-            title={activeTab === "drivers" ? "Drivers Championship Progression" : "Constructors Championship Progression"}
-            rounds={rounds}
-            series={activeTab === "drivers" ? driverSeries : teamSeries}
-            collapsible
-          />
+              {/* Season Progression Chart */}
+              <ProgressionChart
+                title={activeTab === "drivers" ? "Drivers Championship Progression" : "Constructors Championship Progression"}
+                rounds={rounds}
+                series={activeTab === "drivers" ? driverSeries : teamSeries}
+                collapsible
+              />
+            </>
+          )}
         </div>
       )}
     </PageShell>

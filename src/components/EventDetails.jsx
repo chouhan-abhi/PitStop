@@ -14,15 +14,17 @@ import DataStatusBanner from "./ui/DataStatusBanner";
 import Button from "./ui/Button";
 import Tabs from "./ui/Tabs";
 import LoadingState from "./ui/LoadingState";
+import { SkeletonTable } from "./ui/Skeleton";
 
 import EventWeekendHeader from "./event/EventWeekendHeader";
 import WeekendSummary from "./Common/WeekendSummary";
-import EventResultsTab from "./event/EventResultsTab";
-import EventPaceTab from "./event/EventPaceTab";
-import EventStintsTab from "./event/EventStintsTab";
-import EventCompareTab from "./event/EventCompareTab";
-import EventPitStrategyTab from "./event/EventPitStrategyTab";
-import EventRadioTab from "./event/EventRadioTab";
+
+const EventResultsTab = React.lazy(() => import("./event/EventResultsTab"));
+const EventPaceTab = React.lazy(() => import("./event/EventPaceTab"));
+const EventStintsTab = React.lazy(() => import("./event/EventStintsTab"));
+const EventCompareTab = React.lazy(() => import("./event/EventCompareTab"));
+const EventPitStrategyTab = React.lazy(() => import("./event/EventPitStrategyTab"));
+const EventRadioTab = React.lazy(() => import("./event/EventRadioTab"));
 const EventTelemetryTab = React.lazy(() => import("./event/EventTelemetryTab"));
 
 const EVENT_TABS = [
@@ -198,44 +200,44 @@ export const EventDetails = ({ year }) => {
 
       <Tabs tabs={EVENT_TABS} activeKey={activeTab} onChange={setActiveTab} />
 
-      {activeTab === "results" && (
-        <EventResultsTab sortedSessions={sortedSessions} driversByNumber={driversByNumber} />
-      )}
-      {activeTab === "pace" && (
-        <EventPaceTab sessionKey={latestSessionKey} meetingKey={meetingKey} year={year} />
-      )}
-      {activeTab === "stints" && (
-        <EventStintsTab
-          stintsByDriver={stintsByDriver}
-          driversWithPositions={driversWithPositions}
-          stintsLoading={stintsLoading}
-        />
-      )}
-      {activeTab === "compare" && (
-        <EventCompareTab sessionKey={latestSessionKey} meetingKey={meetingKey} year={year} />
-      )}
-      {activeTab === "pit-strategy" && (
-        <EventPitStrategyTab
-          sessionKey={latestSessionKey}
-          allDrivers={driversWithPositions}
-          stintsByDriver={stintsByDriver}
-        />
-      )}
-      {activeTab === "team-radio" && (
-        <EventRadioTab
-          meetingKey={meetingKey}
-          allDrivers={driversWithPositions}
-        />
-      )}
-      {activeTab === "telemetry" && (
-        <React.Suspense fallback={<LoadingState message="Loading telemetry view…" />}>
+      <React.Suspense fallback={<SkeletonTable rows={8} />}>
+        {activeTab === "results" && (
+          <EventResultsTab sortedSessions={sortedSessions} driversByNumber={driversByNumber} />
+        )}
+        {activeTab === "pace" && (
+          <EventPaceTab sessionKey={latestSessionKey} meetingKey={meetingKey} year={year} />
+        )}
+        {activeTab === "stints" && (
+          <EventStintsTab
+            stintsByDriver={stintsByDriver}
+            driversWithPositions={driversWithPositions}
+            stintsLoading={stintsLoading}
+          />
+        )}
+        {activeTab === "compare" && (
+          <EventCompareTab sessionKey={latestSessionKey} meetingKey={meetingKey} year={year} />
+        )}
+        {activeTab === "pit-strategy" && (
+          <EventPitStrategyTab
+            sessionKey={latestSessionKey}
+            allDrivers={driversWithPositions}
+            stintsByDriver={stintsByDriver}
+          />
+        )}
+        {activeTab === "team-radio" && (
+          <EventRadioTab
+            meetingKey={meetingKey}
+            allDrivers={driversWithPositions}
+          />
+        )}
+        {activeTab === "telemetry" && (
           <EventTelemetryTab
             sessionKey={latestSessionKey}
             allDrivers={driversWithPositions}
             year={year}
           />
-        </React.Suspense>
-      )}
+        )}
+      </React.Suspense>
     </div>
   );
 };

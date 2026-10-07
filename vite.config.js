@@ -7,19 +7,20 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  assetsInclude: ['**/*.stl'],
   build: {
+    target: 'esnext',
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          charts: ['chart.js', 'react-chartjs-2'],
-          threejs: ['three'],
-          query: [
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-charts': ['chart.js', 'react-chartjs-2'],
+          'vendor-query': [
             '@tanstack/react-query',
             '@tanstack/react-query-persist-client',
             '@tanstack/query-sync-storage-persister',
           ],
+          'vendor-icons': ['lucide-react'],
         },
       },
     },
